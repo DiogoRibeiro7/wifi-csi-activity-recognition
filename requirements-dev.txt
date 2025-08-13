@@ -1,0 +1,46 @@
+# Include base requirements
+-r requirements.txt
+
+# Testing
+pytest>=6.0.0
+pytest-cov>=2.10.0
+pytest-mock>=3.3.0
+pytest-xdist>=2.2.0  # Parallel test execution
+pytest-benchmark>=3.4.0  # Performance benchmarking
+
+# Code quality
+black>=21.0.0
+flake8>=3.8.0
+isort>=5.0.0
+mypy>=0.812
+pre-commit>=2.10.0
+
+# Documentation
+sphinx>=4.0.0
+sphinx-rtd-theme>=0.5.0
+nbsphinx>=0.8.0
+myst-parser>=0.15.0
+sphinx-autodoc-typehints>=1.12.0
+
+# Jupyter for examples
+jupyter>=1.0.0
+ipykernel>=6.0.0
+ipywidgets>=7.6.0
+
+# Development utilities
+bump2version>=1.0.0  # Version bumping
+twine>=3.4.0  # Package uploading
+wheel>=0.36.0  # Package building
+
+# Profiling and debugging
+line_profiler>=3.3.0
+memory_profiler>=0.58.0
+pdb++>=0.10.0
+
+# Additional ML tools for development
+tensorboard>=2.5.0  # Experiment tracking
+wandb>=0.12.0  # Experiment management (optional)
+
+# Code analysis
+bandit>=1.7.0  # Security analysis
+safety>=1.10.0  # Dependency vulnerability scanning
