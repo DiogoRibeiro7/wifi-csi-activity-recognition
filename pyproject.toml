@@ -1,0 +1,190 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wifi-activity-recognition"
+version = "0.1.0"
+description = "A comprehensive Python package for human activity recognition using WiFi CSI and computer vision"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Your Name", email = "your.email@domain.com"}
+]
+maintainers = [
+    {name = "Your Name", email = "your.email@domain.com"}
+]
+keywords = [
+    "wifi", "csi", "activity-recognition", "computer-vision", 
+    "machine-learning", "iot", "sensing", "human-activity"
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9", 
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Image Recognition",
+    "Topic :: System :: Hardware :: Hardware Drivers",
+    "Topic :: Communications"
+]
+requires-python = ">=3.8"
+dependencies = [
+    "numpy>=1.19.0",
+    "scipy>=1.5.0",
+    "pandas>=1.1.0",
+    "scikit-learn>=0.24.0",
+    "opencv-python>=4.0.0",
+    "matplotlib>=3.3.0",
+    "seaborn>=0.11.0",
+    "tqdm>=4.50.0",
+    "pyyaml>=5.4.0",
+    "h5py>=3.0.0",
+    "requests>=2.25.0",
+    "click>=8.0.0",
+]
+
+[project.optional-dependencies]
+torch = [
+    "torch>=1.8.0",
+    "torchvision>=0.9.0",
+    "torchaudio>=0.8.0",
+]
+tensorflow = [
+    "tensorflow>=2.4.0",
+]
+dev = [
+    "pytest>=6.0.0",
+    "pytest-cov>=2.10.0",
+    "pytest-mock>=3.3.0",
+    "black>=21.0.0",
+    "flake8>=3.8.0",
+    "isort>=5.0.0",
+    "mypy>=0.812",
+    "pre-commit>=2.10.0",
+    "sphinx>=4.0.0",
+    "sphinx-rtd-theme>=0.5.0",
+    "nbsphinx>=0.8.0",
+    "jupyter>=1.0.0",
+]
+docs = [
+    "sphinx>=4.0.0",
+    "sphinx-rtd-theme>=0.5.0",
+    "nbsphinx>=0.8.0",
+    "myst-parser>=0.15.0",
+]
+all = [
+    "wifi-activity-recognition[torch,dev,docs]"
+]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/wifi-activity-recognition"
+Documentation = "https://wifi-activity-recognition.readthedocs.io/"
+Repository = "https://github.com/yourusername/wifi-activity-recognition.git"
+"Bug Tracker" = "https://github.com/yourusername/wifi-activity-recognition/issues"
+Changelog = "https://github.com/yourusername/wifi-activity-recognition/blob/main/CHANGELOG.md"
+
+[project.scripts]
+wifi-har-train = "wifi_activity_recognition.cli:train"
+wifi-har-predict = "wifi_activity_recognition.cli:predict"
+wifi-har-stream = "wifi_activity_recognition.cli:stream"
+
+[tool.setuptools]
+packages = ["wifi_activity_recognition"]
+
+[tool.setuptools.package-data]
+wifi_activity_recognition = [
+    "configs/*.yaml",
+    "models/pretrained/*.pth",
+    "data/sample/*.csv",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 88
+known_first_party = ["wifi_activity_recognition"]
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = [
+    "numpy.*",
+    "scipy.*",
+    "sklearn.*",
+    "cv2.*",
+    "matplotlib.*",
+    "seaborn.*",
+    "h5py.*",
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q --strict-markers --strict-config"
+testpaths = ["tests"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "hardware: marks tests that require specific hardware",
+]
+
+[tool.coverage.run]
+source = ["wifi_activity_recognition"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "setup.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
