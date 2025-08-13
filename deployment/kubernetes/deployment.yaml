@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wifi-activity-recognition
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wifi-activity-recognition
+  template:
+    metadata:
+      labels:
+        app: wifi-activity-recognition
+    spec:
+      containers:
+        - name: app
+          image: wifi-activity-recognition:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: APP_ENV
+              value: production
