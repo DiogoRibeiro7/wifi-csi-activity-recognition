@@ -1,5 +1,4 @@
-"""
-WiFi Activity Recognition Package
+"""WiFi Activity Recognition Package.
 
 A comprehensive Python package for human activity recognition using WiFi Channel State
 Information (CSI) and computer vision techniques.
@@ -31,22 +30,18 @@ For more examples and detailed documentation, visit:
 https://wifi-activity-recognition.readthedocs.io/
 """
 
-from .version import __version__
+# Models and utilities
+from . import features, models, preprocessing, research, utils
+from .datasets import Dataset, load_public_dataset
 
 # Core components
 from .hardware import CSIReader, list_supported_hardware
 from .inference import ActivityRecognizer, StreamingPredictor
-from .datasets import Dataset, load_public_dataset
 from .training import Trainer
 
-# Models and utilities
-from . import models
-from . import preprocessing
-from . import features
-from . import utils
-
 # Configuration
-from .utils.config import load_config, get_default_config
+from .utils.config import get_default_config, load_config
+from .version import __version__
 
 __all__ = [
     # Version
@@ -67,6 +62,7 @@ __all__ = [
     "preprocessing",
     "features",
     "utils",
+    "research",
 ]
 
 # Package metadata
