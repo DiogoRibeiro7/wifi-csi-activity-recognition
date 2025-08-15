@@ -10,12 +10,14 @@ from .cnn2d import CNN2DModel
 from .cnn3d import CNN3DModel
 from .ensemble import EnsembleModel
 from .resnet import ResNetSpectrogramModel
+from .transformer import TransformerModel
 
 _MODEL_REGISTRY: Dict[str, Callable[..., nn.Module]] = {
     "cnn2d": CNN2DModel,
     "resnet": ResNetSpectrogramModel,
     "cnn3d": CNN3DModel,
     "ensemble": EnsembleModel,
+    "transformer": TransformerModel,
 }
 
 

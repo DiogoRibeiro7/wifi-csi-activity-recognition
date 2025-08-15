@@ -16,12 +16,13 @@ from wifi_activity_recognition.models import (  # type: ignore  # noqa: E402
     CNN3DModel,
     EnsembleModel,
     ResNetSpectrogramModel,
+    TransformerModel,
     create_model,
 )
 
 
 def test_factory_creates_models() -> None:
-    """Factory constructs registered models."""
+    """Factory constructs registered models and runs forward passes."""
     assert isinstance(create_model("cnn2d", num_classes=2), CNN2DModel)
     assert isinstance(
         create_model("resnet", num_classes=2, pretrained=False),
@@ -34,3 +35,8 @@ def test_factory_creates_models() -> None:
     x3d = torch.randn(1, 1, 8, 30, 50)
     out = model(x2d, x3d)
     assert out.shape == (1, 2)
+    transformer = create_model("transformer", input_dim=64, num_classes=2)
+    assert isinstance(transformer, TransformerModel)
+    x = torch.randn(1, 10, 64)
+    out_t = transformer(x)
+    assert out_t.shape == (1, 2)
