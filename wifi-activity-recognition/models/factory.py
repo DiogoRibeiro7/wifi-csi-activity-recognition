@@ -28,7 +28,7 @@ def create_model(name: str, *args, **kwargs) -> nn.Module:
     ----------
     name:
         Identifier of the model. Supported values are ``'cnn2d'``, ``'resnet'``,
-        ``'cnn3d'`` and ``'ensemble'``.
+        ``'cnn3d'``, ``'ensemble'`` and ``'transformer'``.
     *args, **kwargs:
         Passed to the model constructor.
     """
