@@ -11,6 +11,7 @@ package.__path__ = [str(PACKAGE_ROOT)]
 sys.modules["wifi_activity_recognition"] = package
 
 from wifi_activity_recognition.utils.config import (  # type: ignore  # noqa: E402
+    get_default_config,
     load_config,
     validate_config,
 )
@@ -31,3 +32,8 @@ def test_load_and_validate_config(tmp_path):
     incomplete = {"db": {"host": "localhost"}}
     with pytest.raises(ValueError):
         validate_config(incomplete, schema_path)
+
+
+def test_get_default_config():
+    cfg = get_default_config()
+    assert "hardware" in cfg and "model" in cfg

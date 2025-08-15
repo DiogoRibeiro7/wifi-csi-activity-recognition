@@ -7,6 +7,17 @@ from typing import Any, Mapping
 
 import yaml
 
+DEFAULT_CONFIG: dict[str, Any] = {
+    "hardware": {"type": "esp32"},
+    "model": {"type": "cnn2d"},
+    "training": {"batch_size": 32, "learning_rate": 1e-3},
+}
+
+
+def get_default_config() -> dict[str, Any]:
+    """Return a copy of the package's default configuration."""
+    return DEFAULT_CONFIG.copy()
+
 
 def load_config(path: str | Path) -> dict[str, Any]:
     """Load a YAML configuration file.

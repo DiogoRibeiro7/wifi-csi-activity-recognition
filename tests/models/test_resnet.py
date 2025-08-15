@@ -29,13 +29,14 @@ def test_resnet_forward_shapes(subcarriers: int) -> None:
 
 def test_resnet_training_step_decreases_loss() -> None:
     """Test that training step reduces loss for ResNet."""
+    torch.manual_seed(0)
     model = ResNetSpectrogramModel(num_classes=3, pretrained=False)
     optimizer = torch.optim.SGD(model.parameters(), lr=0.1)
     criterion = nn.CrossEntropyLoss()
     x = torch.randn(10, 1, 30, 50)
     y = torch.randint(0, 3, (10,))
     loss1 = criterion(model(x), y)
-    for _ in range(5):
+    for _ in range(10):
         optimizer.zero_grad()
         loss = criterion(model(x), y)
         loss.backward()

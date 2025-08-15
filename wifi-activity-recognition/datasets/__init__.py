@@ -1,8 +1,8 @@
 """Dataset utilities and public dataset loaders."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Callable, Dict, Tuple
+from typing import Callable, Dict, List, Tuple
 
 import numpy as np
 
@@ -14,11 +14,42 @@ from .transforms import add_noise, time_shift
 
 @dataclass
 class Dataset:
-    """Container for training, validation, and test splits."""
+    """Container for training, validation, and test splits.
+
+    The class computes metadata such as available classes and input shape on
+    initialization to streamline integration with the training pipeline and CLI
+    utilities.
+    """
 
     train: Tuple[np.ndarray, np.ndarray]
     val: Tuple[np.ndarray, np.ndarray]
     test: Tuple[np.ndarray, np.ndarray]
+    classes: List[int] = field(init=False)
+    input_shape: Tuple[int, ...] = field(init=False)
+
+    def __post_init__(self) -> None:
+        """Compute class labels and input shape."""
+        train_labels = self.train[1]
+        self.classes = sorted(set(int(l) for l in train_labels.tolist()))
+        self.input_shape = tuple(self.train[0][0].shape)
+
+    def __len__(self) -> int:  # pragma: no cover - trivial
+        """Return the number of training samples."""
+        return len(self.train[0])
+
+    @classmethod
+    def from_files(
+        cls,
+        data_path: Path | str,
+        labels_path: Path | str,
+        hardware_type: str | None = None,
+        **split_kwargs: float,
+    ) -> "Dataset":
+        """Load arrays from disk and create a :class:`Dataset` instance."""
+        data = np.load(data_path)
+        labels = np.load(labels_path)
+        train, val, test = split_dataset(data, labels, **split_kwargs)
+        return cls(train=train, val=val, test=test)
 
 
 _PUBLIC_DATASETS: Dict[

@@ -1,237 +1,293 @@
-"""
-Command-line interface for WiFi Activity Recognition package.
+"""Command-line interface for WiFi activity recognition.
 
 This module provides CLI commands for common tasks like training models,
 running inference, and streaming real-time data.
 """
 
-import click
-import sys
 import os
+import sys
 from pathlib import Path
 from typing import Optional
 
-from .version import __version__
-from .utils.logging import setup_logging
+import click
+
 from .utils.config import load_config
+from .utils.logging import setup_logging
+from .version import __version__
 
 
 @click.group()
 @click.version_option(version=__version__, prog_name="wifi-activity-recognition")
-@click.option('--verbose', '-v', is_flag=True, help='Enable verbose output')
-@click.option('--config', '-c', type=click.Path(exists=True), 
-              help='Path to configuration file')
+@click.option("--verbose", "-v", is_flag=True, help="Enable verbose output")
+@click.option(
+    "--config", "-c", type=click.Path(exists=True), help="Path to configuration file"
+)
 @click.pass_context
 def cli(ctx, verbose: bool, config: Optional[str]):
-    """WiFi Activity Recognition - CLI for CSI-based activity recognition."""
+    """Command group for CSI-based activity recognition."""
     # Ensure context object exists
     ctx.ensure_object(dict)
-    
+
     # Setup logging
-    log_level = 'DEBUG' if verbose else 'INFO'
+    log_level = "DEBUG" if verbose else "INFO"
     setup_logging(level=log_level)
-    
+
     # Load configuration
     if config:
-        ctx.obj['config'] = load_config(config)
+        ctx.obj["config"] = load_config(config)
     else:
-        ctx.obj['config'] = {}
-    
-    ctx.obj['verbose'] = verbose
+        ctx.obj["config"] = {}
+
+    ctx.obj["verbose"] = verbose
 
 
 @cli.command()
-@click.option('--hardware', '-h', required=True,
-              type=click.Choice(['intel_5300', 'esp32', 'atheros']),
-              help='Hardware platform to use')
-@click.option('--config-file', '-c', type=click.Path(exists=True),
-              help='Hardware configuration file')
-@click.option('--duration', '-d', default=10, type=int,
-              help='Duration to stream in seconds')
-@click.option('--output', '-o', type=click.Path(),
-              help='Output file to save CSI data')
+@click.option(
+    "--hardware",
+    "-h",
+    required=True,
+    type=click.Choice(["intel_5300", "esp32", "atheros"]),
+    help="Hardware platform to use",
+)
+@click.option(
+    "--config-file",
+    "-c",
+    type=click.Path(exists=True),
+    help="Hardware configuration file",
+)
+@click.option(
+    "--duration", "-d", default=10, type=int, help="Duration to stream in seconds"
+)
+@click.option("--output", "-o", type=click.Path(), help="Output file to save CSI data")
 @click.pass_context
-def stream(ctx, hardware: str, config_file: Optional[str], 
-           duration: int, output: Optional[str]):
+def stream(
+    ctx, hardware: str, config_file: Optional[str], duration: int, output: Optional[str]
+):
     """Stream real-time CSI data from hardware."""
     try:
+        import time
+
         from .hardware import CSIReader
         from .utils.io import save_csi_data
-        import time
-        
+
         # Load hardware config
         if config_file:
             hw_config = load_config(config_file)
         else:
             hw_config = {}
-        
+
         click.echo(f"Starting CSI stream from {hardware}...")
-        
+
         # Create reader
         reader = CSIReader(hardware, hw_config)
         csi_data_list = []
-        
+
         with reader:
             start_time = time.time()
             packet_count = 0
-            
+
             click.echo("Streaming CSI data (press Ctrl+C to stop)...")
-            
+
             try:
                 for csi_data in reader.stream():
                     packet_count += 1
                     csi_data_list.append(csi_data)
-                    
-                    if ctx.obj['verbose']:
+
+                    if ctx.obj["verbose"]:
                         click.echo(f"Packet {packet_count}: {csi_data.shape}")
-                    
+
                     # Check duration
                     if time.time() - start_time >= duration:
                         break
-                        
+
             except KeyboardInterrupt:
                 click.echo("\nStopping stream...")
-            
+
             # Save data if requested
             if output and csi_data_list:
                 save_csi_data(csi_data_list, output)
                 click.echo(f"Saved {len(csi_data_list)} packets to {output}")
-            
+
             click.echo(f"Stream completed. Total packets: {packet_count}")
-            
+
     except Exception as e:
         click.echo(f"Error: {e}", err=True)
         sys.exit(1)
 
 
 @cli.command()
-@click.option('--data', '-d', required=True, type=click.Path(exists=True),
-              help='Path to training data directory')
-@click.option('--labels', '-l', required=True, type=click.Path(exists=True),
-              help='Path to labels file')
-@click.option('--model', '-m', default='cnn2d',
-              type=click.Choice(['cnn2d', 'cnn3d', 'resnet', 'transformer']),
-              help='Model architecture to use')
-@click.option('--epochs', '-e', default=100, type=int,
-              help='Number of training epochs')
-@click.option('--batch-size', '-b', default=32, type=int,
-              help='Batch size for training')
-@click.option('--output', '-o', required=True, type=click.Path(),
-              help='Output path for trained model')
-@click.option('--hardware', '-h', required=True,
-              type=click.Choice(['intel_5300', 'esp32', 'atheros']),
-              help='Hardware platform used for data collection')
+@click.option(
+    "--data",
+    "-d",
+    required=True,
+    type=click.Path(exists=True),
+    help="Path to training data directory",
+)
+@click.option(
+    "--labels",
+    "-l",
+    required=True,
+    type=click.Path(exists=True),
+    help="Path to labels file",
+)
+@click.option(
+    "--model",
+    "-m",
+    default="cnn2d",
+    type=click.Choice(["cnn2d", "cnn3d", "resnet", "transformer"]),
+    help="Model architecture to use",
+)
+@click.option("--epochs", "-e", default=100, type=int, help="Number of training epochs")
+@click.option(
+    "--batch-size", "-b", default=32, type=int, help="Batch size for training"
+)
+@click.option(
+    "--output",
+    "-o",
+    required=True,
+    type=click.Path(),
+    help="Output path for trained model",
+)
+@click.option(
+    "--hardware",
+    "-h",
+    required=True,
+    type=click.Choice(["intel_5300", "esp32", "atheros"]),
+    help="Hardware platform used for data collection",
+)
 @click.pass_context
-def train(ctx, data: str, labels: str, model: str, epochs: int, 
-          batch_size: int, output: str, hardware: str):
+def train(
+    ctx,
+    data: str,
+    labels: str,
+    model: str,
+    epochs: int,
+    batch_size: int,
+    output: str,
+    hardware: str,
+):
     """Train an activity recognition model."""
     try:
         from .datasets import Dataset
         from .models import create_model
         from .training import Trainer
-        
+
         click.echo(f"Loading dataset from {data}...")
-        
+
         # Load dataset
         dataset = Dataset.from_files(
-            data_path=data,
-            labels_path=labels,
-            hardware_type=hardware
+            data_path=data, labels_path=labels, hardware_type=hardware
         )
-        
-        click.echo(f"Dataset loaded: {len(dataset)} samples, {len(dataset.classes)} classes")
+
+        click.echo(
+            f"Dataset loaded: {len(dataset)} samples, {len(dataset.classes)} classes"
+        )
         click.echo(f"Classes: {dataset.classes}")
-        
+
         # Create model
         click.echo(f"Creating {model} model...")
+        in_channels = dataset.input_shape[0] if dataset.input_shape else 1
         model_instance = create_model(
-            model_type=model,
+            model,
             num_classes=len(dataset.classes),
-            input_shape=dataset.input_shape
+            in_channels=in_channels,
         )
-        
+
         # Setup training
-        trainer = Trainer(
-            model=model_instance,
-            dataset=dataset,
-            batch_size=batch_size
-        )
-        
+        trainer = Trainer(model=model_instance, dataset=dataset, batch_size=batch_size)
+
         # Train model
         click.echo(f"Starting training for {epochs} epochs...")
-        
-        with click.progressbar(length=epochs, label='Training') as bar:
+
+        with click.progressbar(length=epochs, label="Training") as bar:
+
             def progress_callback(epoch, metrics):
                 bar.update(1)
-                if ctx.obj['verbose']:
+                if ctx.obj["verbose"]:
                     click.echo(f"\nEpoch {epoch}: {metrics}")
-            
-            trainer.train(
-                epochs=epochs,
-                progress_callback=progress_callback
-            )
-        
+
+            trainer.train(epochs=epochs, progress_callback=progress_callback)
+
         # Save model
         trainer.save_model(output)
         click.echo(f"Model saved to {output}")
-        
+
         # Print final metrics
         metrics = trainer.get_metrics()
         click.echo(f"Final training accuracy: {metrics['train_accuracy']:.3f}")
         click.echo(f"Final validation accuracy: {metrics['val_accuracy']:.3f}")
-        
+
     except Exception as e:
         click.echo(f"Error: {e}", err=True)
         sys.exit(1)
 
 
 @cli.command()
-@click.option('--model', '-m', required=True, type=click.Path(exists=True),
-              help='Path to trained model file')
-@click.option('--input', '-i', required=True, type=click.Path(exists=True),
-              help='Path to CSI data file for prediction')
-@click.option('--hardware', '-h', required=True,
-              type=click.Choice(['intel_5300', 'esp32', 'atheros']),
-              help='Hardware platform used for data collection')
-@click.option('--output', '-o', type=click.Path(),
-              help='Output file for predictions')
-@click.option('--threshold', '-t', default=0.5, type=float,
-              help='Confidence threshold for predictions')
+@click.option(
+    "--model",
+    "-m",
+    required=True,
+    type=click.Path(exists=True),
+    help="Path to trained model file",
+)
+@click.option(
+    "--input",
+    "-i",
+    required=True,
+    type=click.Path(exists=True),
+    help="Path to CSI data file for prediction",
+)
+@click.option(
+    "--hardware",
+    "-h",
+    required=True,
+    type=click.Choice(["intel_5300", "esp32", "atheros"]),
+    help="Hardware platform used for data collection",
+)
+@click.option("--output", "-o", type=click.Path(), help="Output file for predictions")
+@click.option(
+    "--threshold",
+    "-t",
+    default=0.5,
+    type=float,
+    help="Confidence threshold for predictions",
+)
 @click.pass_context
-def predict(ctx, model: str, input: str, hardware: str, 
-            output: Optional[str], threshold: float):
+def predict(
+    ctx, model: str, input: str, hardware: str, output: Optional[str], threshold: float
+):
     """Run activity prediction on CSI data."""
     try:
-        from .models import load_model
-        from .inference import ActivityRecognizer
         from .datasets import Dataset
+        from .inference import ActivityRecognizer
+        from .models import load_model
         from .utils.io import load_csi_data, save_predictions
-        
+
         click.echo(f"Loading model from {model}...")
         model_instance = load_model(model)
-        
+
         click.echo(f"Loading CSI data from {input}...")
         csi_data = load_csi_data(input, hardware_type=hardware)
-        
+
         click.echo(f"Running predictions on {len(csi_data)} samples...")
-        
+
         # Create recognizer
         recognizer = ActivityRecognizer(model_instance)
-        
+
         predictions = []
         confidences = []
-        
-        with click.progressbar(csi_data, label='Predicting') as bar:
+
+        with click.progressbar(csi_data, label="Predicting") as bar:
             for csi_sample in bar:
                 activity, confidence = recognizer.predict(csi_sample)
-                
+
                 if confidence >= threshold:
                     predictions.append(activity)
                     confidences.append(confidence)
                 else:
-                    predictions.append('uncertain')
+                    predictions.append("uncertain")
                     confidences.append(confidence)
-        
+
         # Display results
         click.echo(f"\nPrediction Results:")
         unique_activities = {}
@@ -239,124 +295,160 @@ def predict(ctx, model: str, input: str, hardware: str,
             if pred not in unique_activities:
                 unique_activities[pred] = []
             unique_activities[pred].append(conf)
-        
+
         for activity, confs in unique_activities.items():
             avg_conf = sum(confs) / len(confs)
             count = len(confs)
-            click.echo(f"  {activity}: {count} samples (avg confidence: {avg_conf:.3f})")
-        
+            click.echo(
+                f"  {activity}: {count} samples (avg confidence: {avg_conf:.3f})"
+            )
+
         # Save predictions if requested
         if output:
             save_predictions(predictions, confidences, output)
             click.echo(f"Predictions saved to {output}")
-            
+
     except Exception as e:
         click.echo(f"Error: {e}", err=True)
         sys.exit(1)
 
 
 @cli.command()
-@click.option('--hardware', '-h', required=True,
-              type=click.Choice(['intel_5300', 'esp32', 'atheros']),
-              help='Hardware platform to use')
-@click.option('--model', '-m', required=True, type=click.Path(exists=True),
-              help='Path to trained model file')
-@click.option('--config-file', '-c', type=click.Path(exists=True),
-              help='Hardware configuration file')
-@click.option('--threshold', '-t', default=0.7, type=float,
-              help='Confidence threshold for activity detection')
-@click.option('--window-size', '-w', default=100, type=int,
-              help='Window size for activity detection (packets)')
+@click.option(
+    "--hardware",
+    "-h",
+    required=True,
+    type=click.Choice(["intel_5300", "esp32", "atheros"]),
+    help="Hardware platform to use",
+)
+@click.option(
+    "--model",
+    "-m",
+    required=True,
+    type=click.Path(exists=True),
+    help="Path to trained model file",
+)
+@click.option(
+    "--config-file",
+    "-c",
+    type=click.Path(exists=True),
+    help="Hardware configuration file",
+)
+@click.option(
+    "--threshold",
+    "-t",
+    default=0.7,
+    type=float,
+    help="Confidence threshold for activity detection",
+)
+@click.option(
+    "--window-size",
+    "-w",
+    default=100,
+    type=int,
+    help="Window size for activity detection (packets)",
+)
 @click.pass_context
-def live(ctx, hardware: str, model: str, config_file: Optional[str],
-         threshold: float, window_size: int):
+def live(
+    ctx,
+    hardware: str,
+    model: str,
+    config_file: Optional[str],
+    threshold: float,
+    window_size: int,
+):
     """Run live activity recognition from hardware stream."""
     try:
-        from .hardware import CSIReader
-        from .models import load_model
-        from .inference import StreamingPredictor
         import time
-        
+
+        from .hardware import CSIReader
+        from .inference import StreamingPredictor
+        from .models import load_model
+
         # Load hardware config
         if config_file:
             hw_config = load_config(config_file)
         else:
             hw_config = {}
-        
+
         click.echo(f"Loading model from {model}...")
         model_instance = load_model(model)
-        
+
         click.echo(f"Connecting to {hardware}...")
         reader = CSIReader(hardware, hw_config)
-        
+
         # Create streaming predictor
         predictor = StreamingPredictor(
             model=model_instance,
             window_size=window_size,
-            confidence_threshold=threshold
+            confidence_threshold=threshold,
         )
-        
+
         click.echo("Starting live activity recognition (press Ctrl+C to stop)...")
         click.echo(f"Confidence threshold: {threshold}")
         click.echo(f"Window size: {window_size} packets")
         click.echo("-" * 50)
-        
+
         with reader:
             try:
                 for csi_data in reader.stream():
                     result = predictor.update(csi_data)
-                    
+
                     if result:
                         activity, confidence, timestamp = result
-                        time_str = time.strftime('%H:%M:%S', time.localtime(timestamp))
-                        
+                        time_str = time.strftime("%H:%M:%S", time.localtime(timestamp))
+
                         # Color coding based on confidence
                         if confidence >= 0.9:
-                            color = 'green'
+                            color = "green"
                         elif confidence >= 0.7:
-                            color = 'yellow' 
+                            color = "yellow"
                         else:
-                            color = 'red'
-                        
+                            color = "red"
+
                         click.echo(
                             f"[{time_str}] "
                             + click.style(f"{activity}", fg=color, bold=True)
                             + f" (confidence: {confidence:.3f})"
                         )
-                        
+
             except KeyboardInterrupt:
                 click.echo("\nStopping live recognition...")
-                
+
     except Exception as e:
         click.echo(f"Error: {e}", err=True)
         sys.exit(1)
 
 
 @cli.command()
-@click.option('--hardware', '-h',
-              type=click.Choice(['intel_5300', 'esp32', 'atheros', 'all']),
-              default='all', help='Hardware platform to show info for')
+@click.option(
+    "--hardware",
+    "-h",
+    type=click.Choice(["intel_5300", "esp32", "atheros", "all"]),
+    default="all",
+    help="Hardware platform to show info for",
+)
 def info(hardware: str):
     """Show information about supported hardware and models."""
-    from .hardware import list_supported_hardware, get_hardware_info
+    from .hardware import get_hardware_info, list_supported_hardware
     from .models import list_available_models
-    
+
     click.echo("WiFi Activity Recognition - System Information")
     click.echo("=" * 50)
-    
+
     # Package info
     click.echo(f"Version: {__version__}")
     click.echo()
-    
+
     # Supported hardware
     supported_hw = list_supported_hardware()
     click.echo("Supported Hardware:")
-    
-    if hardware == 'all':
+
+    if hardware == "all":
         for hw in supported_hw:
             info = get_hardware_info(hw)
             click.echo(f"  • {info.get('name', hw)}")
-            if info.get('notes'):
+            if info.get("notes"):
                 click.echo(f"    {info['notes']}")
     else:
         if hardware in supported_hw:
@@ -364,46 +456,55 @@ def info(hardware: str):
             click.echo(f"  Hardware: {info.get('name', hardware)}")
             click.echo(f"  Subcarriers: {info.get('subcarriers', 'Unknown')}")
             click.echo(f"  Max Antennas: {info.get('max_antennas', 'Unknown')}")
-            click.echo(f"  Sampling Rate: {info.get('typical_sampling_rate', 'Unknown')} Hz")
-            click.echo(f"  Bandwidth Options: {info.get('bandwidth_options', 'Unknown')} MHz")
-            if info.get('notes'):
+            click.echo(
+                f"  Sampling Rate: {info.get('typical_sampling_rate', 'Unknown')} Hz"
+            )
+            click.echo(
+                f"  Bandwidth Options: {info.get('bandwidth_options', 'Unknown')} MHz"
+            )
+            if info.get("notes"):
                 click.echo(f"  Notes: {info['notes']}")
         else:
             click.echo(f"  Hardware '{hardware}' not supported")
-    
+
     click.echo()
-    
+
     # Available models
     try:
         models = list_available_models()
         click.echo("Available Pre-trained Models:")
         for model_name, model_info in models.items():
-            click.echo(f"  • {model_name}: {model_info.get('description', 'No description')}")
+            click.echo(
+                f"  • {model_name}: {model_info.get('description', 'No description')}"
+            )
     except:
         click.echo("Available Models: Check documentation")
-    
+
     click.echo()
-    
+
     # System status
     click.echo("System Status:")
-    
+
     # Check dependencies
     try:
         import torch
+
         click.echo(f"  ✓ PyTorch: {torch.__version__}")
     except ImportError:
         try:
             import tensorflow as tf
+
             click.echo(f"  ✓ TensorFlow: {tf.__version__}")
         except ImportError:
             click.echo("  ✗ No ML backend found (install PyTorch or TensorFlow)")
-    
+
     try:
         import cv2
+
         click.echo(f"  ✓ OpenCV: {cv2.__version__}")
     except ImportError:
         click.echo("  ✗ OpenCV not found")
-    
+
     # Check hardware availability
     click.echo()
     click.echo("Hardware Status:")
@@ -418,63 +519,78 @@ def info(hardware: str):
 
 
 @cli.command()
-@click.option('--model', '-m', required=True, type=click.Path(exists=True),
-              help='Path to trained model')
-@click.option('--test-data', '-d', required=True, type=click.Path(exists=True),
-              help='Path to test dataset')
-@click.option('--hardware', '-h', required=True,
-              type=click.Choice(['intel_5300', 'esp32', 'atheros']),
-              help='Hardware platform used for data')
-@click.option('--output', '-o', type=click.Path(),
-              help='Output file for evaluation results')
+@click.option(
+    "--model",
+    "-m",
+    required=True,
+    type=click.Path(exists=True),
+    help="Path to trained model",
+)
+@click.option(
+    "--test-data",
+    "-d",
+    required=True,
+    type=click.Path(exists=True),
+    help="Path to test dataset",
+)
+@click.option(
+    "--hardware",
+    "-h",
+    required=True,
+    type=click.Choice(["intel_5300", "esp32", "atheros"]),
+    help="Hardware platform used for data",
+)
+@click.option(
+    "--output", "-o", type=click.Path(), help="Output file for evaluation results"
+)
 @click.pass_context
 def evaluate(ctx, model: str, test_data: str, hardware: str, output: Optional[str]):
     """Evaluate model performance on test dataset."""
     try:
-        from .models import load_model
         from .datasets import Dataset
+        from .models import load_model
         from .training import Trainer
         from .utils.io import save_evaluation_results
-        
+
         click.echo(f"Loading model from {model}...")
         model_instance = load_model(model)
-        
+
         click.echo(f"Loading test dataset from {test_data}...")
         test_dataset = Dataset.from_files(
             data_path=test_data,
-            labels_path=os.path.join(test_data, 'labels.csv'),
-            hardware_type=hardware
+            labels_path=os.path.join(test_data, "labels.csv"),
+            hardware_type=hardware,
         )
-        
+
         click.echo(f"Evaluating on {len(test_dataset)} samples...")
-        
+
         # Create trainer for evaluation
         trainer = Trainer(model_instance, test_dataset)
-        
+
         # Run evaluation
         results = trainer.evaluate(test_dataset)
-        
+
         # Display results
         click.echo("Evaluation Results:")
         click.echo(f"  Accuracy: {results['accuracy']:.3f}")
         click.echo(f"  Precision: {results['precision']:.3f}")
         click.echo(f"  Recall: {results['recall']:.3f}")
         click.echo(f"  F1-Score: {results['f1_score']:.3f}")
-        
+
         # Per-class results
-        if 'per_class_metrics' in results:
+        if "per_class_metrics" in results:
             click.echo("\nPer-class Results:")
-            for class_name, metrics in results['per_class_metrics'].items():
+            for class_name, metrics in results["per_class_metrics"].items():
                 click.echo(f"  {class_name}:")
                 click.echo(f"    Precision: {metrics['precision']:.3f}")
                 click.echo(f"    Recall: {metrics['recall']:.3f}")
                 click.echo(f"    F1-Score: {metrics['f1_score']:.3f}")
-        
+
         # Save results if requested
         if output:
             save_evaluation_results(results, output)
             click.echo(f"\nResults saved to {output}")
-            
+
     except Exception as e:
         click.echo(f"Error: {e}", err=True)
         sys.exit(1)
@@ -485,5 +601,5 @@ def main():
     cli()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
