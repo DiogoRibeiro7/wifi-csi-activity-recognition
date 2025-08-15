@@ -33,8 +33,14 @@ def test_trainer_train_loop(tmp_path: Path):
     trainer = Trainer(model=model, dataset=dataset, batch_size=8, learning_rate=1e-2)
     trainer.train(epochs=2)
     metrics = trainer.get_metrics()
-    assert 0.0 <= metrics["train_accuracy"] <= 1.0
-    assert 0.0 <= metrics["val_accuracy"] <= 1.0
+    for key in [
+        "train_accuracy",
+        "val_accuracy",
+        "val_precision",
+        "val_recall",
+        "val_f1",
+    ]:
+        assert 0.0 <= metrics[key] <= 1.0
     out_path = tmp_path / "model.pt"
     trainer.save_model(out_path)
     assert out_path.exists()

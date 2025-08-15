@@ -4,6 +4,7 @@ This module provides CLI commands for common tasks like training models,
 running inference, and streaming real-time data.
 """
 
+import logging
 import os
 import sys
 from pathlib import Path
@@ -31,6 +32,8 @@ def cli(ctx, verbose: bool, config: Optional[str]):
     # Setup logging
     log_level = "DEBUG" if verbose else "INFO"
     setup_logging(level=log_level)
+    global logger
+    logger = logging.getLogger(__name__)
 
     # Load configuration
     if config:
@@ -70,15 +73,9 @@ def stream(
         from .hardware import CSIReader
         from .utils.io import save_csi_data
 
-        # Load hardware config
-        if config_file:
-            hw_config = load_config(config_file)
-        else:
-            hw_config = {}
-
+        hw_config = load_config(config_file) if config_file else {}
         click.echo(f"Starting CSI stream from {hardware}...")
 
-        # Create reader
         reader = CSIReader(hardware, hw_config)
         csi_data_list = []
 
@@ -96,23 +93,21 @@ def stream(
                     if ctx.obj["verbose"]:
                         click.echo(f"Packet {packet_count}: {csi_data.shape}")
 
-                    # Check duration
                     if time.time() - start_time >= duration:
                         break
 
             except KeyboardInterrupt:
                 click.echo("\nStopping stream...")
 
-            # Save data if requested
             if output and csi_data_list:
                 save_csi_data(csi_data_list, output)
                 click.echo(f"Saved {len(csi_data_list)} packets to {output}")
 
             click.echo(f"Stream completed. Total packets: {packet_count}")
 
-    except Exception as e:
-        click.echo(f"Error: {e}", err=True)
-        sys.exit(1)
+    except (OSError, ValueError, RuntimeError) as exc:
+        logger.error("Streaming failed: %s", exc)
+        raise click.ClickException(str(exc)) from exc
 
 
 @cli.command()
@@ -217,9 +212,9 @@ def train(
         click.echo(f"Final training accuracy: {metrics['train_accuracy']:.3f}")
         click.echo(f"Final validation accuracy: {metrics['val_accuracy']:.3f}")
 
-    except Exception as e:
-        click.echo(f"Error: {e}", err=True)
-        sys.exit(1)
+    except (OSError, ValueError, RuntimeError) as exc:
+        logger.error("Training failed: %s", exc)
+        raise click.ClickException(str(exc)) from exc
 
 
 @cli.command()
@@ -308,9 +303,9 @@ def predict(
             save_predictions(predictions, confidences, output)
             click.echo(f"Predictions saved to {output}")
 
-    except Exception as e:
-        click.echo(f"Error: {e}", err=True)
-        sys.exit(1)
+    except (OSError, ValueError, RuntimeError) as exc:
+        logger.error("Prediction failed: %s", exc)
+        raise click.ClickException(str(exc)) from exc
 
 
 @cli.command()
@@ -415,9 +410,9 @@ def live(
             except KeyboardInterrupt:
                 click.echo("\nStopping live recognition...")
 
-    except Exception as e:
-        click.echo(f"Error: {e}", err=True)
-        sys.exit(1)
+    except (OSError, ValueError, RuntimeError) as exc:
+        logger.error("Live recognition failed: %s", exc)
+        raise click.ClickException(str(exc)) from exc
 
 
 @cli.command()
@@ -591,9 +586,9 @@ def evaluate(ctx, model: str, test_data: str, hardware: str, output: Optional[st
             save_evaluation_results(results, output)
             click.echo(f"\nResults saved to {output}")
 
-    except Exception as e:
-        click.echo(f"Error: {e}", err=True)
-        sys.exit(1)
+    except (OSError, ValueError, RuntimeError) as exc:
+        logger.error("Benchmark failed: %s", exc)
+        raise click.ClickException(str(exc)) from exc
 
 
 def main():

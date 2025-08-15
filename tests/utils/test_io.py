@@ -52,3 +52,27 @@ def test_save_predictions(tmp_path):
     path = tmp_path / "preds.json"
     save_predictions(preds, confs, path)
     assert path.exists()
+
+
+class _DummyCSI:
+    def __init__(self) -> None:
+        self.amplitude = np.ones((1, 1, 2))
+        self.phase = np.zeros((1, 1, 2))
+
+    def to_dict(self):
+        return {
+            "timestamp": 0.0,
+            "amplitude": self.amplitude.tolist(),
+            "phase": self.phase.tolist(),
+            "frequency": 5.0,
+            "bandwidth": 20.0,
+            "n_tx": 1,
+            "n_rx": 1,
+            "n_subcarriers": 2,
+        }
+
+
+def test_save_csidata_list(tmp_path):
+    path = tmp_path / "list.json"
+    save_csi_data([_DummyCSI()], path)
+    assert path.exists()

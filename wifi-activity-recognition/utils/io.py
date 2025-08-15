@@ -4,18 +4,26 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Sequence
+from typing import Any, Sequence, Union
 
 import h5py
 import numpy as np
 
 
 def save_csi_to_hdf5(
-    data: np.ndarray, path: str | Path, dataset_name: str = "csi"
+    data: Union[np.ndarray, Sequence[Any]],
+    path: str | Path,
+    dataset_name: str = "csi",
 ) -> None:
     """Save CSI data to an HDF5 file."""
     with h5py.File(path, "w") as f:
-        f.create_dataset(dataset_name, data=data)
+        if isinstance(data, np.ndarray):
+            f.create_dataset(dataset_name, data=data)
+        else:
+            amps = np.stack([d.amplitude for d in data])
+            phases = np.stack([d.phase for d in data])
+            f.create_dataset("amplitude", data=amps)
+            f.create_dataset("phase", data=phases)
 
 
 def load_csi_from_hdf5(path: str | Path, dataset_name: str = "csi") -> np.ndarray:
@@ -24,10 +32,13 @@ def load_csi_from_hdf5(path: str | Path, dataset_name: str = "csi") -> np.ndarra
         return np.array(f[dataset_name])
 
 
-def save_csi_to_json(data: np.ndarray, path: str | Path) -> None:
+def save_csi_to_json(data: Union[np.ndarray, Sequence[Any]], path: str | Path) -> None:
     """Save CSI data to a JSON file."""
     with open(path, "w", encoding="utf-8") as f:
-        json.dump(data.tolist(), f)
+        if isinstance(data, np.ndarray):
+            json.dump(data.tolist(), f)
+        else:
+            json.dump([d.to_dict() for d in data], f)
 
 
 def load_csi_from_json(path: str | Path) -> np.ndarray:
@@ -36,7 +47,7 @@ def load_csi_from_json(path: str | Path) -> np.ndarray:
         return np.array(json.load(f))
 
 
-def save_csi_data(data: np.ndarray, path: str | Path) -> None:
+def save_csi_data(data: Union[np.ndarray, Sequence[Any]], path: str | Path) -> None:
     """Save CSI data inferring format from file extension."""
     path = Path(path)
     if path.suffix in {".h5", ".hdf5"}:

@@ -1,6 +1,5 @@
 """Tests for research utilities."""
 
-import importlib
 import sys
 import types
 from pathlib import Path
@@ -14,32 +13,30 @@ if "wifi_activity_recognition" not in sys.modules:
     package = types.ModuleType("wifi_activity_recognition")
     package.__path__ = [str(PACKAGE_ROOT)]
     sys.modules["wifi_activity_recognition"] = package
-importlib.import_module("wifi_activity_recognition.hardware")
-importlib.import_module("wifi_activity_recognition.research")
 
-from wifi_activity_recognition.hardware.base import (  # type: ignore  # noqa: E402
-    CSIData,
-)
 from wifi_activity_recognition.research import (  # type: ignore  # noqa: E402
     DomainAdapter,
     FewShotLearner,
 )
 
 
-def make_csi(value: float) -> CSIData:
-    """Create a synthetic :class:`CSIData` packet with constant amplitude."""
+class _CSIData:
+    def __init__(self, amplitude: np.ndarray, phase: np.ndarray) -> None:
+        self.timestamp = 0.0
+        self.amplitude = amplitude
+        self.phase = phase
+        self.frequency = 5200.0
+        self.bandwidth = 20.0
+        self.n_tx = 1
+        self.n_rx = 1
+        self.n_subcarriers = amplitude.shape[-1]
+
+
+def make_csi(value: float) -> _CSIData:
+    """Create a synthetic CSI packet with constant amplitude."""
     amp = np.full((1, 1, 30), value, dtype=np.float32)
     phase = np.zeros_like(amp)
-    return CSIData(
-        timestamp=0.0,
-        amplitude=amp,
-        phase=phase,
-        frequency=5200.0,
-        bandwidth=20.0,
-        n_tx=1,
-        n_rx=1,
-        n_subcarriers=30,
-    )
+    return _CSIData(amp, phase)
 
 
 def test_domain_adapter_mean_shift():

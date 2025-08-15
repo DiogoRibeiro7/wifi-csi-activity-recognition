@@ -18,7 +18,7 @@ import numpy as np
 
 try:  # pragma: no cover - serial may not be installed in the environment
     import serial  # type: ignore
-except Exception:  # pragma: no cover
+except ImportError:  # pragma: no cover
 
     class _DummySerialModule:  # type: ignore
         class Serial:  # type: ignore
@@ -62,7 +62,7 @@ class ESP32Reader(CSIReaderBase):
                 self.serial_port, self.baud_rate, timeout=self.config.timeout
             )
             self._is_connected = True
-        except Exception:
+        except (serial.SerialException, OSError):
             self._serial = None
             self._is_connected = False
         return self._is_connected
@@ -72,7 +72,7 @@ class ESP32Reader(CSIReaderBase):
         if self._serial and getattr(self._serial, "is_open", False):
             try:
                 self._serial.close()
-            except Exception:  # pragma: no cover - best effort cleanup
+            except (serial.SerialException, OSError):  # pragma: no cover
                 pass
         self._serial = None
         self._is_connected = False
@@ -107,7 +107,7 @@ class ESP32Reader(CSIReaderBase):
         # Perform a serial read to mimic hardware behaviour.
         try:
             _ = self._serial.readline()
-        except Exception:
+        except (serial.SerialException, OSError):
             return None
 
         if not self.state.calibrated:
