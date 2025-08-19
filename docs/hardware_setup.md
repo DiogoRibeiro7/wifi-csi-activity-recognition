@@ -25,19 +25,34 @@ ready and highlights platform‑specific notes and troubleshooting tips.
 ## ESP32
 
 1. Flash the ESP32 board with the CSI-enabled firmware from the
-   [Espressif CSI repo](https://github.com/espressif/esp32-wifi-csi).
+   [Espressif CSI repo](https://github.com/espressif/esp32-wifi-csi). Both the
+   original tool (``v1``) and the updated ``v2`` firmware with configurable
+   endianness are supported.
 2. Connect the board via USB and note the serial port (`COMx` on Windows,
    `/dev/ttyUSBx` on Linux, `/dev/tty.SLAB_USBtoUART` on macOS).
-3. Ensure the device is in monitor mode and streaming CSI packets.
-4. Start the listener:
+3. Configure the reader with the proper board type and mode. Example:
+
+   ```yaml
+   additional_params:
+     serial_port: /dev/ttyUSB0
+     baud_rate: 115200
+     mode: real        # use "mock" for synthetic data
+     board: esp32      # esp32, esp32-s2 or esp32-c3
+     firmware_version: v1
+   ```
+
+   The driver attempts to detect the firmware version automatically; if
+   detection fails you can set ``firmware_version`` manually.
+4. Ensure the device is in monitor mode and streaming CSI packets.
+5. Start the listener:
    `python -m wifi_activity_recognition.cli listen --device esp32 --port /dev/ttyUSB0`.
 
 **Troubleshooting**
 
 - *Port not found*: check `dmesg` (Linux) or Device Manager (Windows) for
   correct driver installation.
-- *No packets*: verify the firmware build and that the board is within range of
-  the transmitter.
+- *No packets*: verify the firmware build, selected board type and that the
+  board is within range of the transmitter.
 
 ## Atheros AR9300
 
