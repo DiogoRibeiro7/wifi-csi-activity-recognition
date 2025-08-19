@@ -18,6 +18,7 @@ from wifi_activity_recognition.models import (  # type: ignore  # noqa: E402
     EnsembleModel,
     ResNetSpectrogramModel,
     TransformerModel,
+    VisionTransformerModel,
     create_model,
 )
 
@@ -44,3 +45,8 @@ def test_factory_creates_models() -> None:
     x = torch.randn(1, 10, 64)
     out_t = transformer(x)
     assert out_t.shape == (1, 2)
+    vit = create_model("vit", num_classes=2)
+    assert isinstance(vit, VisionTransformerModel)
+    x_vit = torch.randn(1, 1, 30, 50)
+    out_vit = vit(x_vit)
+    assert out_vit.shape == (1, 2)

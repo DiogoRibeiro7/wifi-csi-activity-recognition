@@ -12,6 +12,7 @@ from .cnn3d import CNN3DModel
 from .ensemble import EnsembleModel
 from .resnet import ResNetSpectrogramModel
 from .transformer import TransformerModel
+from .vision_transformer import VisionTransformerModel
 
 _MODEL_REGISTRY: Dict[str, Callable[..., nn.Module]] = {
     "cnn2d": CNN2DModel,
@@ -20,6 +21,7 @@ _MODEL_REGISTRY: Dict[str, Callable[..., nn.Module]] = {
     "attention_cnn3d": AttentionCNN3DModel,
     "ensemble": EnsembleModel,
     "transformer": TransformerModel,
+    "vit": VisionTransformerModel,
 }
 
 
@@ -30,7 +32,8 @@ def create_model(name: str, *args, **kwargs) -> nn.Module:
     ----------
     name:
         Identifier of the model. Supported values are ``'cnn2d'``, ``'resnet'``,
-        ``'cnn3d'``, ``'attention_cnn3d'``, ``'ensemble'`` and ``'transformer'``.
+        ``'cnn3d'``, ``'attention_cnn3d'``, ``'ensemble'``, ``'transformer'`` and
+        ``'vit'``.
     *args, **kwargs:
         Passed to the model constructor.
     """

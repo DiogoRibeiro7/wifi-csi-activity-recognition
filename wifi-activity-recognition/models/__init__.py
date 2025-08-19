@@ -7,6 +7,7 @@ from .ensemble import EnsembleModel
 from .factory import create_model
 from .resnet import ResNetSpectrogramModel, ResNetSpectrogramTensorFlowModel
 from .transformer import TransformerModel
+from .vision_transformer import VisionTransformerModel
 
 __all__ = [
     "CNN2DModel",
@@ -19,5 +20,6 @@ __all__ = [
     "AttentionCNN3DTensorFlowModel",
     "EnsembleModel",
     "TransformerModel",
+    "VisionTransformerModel",
     "create_model",
 ]
