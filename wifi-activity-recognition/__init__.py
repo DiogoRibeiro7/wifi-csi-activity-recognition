@@ -31,7 +31,7 @@ https://wifi-activity-recognition.readthedocs.io/
 """
 
 # Models and utilities
-from . import features, hardware, models, preprocessing, research, utils
+from . import features, hardware, models, multimodal, preprocessing, research, utils
 from .datasets import Dataset, load_public_dataset
 
 # Core components
@@ -64,6 +64,7 @@ __all__ = [
     "hardware",
     "utils",
     "research",
+    "multimodal",
 ]
 
 # Package metadata
