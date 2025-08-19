@@ -5,7 +5,6 @@ import types
 from pathlib import Path
 
 import numpy as np
-import torch
 from torch import nn
 
 PACKAGE_ROOT = Path(__file__).resolve().parents[2] / "wifi-activity-recognition"
@@ -21,6 +20,7 @@ from wifi_activity_recognition.training import Trainer  # type: ignore  # noqa: 
 
 
 def make_dummy_dataset() -> Dataset:
+    """Create a small random dataset for training tests."""
     data = np.random.rand(30, 1, 8, 8).astype(np.float32)
     labels = np.random.randint(0, 2, 30)
     train, val, test = split_dataset(data, labels, val_ratio=0.2, test_ratio=0.2)
@@ -28,6 +28,7 @@ def make_dummy_dataset() -> Dataset:
 
 
 def test_trainer_train_loop(tmp_path: Path):
+    """Train a simple model and ensure metrics and checkpoint are produced."""
     dataset = make_dummy_dataset()
     model = nn.Sequential(nn.Flatten(), nn.Linear(1 * 8 * 8, 2))
     trainer = Trainer(model=model, dataset=dataset, batch_size=8, learning_rate=1e-2)

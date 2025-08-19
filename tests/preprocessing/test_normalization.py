@@ -11,6 +11,9 @@ package = types.ModuleType("wifi_activity_recognition")
 package.__path__ = [str(PACKAGE_ROOT)]
 sys.modules["wifi_activity_recognition"] = package
 
+from wifi_activity_recognition.hardware.base import (  # type: ignore  # noqa: E402
+    CSIData,
+)
 from wifi_activity_recognition.preprocessing import (  # type: ignore  # noqa: E402
     log_normalize,
     min_max_normalize,
@@ -18,38 +21,58 @@ from wifi_activity_recognition.preprocessing import (  # type: ignore  # noqa: E
 )
 
 
+def _make_csi(amplitude: np.ndarray) -> CSIData:
+    phase = np.zeros_like(amplitude)
+    n_rx, n_tx, n_sc = amplitude.shape
+    return CSIData(
+        timestamp=0.0,
+        amplitude=amplitude,
+        phase=phase,
+        frequency=5.0,
+        bandwidth=20.0,
+        n_tx=n_tx,
+        n_rx=n_rx,
+        n_subcarriers=n_sc,
+    )
+
+
 def test_min_max_normalize() -> None:
-    """Normalize data with min-max scaling along axis 0."""
-    data = np.array([[1, 2], [3, 4]], dtype=float)
-    norm = min_max_normalize(data)
-    assert np.allclose(norm, [[0, 0], [1, 1]])
+    """Normalize amplitude with min-max scaling along subcarriers."""
+    amp = np.array([[[1.0, 3.0]]])
+    csi = _make_csi(amp)
+    norm = min_max_normalize(csi)
+    assert np.allclose(norm.amplitude, [[[0.0, 1.0]]])
 
 
 def test_min_max_normalize_axis() -> None:
-    """Normalize data with min-max scaling along axis 1."""
-    data = np.array([[1, 2], [3, 4]], dtype=float)
-    norm = min_max_normalize(data, axis=1)
-    assert np.allclose(norm, [[0, 1], [0, 1]])
+    """Normalize amplitude with min-max scaling along receivers."""
+    amp = np.array([[[1.0, 2.0]], [[3.0, 4.0]]])
+    csi = _make_csi(amp)
+    norm = min_max_normalize(csi, axis=0)
+    assert np.allclose(norm.amplitude, [[[0.0, 0.0]], [[1.0, 1.0]]])
 
 
 def test_z_score_normalize() -> None:
-    """Standardize data along axis 0."""
-    data = np.array([[1, 2], [3, 4]], dtype=float)
-    norm = z_score_normalize(data)
-    assert np.allclose(np.mean(norm, axis=0), [0, 0])
-    assert np.allclose(np.std(norm, axis=0), [1, 1])
+    """Standardize amplitude along subcarriers."""
+    amp = np.array([[[1.0, 3.0]]])
+    csi = _make_csi(amp)
+    norm = z_score_normalize(csi)
+    assert np.allclose(np.mean(norm.amplitude, axis=-1), [[0.0]])
+    assert np.allclose(np.std(norm.amplitude, axis=-1), [[1.0]])
 
 
 def test_z_score_normalize_axis() -> None:
-    """Standardize data along axis 1."""
-    data = np.array([[1, 2], [3, 4]], dtype=float)
-    norm = z_score_normalize(data, axis=1)
-    assert np.allclose(np.mean(norm, axis=1), [0, 0])
-    assert np.allclose(np.std(norm, axis=1), [1, 1])
+    """Standardize amplitude along receivers."""
+    amp = np.array([[[1.0, 2.0]], [[3.0, 4.0]]])
+    csi = _make_csi(amp)
+    norm = z_score_normalize(csi, axis=0)
+    assert np.allclose(np.mean(norm.amplitude, axis=0), [[0.0, 0.0]])
+    assert np.allclose(np.std(norm.amplitude, axis=0), [[1.0, 1.0]])
 
 
 def test_log_normalize() -> None:
-    """Log-scale non-negative values."""
-    data = np.array([[1, 1], [np.e, np.e**2]], dtype=float)
-    norm = log_normalize(data)
-    assert np.allclose(norm, [[0, 0], [1, 2]])
+    """Log-scale amplitude values."""
+    amp = np.array([[[1.0, np.e]]])
+    csi = _make_csi(amp)
+    norm = log_normalize(csi)
+    assert np.allclose(norm.amplitude, [[[0.0, 1.0]]])

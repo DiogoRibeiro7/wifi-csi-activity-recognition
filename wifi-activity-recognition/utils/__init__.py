@@ -1,6 +1,6 @@
 """Utility functions for configuration, logging, I/O, and visualization."""
 
-from .config import get_default_config, load_config, validate_config
+from .config import get_default_config, load_config, merge_configs, validate_config
 from .io import (
     load_csi_data,
     load_csi_from_hdf5,
@@ -17,6 +17,7 @@ __all__ = [
     "load_config",
     "get_default_config",
     "validate_config",
+    "merge_configs",
     "setup_logging",
     "save_csi_data",
     "save_csi_to_hdf5",

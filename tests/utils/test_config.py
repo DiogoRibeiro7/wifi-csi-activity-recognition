@@ -1,3 +1,5 @@
+"""Tests for configuration utilities."""
+
 import sys
 import types
 from pathlib import Path
@@ -13,11 +15,13 @@ sys.modules["wifi_activity_recognition"] = package
 from wifi_activity_recognition.utils.config import (  # type: ignore  # noqa: E402
     get_default_config,
     load_config,
+    merge_configs,
     validate_config,
 )
 
 
 def test_load_and_validate_config(tmp_path):
+    """YAML loading and validation follow schema."""
     config = {"db": {"host": "localhost", "port": 8080}}
     schema = {"db": {"host": None, "port": None}}
     config_path = tmp_path / "config.yml"
@@ -35,5 +39,20 @@ def test_load_and_validate_config(tmp_path):
 
 
 def test_get_default_config():
+    """Default configuration exposes expected sections."""
     cfg = get_default_config()
     assert "hardware" in cfg and "model" in cfg
+
+
+def test_env_expansion_and_merge(tmp_path, monkeypatch):
+    """Environment variables expand and merge into configs."""
+    text = "db: {port: ${TEST_PORT}}"
+    cfg_path = tmp_path / "cfg.yml"
+    cfg_path.write_text(text)
+    monkeypatch.setenv("TEST_PORT", "9090")
+    loaded = load_config(cfg_path)
+    assert loaded["db"]["port"] == 9090
+
+    base = {"db": {"host": "localhost"}}
+    merged = merge_configs(base, {"db": {"port": 9090}})
+    assert merged["db"] == {"host": "localhost", "port": 9090}

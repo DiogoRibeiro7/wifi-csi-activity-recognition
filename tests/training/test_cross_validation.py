@@ -1,3 +1,5 @@
+"""Tests for cross-validation utility."""
+
 import sys
 import types
 from pathlib import Path
@@ -18,6 +20,7 @@ from wifi_activity_recognition.training import Trainer  # type: ignore  # noqa: 
 
 
 def make_dataset() -> Dataset:
+    """Create dataset used for cross-validation tests."""
     data = np.random.rand(20, 1, 4, 4).astype(np.float32)
     labels = np.random.randint(0, 2, 20)
     train, val, test = split_dataset(data, labels, val_ratio=0.2, test_ratio=0.2)
@@ -25,6 +28,7 @@ def make_dataset() -> Dataset:
 
 
 def test_cross_validation_runs():
+    """Ensure cross-validation returns metrics for each fold."""
     dataset = make_dataset()
     model = nn.Sequential(nn.Flatten(), nn.Linear(1 * 4 * 4, 2))
     trainer = Trainer(model=model, dataset=dataset, batch_size=4, learning_rate=1e-2)
