@@ -11,6 +11,7 @@ from .io import (
     save_predictions,
 )
 from .logging import setup_logging
+from .performance_monitoring import PerformanceMonitor
 from .visualization import plot_activity_timeline, plot_csi_heatmap
 
 __all__ = [
@@ -28,4 +29,5 @@ __all__ = [
     "save_predictions",
     "plot_csi_heatmap",
     "plot_activity_timeline",
+    "PerformanceMonitor",
 ]
