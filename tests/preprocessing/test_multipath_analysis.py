@@ -1,0 +1,45 @@
+"""Tests for multipath analysis utilities."""
+
+import sys
+import types
+from pathlib import Path
+
+import numpy as np
+
+PACKAGE_ROOT = Path(__file__).resolve().parents[2] / "wifi-activity-recognition"
+package = types.ModuleType("wifi_activity_recognition")
+package.__path__ = [str(PACKAGE_ROOT)]
+sys.modules["wifi_activity_recognition"] = package
+
+from wifi_activity_recognition.hardware.base import (  # type: ignore  # noqa: E402
+    CSIData,
+)
+from wifi_activity_recognition.preprocessing import (  # type: ignore  # noqa: E402
+    separate_multipath_components,
+)
+
+
+def _make_csi(amplitude: np.ndarray, phase: np.ndarray) -> CSIData:
+    n_rx, n_tx, n_sc = amplitude.shape
+    return CSIData(
+        timestamp=0.0,
+        amplitude=amplitude,
+        phase=phase,
+        frequency=5.0,
+        bandwidth=20.0,
+        n_tx=n_tx,
+        n_rx=n_rx,
+        n_subcarriers=n_sc,
+    )
+
+
+def test_separate_multipath_components() -> None:
+    """Components sum to the original signal."""
+    rng = np.random.default_rng(0)
+    amp = rng.standard_normal((1, 1, 16))
+    phase = rng.standard_normal((1, 1, 16))
+    csi = _make_csi(amp, phase)
+    comps = separate_multipath_components(csi, n_components=1)
+    assert len(comps) == 1
+    recon = sum(comp.complex_csi for comp in comps)
+    assert np.allclose(recon, csi.complex_csi, atol=1e-6)

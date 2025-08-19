@@ -1,5 +1,6 @@
 """Feature extraction utilities for CSI data."""
 
+from .advanced_features import sample_entropy, spectral_entropy, statistical_moments
 from .correlation import correlation_matrix
 from .cv_transforms import magnitude_to_uint8
 from .doppler import doppler_spectrum
@@ -16,4 +17,7 @@ __all__ = [
     "correlation_matrix",
     "doppler_spectrum",
     "compute_spectrogram",
+    "statistical_moments",
+    "spectral_entropy",
+    "sample_entropy",
 ]
