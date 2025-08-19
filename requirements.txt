@@ -31,3 +31,4 @@ torchvision>=0.9.0
 
 # Serial communication (for ESP32 and similar hardware)
 pyserial>=3.5
+psutil>=5.8.0
