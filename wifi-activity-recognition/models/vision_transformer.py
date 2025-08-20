@@ -8,6 +8,13 @@ import numpy as np
 import torch
 from torch import nn
 
+try:  # pragma: no cover - optional dependency
+    import tensorflow as tf
+    from tensorflow import keras
+except Exception:  # pragma: no cover - handled in tests
+    tf = None  # type: ignore
+    keras = None  # type: ignore
+
 
 class TransformerEncoderBlock(nn.Module):
     """Single encoder block with MSA and MLP."""
@@ -73,7 +80,14 @@ def _get_2d_sincos_pos_embed(
 
 
 class VisionTransformerModel(nn.Module):
-    """ViT classifier for CSI spectrograms."""
+    """Vision Transformer for CSI spectrograms.
+
+    This PyTorch implementation accepts spectrograms of arbitrary size by
+    padding them to match the patch size. Two-dimensional sine-cos positional
+    embeddings encode frequency and time axes. The model can operate in
+    classification mode or return per-patch predictions for sequence-to-sequence
+    tasks.
+    """
 
     def __init__(
         self,
@@ -122,6 +136,10 @@ class VisionTransformerModel(nn.Module):
             Input tensor of shape ``(batch, channels, freq, time)``.
         """
         b = x.shape[0]
+        pad_h = (-x.shape[2]) % self.patch_size
+        pad_w = (-x.shape[3]) % self.patch_size
+        if pad_h or pad_w:
+            x = torch.nn.functional.pad(x, (0, pad_w, 0, pad_h))
         x = self.patch_embed(x)
         h, w = x.shape[2], x.shape[3]
         x = x.flatten(2).transpose(1, 2)  # (B, N, dim)
@@ -137,4 +155,115 @@ class VisionTransformerModel(nn.Module):
         return self.head(x[:, 0])
 
 
-__all__ = ["VisionTransformerModel"]
+if tf is not None:
+
+    class TransformerEncoderBlockTF(keras.layers.Layer):  # pragma: no cover - TF path
+        """TensorFlow encoder block with attention and MLP."""
+
+        def __init__(self, dim: int, heads: int, mlp_dim: int, dropout: float) -> None:
+            super().__init__()
+            self.norm1 = keras.layers.LayerNormalization(epsilon=1e-6)
+            self.attn = keras.layers.MultiHeadAttention(
+                num_heads=heads, key_dim=dim // heads, dropout=dropout
+            )
+            self.norm2 = keras.layers.LayerNormalization(epsilon=1e-6)
+            self.mlp = keras.Sequential(
+                [
+                    keras.layers.Dense(mlp_dim, activation=keras.activations.gelu),
+                    keras.layers.Dropout(dropout),
+                    keras.layers.Dense(dim),
+                    keras.layers.Dropout(dropout),
+                ]
+            )
+
+        def call(self, x: tf.Tensor, training: bool = False) -> tf.Tensor:
+            residual = x
+            x = self.norm1(x)
+            x = self.attn(x, x, training=training)
+            x = residual + x
+            residual = x
+            x = self.norm2(x)
+            x = self.mlp(x, training=training)
+            return x + residual
+
+    class VisionTransformerTensorFlowModel(keras.Model):  # pragma: no cover - TF path
+        """TensorFlow Vision Transformer for CSI spectrograms."""
+
+        def __init__(
+            self,
+            num_classes: int,
+            in_channels: int = 1,
+            patch_size: int = 5,
+            dim: int = 128,
+            depth: int = 4,
+            heads: int = 8,
+            mlp_dim: int = 256,
+            dropout: float = 0.1,
+            emb_dropout: float = 0.1,
+            seq_to_seq: bool = False,
+        ) -> None:
+            """Initialize the TensorFlow Vision Transformer."""
+            super().__init__()
+            self.seq_to_seq = seq_to_seq
+            self.patch_size = patch_size
+            self.dim = dim
+            self.patch_embed = keras.layers.Conv2D(
+                dim, patch_size, strides=patch_size, padding="valid"
+            )
+            self.cls_token = self.add_weight(
+                "cls_token", shape=(1, 1, dim), initializer="zeros"
+            )
+            self.dropout = keras.layers.Dropout(emb_dropout)
+            self.blocks = [
+                TransformerEncoderBlockTF(dim, heads, mlp_dim, dropout)
+                for _ in range(depth)
+            ]
+            self.head = keras.layers.Dense(num_classes)
+
+        def _pos_embed(self, h: int, w: int) -> tf.Tensor:
+            """Return positional embeddings for a ``h``x``w`` grid."""
+            pe = _get_2d_sincos_pos_embed(self.dim, h, w, cls_token=True)
+            return tf.convert_to_tensor(pe, dtype=tf.float32)[tf.newaxis, ...]
+
+        def call(self, x: tf.Tensor, training: bool = False) -> tf.Tensor:
+            """Run the forward pass.
+
+            Parameters
+            ----------
+            x:
+                Input tensor of shape ``(batch, freq, time, channels)``.
+            training:
+                Whether to enable dropout layers.
+            """
+            b = tf.shape(x)[0]
+            pad_h = (-tf.shape(x)[1]) % self.patch_size
+            pad_w = (-tf.shape(x)[2]) % self.patch_size
+            if pad_h or pad_w:
+                x = tf.pad(x, [[0, 0], [0, pad_h], [0, pad_w], [0, 0]])
+            x = self.patch_embed(x)
+            h = tf.shape(x)[1]
+            w = tf.shape(x)[2]
+            x = tf.reshape(x, [b, -1, self.dim])
+            cls = tf.broadcast_to(self.cls_token, [b, 1, self.dim])
+            x = tf.concat([cls, x], axis=1)
+            pos = self._pos_embed(h, w)
+            x = x + pos
+            x = self.dropout(x, training=training)
+            for blk in self.blocks:
+                x = blk(x, training=training)
+            if self.seq_to_seq:
+                return self.head(x[:, 1:], training=training)
+            return self.head(x[:, 0], training=training)
+
+else:  # pragma: no cover - TF not available
+
+    class VisionTransformerTensorFlowModel:  # type: ignore
+        """Stub TensorFlow model when TensorFlow is not installed."""
+
+        def __init__(self, *args, **kwargs) -> None:  # noqa: D107
+            raise ImportError(
+                "TensorFlow is required for VisionTransformerTensorFlowModel"
+            )
+
+
+__all__ = ["VisionTransformerModel", "VisionTransformerTensorFlowModel"]
