@@ -46,6 +46,35 @@ def test_adaptive_wiener_filter_reduces_variance() -> None:
     assert np.var(filtered.amplitude) < np.var(csi.amplitude)
 
 
+def test_adaptive_wiener_filter_handles_phase() -> None:
+    """Filter can operate on amplitude and phase."""
+    rng = np.random.default_rng(1)
+    amp = rng.normal(size=(1, 1, 32))
+    phase = rng.normal(size=(1, 1, 32))
+    csi = _make_csi(amp)
+    csi = CSIData(
+        timestamp=csi.timestamp,
+        amplitude=amp,
+        phase=phase,
+        frequency=csi.frequency,
+        bandwidth=csi.bandwidth,
+        n_tx=csi.n_tx,
+        n_rx=csi.n_rx,
+        n_subcarriers=csi.n_subcarriers,
+    )
+    filtered = adaptive_wiener_filter(csi, fields=("amplitude", "phase"))
+    assert filtered.amplitude.shape == amp.shape
+    assert filtered.phase.shape == phase.shape
+
+
+def test_adaptive_wiener_filter_constant_series() -> None:
+    """Constant input is returned unchanged."""
+    amp = np.ones((1, 1, 16))
+    csi = _make_csi(amp)
+    filtered = adaptive_wiener_filter(csi)
+    assert np.allclose(filtered.amplitude, amp)
+
+
 def test_median_filter_validation() -> None:
     """Median filter rejects even kernel sizes."""
     csi = _make_csi(np.ones((1, 1, 8)))

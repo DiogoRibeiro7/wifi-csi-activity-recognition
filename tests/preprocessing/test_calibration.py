@@ -48,6 +48,20 @@ def test_phase_unwrap() -> None:
     amp = np.ones((1, 1, 3))
     phase = np.array([[[0.0, np.pi - 0.1, -np.pi + 0.1]]])
     csi = _make_csi(amp, phase)
-    unwrapped = phase_unwrap(csi)
+    unwrapped = phase_unwrap(csi, axes=(-1,))
     diffs = unwrapped.phase[0, 0, 1:] - unwrapped.phase[0, 0, :-1]
     assert np.all(diffs < np.pi)
+
+
+def test_phase_unwrap_multi_axis() -> None:
+    """Unwrap phase across antennas and subcarriers."""
+    amp = np.ones((2, 1, 3))
+    phase = np.array(
+        [
+            [[0.0, np.pi - 0.1, -np.pi + 0.1]],
+            [[np.pi - 0.1, -np.pi + 0.1, 0.0]],
+        ]
+    )
+    csi = _make_csi(amp, phase)
+    unwrapped = phase_unwrap(csi, axes=(0, -1))
+    assert np.all(np.diff(unwrapped.phase, axis=0) < np.pi)

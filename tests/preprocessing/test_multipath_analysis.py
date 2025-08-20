@@ -43,3 +43,15 @@ def test_separate_multipath_components() -> None:
     assert len(comps) == 1
     recon = sum(comp.complex_csi for comp in comps)
     assert np.allclose(recon, csi.complex_csi, atol=1e-6)
+
+
+def test_separate_multipath_components_validation() -> None:
+    """Invalid component counts raise an error."""
+    amp = np.ones((1, 1, 8))
+    phase = np.zeros_like(amp)
+    csi = _make_csi(amp, phase)
+    try:
+        separate_multipath_components(csi, n_components=9)
+        assert False, "Expected ValueError"
+    except ValueError:
+        pass

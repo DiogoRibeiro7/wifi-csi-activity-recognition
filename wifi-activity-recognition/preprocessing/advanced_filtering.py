@@ -18,7 +18,7 @@ def adaptive_wiener_filter(
     axis: int = -1,
     fields: Iterable[str] = ("amplitude",),
 ) -> CSIData:
-    """Apply Wiener filtering to selected fields.
+    """Apply adaptive Wiener filtering to selected fields.
 
     Parameters
     ----------
@@ -26,19 +26,46 @@ def adaptive_wiener_filter(
         Input CSI sample.
     mysize:
         Size of the Wiener filter window. Typical values range from 3 to 7.
+        Must be a positive integer or tuple of integers.
     noise:
-        Estimated noise power. ``None`` lets :func:`scipy.signal.wiener` estimate it.
+        Estimated noise power. ``None`` lets :func:`scipy.signal.wiener`
+        estimate it automatically. Values must be non-negative.
     axis:
-        Axis along which filtering is performed.
+        Axis along which filtering is performed. ``0`` corresponds to receive
+        antennas and ``-1`` to subcarriers.
     fields:
-        Iterable of fields to filter. Defaults to ``("amplitude",)``.
+        Iterable of fields to filter. Supports ``"amplitude"`` and
+        ``"phase"``.
+
+    Returns
+    -------
+    :class:`CSIData`
+        New instance with filtered fields.
+
+    Raises
+    ------
+    ValueError
+        If parameters are out of range or invalid.
     """
+    if isinstance(mysize, int) and mysize <= 0:
+        raise ValueError("mysize must be positive")
+    if noise is not None and noise < 0:
+        raise ValueError("noise must be non-negative")
+
     updates = {}
     for field in fields:
         data = getattr(csi, field)
-        filtered = np.apply_along_axis(
-            lambda m: signal.wiener(m, mysize, noise), axis, data
-        )
+        if axis >= data.ndim or axis < -data.ndim:
+            raise ValueError("axis out of range")
+
+        def _wiener(m: np.ndarray) -> np.ndarray:
+            # ``signal.wiener`` fails when the variance is zero; in that case
+            # simply return the input unchanged.
+            if np.var(m) == 0:
+                return m
+            return signal.wiener(m, mysize, noise)
+
+        filtered = np.apply_along_axis(_wiener, axis, data)
         updates[field] = filtered
     return replace(csi, **updates)
 
@@ -76,10 +103,16 @@ def morphological_filter(
 
     Parameters
     ----------
+    csi:
+        Input CSI sample.
     size:
         Window size for the morphological operation. Typical values are 3 or 5.
     operation:
         Either ``"opening"`` or ``"closing"``.
+    axis:
+        Axis along which filtering is performed.
+    fields:
+        Iterable of fields to filter.
     """
     if size <= 0:
         raise ValueError("size must be positive")
