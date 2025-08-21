@@ -44,5 +44,47 @@ Launch training from the command line:
 python -m wifi_activity_recognition.cli train --config config.yaml
 ```
 
-Checkpoints and metrics are saved under the `runs/` directory. Use the
-`Trainer.load_checkpoint` method to resume or evaluate models later.
+During training the CLI prints epoch metrics and saves checkpoints under
+`runs/`. To visualize learning curves, launch TensorBoard:
+
+```bash
+tensorboard --logdir runs
+```
+
+## 4. Evaluate a Saved Model
+
+```bash
+python -m wifi_activity_recognition.cli evaluate \
+    --checkpoint runs/latest.ckpt \
+    --data data/test
+```
+
+The output reports accuracy, precision, recall and F1.
+
+## 5. Tune Hyper‑parameters
+
+Key parameters are configured in the YAML file:
+
+```yaml
+training:
+  epochs: 20
+  batch_size: 64
+  optimizer:
+    lr: 0.001
+  early_stopping:
+    patience: 5
+```
+
+Adjust learning rate (`optimizer.lr`), batch size, or enable early stopping to
+prevent overfitting.
+
+## 6. Resume or Fine‑tune
+
+```python
+from wifi_activity_recognition.training.trainer import Trainer
+
+trainer = Trainer.load_checkpoint("runs/latest.ckpt")
+trainer.train(epochs=5)
+```
+
+These commands continue training from a saved state or evaluate directly.

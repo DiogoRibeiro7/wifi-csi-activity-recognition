@@ -17,10 +17,21 @@ def load_dataset(
     Tuple[np.ndarray, np.ndarray],
     Tuple[np.ndarray, np.ndarray],
 ]:
-    """Load ``data.npy`` and ``labels.npy`` from ``directory`` and split them."""
+    """Load ``data.npy`` and ``labels.npy`` from ``directory`` and split them.
+
+    The function expects two ``.npy`` files named ``data.npy`` and
+    ``labels.npy`` inside ``directory``.  ``val_ratio`` and ``test_ratio``
+    control how many samples are allocated to the respective splits.  ``shuffle``
+    controls whether data are shuffled before splitting and ``random_state``
+    makes the operation deterministic.
+    """
     directory = Path(directory)
-    data = np.load(directory / "data.npy")
-    labels = np.load(directory / "labels.npy")
+    data_file = directory / "data.npy"
+    labels_file = directory / "labels.npy"
+    if not data_file.exists() or not labels_file.exists():  # pragma: no cover -
+        raise FileNotFoundError("data.npy and labels.npy must exist in directory")
+    data = np.load(data_file)
+    labels = np.load(labels_file)
     return split_dataset(data, labels, val_ratio, test_ratio, shuffle, random_state)
 
 
@@ -36,9 +47,16 @@ def split_dataset(
     Tuple[np.ndarray, np.ndarray],
     Tuple[np.ndarray, np.ndarray],
 ]:
-    """Split data and labels into train, validation, and test sets."""
+    """Split data and labels into train, validation, and test sets.
+
+    ``val_ratio`` and ``test_ratio`` must sum to less than ``1.0``; the
+    remaining samples are assigned to the training split.  If ``shuffle`` is
+    ``True`` the data are shuffled deterministically using ``random_state``.
+    """
     if len(data) != len(labels):  # pragma: no cover - safety check
         raise ValueError("Data and labels must have the same length")
+    if val_ratio + test_ratio >= 1:
+        raise ValueError("val_ratio + test_ratio must be < 1")
 
     num_samples = len(data)
     indices = np.arange(num_samples)

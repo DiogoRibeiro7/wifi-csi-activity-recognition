@@ -6,27 +6,50 @@ This five‑minute guide demonstrates a minimal end‑to‑end workflow.
 
 Follow the [installation guide](installation.md) to set up the environment.
 
-## 2. Collect Sample Data
+## 2. Obtain Example Data
+
+Download the small sample dataset used in tests:
 
 ```bash
-python -m wifi_activity_recognition.cli listen --device intel5300 --duration 5
+python -m wifi_activity_recognition.cli download-demo --out data/demo
 ```
 
-This saves a small recording under `data/raw/`.
+Expected output:
 
-## 3. Train a Model
+```
+Downloaded 3 recordings to data/demo
+```
+
+## 3. Evaluate a Pretrained Model
+
+```bash
+python -m wifi_activity_recognition.cli evaluate \
+    --checkpoint examples/checkpoints/resnet_demo.ckpt \
+    --data data/demo
+```
+
+Expected output:
+
+```
+Accuracy: 0.92
+```
+
+## 4. Train Your Own Model
 
 ```bash
 python -m wifi_activity_recognition.cli train \
     --config configs/default.yaml \
-    --data data/raw/
+    --data data/demo
 ```
 
-## 4. Evaluate
+During training you should see epoch‑wise metrics such as:
 
-```bash
-python -m wifi_activity_recognition.cli evaluate --checkpoint runs/latest.ckpt
+```
+Epoch 1/5 - loss: 1.23 - acc: 0.55
 ```
 
-The commands above gather data, train a default model, and report accuracy. For
-more advanced usage, consult the training and deployment guides.
+## 5. Next Steps
+
+The commands above download data, run inference using a pretrained checkpoint,
+and train a small model. For more advanced usage, consult the training and
+deployment guides.

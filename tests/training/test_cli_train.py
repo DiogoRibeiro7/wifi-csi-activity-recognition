@@ -16,6 +16,7 @@ from wifi_activity_recognition.cli import cli  # type: ignore  # noqa: E402
 
 
 def test_cli_train(tmp_path: Path):
+    """Run the CLI training command and ensure a model is saved."""
     data = np.random.rand(20, 1, 8, 8).astype(np.float32)
     labels = np.random.randint(0, 2, 20)
     data_path = tmp_path / "data.npy"
