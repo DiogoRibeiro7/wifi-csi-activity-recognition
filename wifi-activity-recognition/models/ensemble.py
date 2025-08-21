@@ -15,6 +15,7 @@ from torch import nn
 from .cnn2d import CNN2DModel
 from .cnn3d import CNN3DModel
 from .resnet import ResNetSpectrogramModel
+from .vision_transformer import VisionTransformerModel
 
 
 class EnsembleModel(nn.Module):
@@ -27,6 +28,7 @@ class EnsembleModel(nn.Module):
         cnn2d: Optional[nn.Module] = None,
         resnet: Optional[nn.Module] = None,
         cnn3d: Optional[nn.Module] = None,
+        vit: Optional[nn.Module] = None,
     ) -> None:
         """Initialize the ensemble model."""
         super().__init__()
@@ -39,6 +41,9 @@ class EnsembleModel(nn.Module):
         self.cnn3d = cnn3d or CNN3DModel(
             num_classes=num_classes, in_channels=in_channels
         )
+        self.vit = vit or VisionTransformerModel(
+            num_classes=num_classes, in_channels=in_channels
+        )
 
     def forward(self, x2d: torch.Tensor, x3d: torch.Tensor) -> torch.Tensor:
         """Forward pass combining predictions from submodels."""
@@ -46,6 +51,7 @@ class EnsembleModel(nn.Module):
             self.cnn2d(x2d),
             self.resnet(x2d),
             self.cnn3d(x3d),
+            self.vit(x2d),
         ]
         return torch.stack(logits).mean(0)
 

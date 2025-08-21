@@ -1,56 +1,73 @@
 # API Reference
 
-High‑level overview of the modules exposed by the package. Refer to the source
-code for complete docstrings and advanced usage.
+The reference documentation is built with **Sphinx** and the
+`autodoc` extension. Each section below mirrors a top‑level package module and
+is generated from in‑line docstrings.
 
 ## Hardware
 
-Classes implementing `CSIReaderBase` for different chipsets:
+```{eval-rst}
+.. automodule:: wifi_activity_recognition.hardware
+   :members:
+   :undoc-members:
+```
 
-- `Intel5300Reader`
-- `ESP32Reader`
-- `AtherosReader`
+### Example
+
+```python
+from wifi_activity_recognition.hardware import Intel5300Reader
+reader = Intel5300Reader(...)
+reader.connect()
+```
 
 ## Preprocessing
 
-Utilities to clean and segment CSI:
-
-- `normalize_amplitude`, `normalize_phase`
-- `butterworth_filter`, `kalman_filter`
-- `segment_windows`
+```{eval-rst}
+.. automodule:: wifi_activity_recognition.preprocessing
+   :members:
+```
 
 ## Features
 
-Feature extraction helpers used for downstream models:
-
-- `rms_energy`, `zero_crossing_rate`
-- `short_time_fourier_transform`
-- `doppler_spectrum`
+```{eval-rst}
+.. automodule:: wifi_activity_recognition.features
+   :members:
+```
 
 ## Models
 
-Model architectures registered in the factory:
-
-- `cnn2d`, `resnet`, `cnn3d`, `transformer`
-- `EnsembleModel` to average predictions
+```{eval-rst}
+.. automodule:: wifi_activity_recognition.models
+   :members:
+```
 
 ## Datasets
 
-- `Dataset.from_files` to build train/validation/test splits
-- Public dataset helpers: `load_widar`, `load_signfi`
+```{eval-rst}
+.. automodule:: wifi_activity_recognition.datasets
+   :members:
+```
 
 ## Training
 
-- `Trainer` orchestrates epochs and checkpointing
-- CLI `train` command provides end‑to‑end execution
+```{eval-rst}
+.. automodule:: wifi_activity_recognition.training
+   :members:
+```
 
 ## Utilities
 
-- `config.load_config` and `validate_config`
-- `io.save_csi` / `io.load_csi`
-- `visualization.plot_heatmap`
+```{eval-rst}
+.. automodule:: wifi_activity_recognition.utils
+   :members:
+```
 
-## Deployment
+## Deployment Helpers
 
-- Docker and Kubernetes manifests under `deployment/`
-- Raspberry Pi optimization script
+```{eval-rst}
+.. automodule:: wifi_activity_recognition.inference
+   :members:
+```
+
+These directives produce a complete API when building the docs with
+`sphinx-build docs docs/_build`.

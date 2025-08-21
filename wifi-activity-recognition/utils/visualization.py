@@ -8,13 +8,17 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def plot_csi_heatmap(csi: np.ndarray, ax: plt.Axes | None = None) -> plt.Axes:
+def plot_csi_heatmap(
+    csi: np.ndarray, ax: plt.Axes | None = None, *, colorbar: bool = False
+) -> plt.Axes:
     """Plot a heatmap of CSI amplitudes or phases."""
     if ax is None:
         _, ax = plt.subplots()
-    ax.imshow(csi, aspect="auto", origin="lower")
+    im = ax.imshow(csi, aspect="auto", origin="lower")
     ax.set_xlabel("Subcarrier")
     ax.set_ylabel("Packet")
+    if colorbar:
+        plt.colorbar(im, ax=ax)
     return ax
 
 

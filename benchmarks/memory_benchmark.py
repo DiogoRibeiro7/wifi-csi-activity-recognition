@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import gc
+import statistics
 import tracemalloc
-from typing import Callable, Iterable
+from typing import Callable, Iterable, MutableMapping
 
 from wifi_activity_recognition.hardware.base import CSIData
 
@@ -33,6 +34,33 @@ def measure_memory_usage(
     current, peak = tracemalloc.get_traced_memory()
     tracemalloc.stop()
     return peak
+
+
+def profile_memory_usage(
+    func: Callable[[Iterable[CSIData]], object],
+    data: Iterable[CSIData],
+    runs: int = 5,
+    *,
+    optimize: bool = False,
+) -> MutableMapping[str, float]:
+    """Profile memory usage across multiple executions of ``func``.
+
+    Args:
+        func: Function processing an iterable of ``CSIData``.
+        data: Iterable of CSI packets passed to ``func``.
+        runs: Number of times to execute ``func`` for statistics.
+        optimize: If ``True`` run ``gc.collect`` before each run.
+
+    Returns:
+        Mapping containing ``mean_bytes`` and ``peak_bytes`` statistics.
+    """
+    peaks: list[int] = []
+    for _ in range(runs):
+        peaks.append(measure_memory_usage(func, data, optimize=optimize))
+    return {
+        "mean_bytes": statistics.fmean(peaks),
+        "peak_bytes": float(max(peaks)),
+    }
 
 
 def detect_memory_leak(

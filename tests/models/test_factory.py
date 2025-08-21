@@ -12,11 +12,13 @@ package.__path__ = [str(PACKAGE_ROOT)]
 sys.modules["wifi_activity_recognition"] = package
 
 from wifi_activity_recognition.models import (  # type: ignore  # noqa: E402
+    AttentionCNN3DModel,
     CNN2DModel,
     CNN3DModel,
     EnsembleModel,
     ResNetSpectrogramModel,
     TransformerModel,
+    VisionTransformerModel,
     create_model,
 )
 
@@ -29,6 +31,9 @@ def test_factory_creates_models() -> None:
         ResNetSpectrogramModel,
     )
     assert isinstance(create_model("cnn3d", num_classes=2), CNN3DModel)
+    assert isinstance(
+        create_model("attention_cnn3d", num_classes=2), AttentionCNN3DModel
+    )
     model = create_model("ensemble", num_classes=2)
     assert isinstance(model, EnsembleModel)
     x2d = torch.randn(1, 1, 30, 50)
@@ -40,3 +45,8 @@ def test_factory_creates_models() -> None:
     x = torch.randn(1, 10, 64)
     out_t = transformer(x)
     assert out_t.shape == (1, 2)
+    vit = create_model("vit", num_classes=2)
+    assert isinstance(vit, VisionTransformerModel)
+    x_vit = torch.randn(1, 1, 30, 50)
+    out_vit = vit(x_vit)
+    assert out_vit.shape == (1, 2)

@@ -17,6 +17,8 @@ pyyaml>=5.4.0
 h5py>=3.0.0
 requests>=2.25.0
 click>=8.0.0
+networkx>=2.5
+PyWavelets>=1.1.1
 
 # Choose ONE of the following ML backends:
 # For PyTorch (recommended):
@@ -29,3 +31,5 @@ torchvision>=0.9.0
 
 # Serial communication (for ESP32 and similar hardware)
 pyserial>=3.5
+psutil>=5.8.0
+csiread>=1.4.0

@@ -1,5 +1,5 @@
 """
-Hardware abstraction layer for WiFi CSI devices.
+Provide a hardware abstraction layer for WiFi CSI devices.
 
 This module provides a unified interface for working with different WiFi hardware
 platforms that support Channel State Information (CSI) extraction.
@@ -66,12 +66,12 @@ try:
 except ImportError:
     pass
 
-# Placeholder for future drivers
-# try:
-#     from .qualcomm import QualcommReader
-#     HardwareFactory.register_driver('qualcomm', QualcommReader)
-# except ImportError:
-#     pass
+try:
+    from .qualcomm import QualcommReader
+
+    HardwareFactory.register_driver("qualcomm", QualcommReader)
+except ImportError:  # pragma: no cover
+    pass
 
 # try:
 #     from .broadcom import BroadcomReader
@@ -87,8 +87,7 @@ except ImportError:
 
 
 def CSIReader(hardware_type: str, config: dict = None) -> CSIReaderBase:
-    """
-    Factory function to create CSI reader for specified hardware.
+    """Create a CSI reader for specified hardware.
 
     Args:
         hardware_type: Type of hardware ('intel_5300', 'esp32', etc.)
@@ -181,6 +180,14 @@ def get_hardware_info(hardware_type: str) -> dict:
             "typical_sampling_rate": 1000,
             "bandwidth_options": [20, 40],
             "notes": "Legacy research platform",
+        },
+        "qualcomm": {
+            "name": "Qualcomm Android",
+            "subcarriers": [64, 128, 256],
+            "max_antennas": 4,
+            "typical_sampling_rate": 1000,
+            "bandwidth_options": [20, 40, 80],
+            "notes": "Commercial mobile devices with CSI support",
         },
     }
 

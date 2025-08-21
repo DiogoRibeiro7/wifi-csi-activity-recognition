@@ -1,9 +1,10 @@
-"""YAML configuration loading and validation helpers."""
+"""Configuration loading and validation utilities."""
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any, Mapping, MutableMapping
 
 import yaml
 
@@ -20,20 +21,22 @@ def get_default_config() -> dict[str, Any]:
 
 
 def load_config(path: str | Path) -> dict[str, Any]:
-    """Load a YAML configuration file.
+    """Load a YAML configuration file with environment variable expansion.
 
     Parameters
     ----------
-    path: str or Path
+    path:
         Path to the YAML configuration file.
 
     Returns
     -------
     dict
-        Parsed configuration dictionary.
+        Parsed configuration dictionary. Returns an empty dict when the file is
+        empty.
     """
     with open(path, "r", encoding="utf-8") as f:
-        return yaml.safe_load(f) or {}
+        text = os.path.expandvars(f.read())
+    return yaml.safe_load(text) or {}
 
 
 def validate_config(config: Mapping[str, Any], schema_path: str | Path) -> None:
@@ -41,21 +44,25 @@ def validate_config(config: Mapping[str, Any], schema_path: str | Path) -> None:
 
     The schema should mirror the structure of the configuration and list
     required keys. Nested dictionaries are validated recursively.
-
-    Parameters
-    ----------
-    config: Mapping[str, Any]
-        Configuration data to validate.
-    schema_path: str or Path
-        Path to the YAML schema describing required keys.
-
-    Raises
-    ------
-    ValueError
-        If a required key is missing from the configuration.
     """
     schema = load_config(schema_path)
     _validate_dict(config, schema, path="")
+
+
+def merge_configs(
+    base: MutableMapping[str, Any], overrides: Mapping[str, Any]
+) -> MutableMapping[str, Any]:
+    """Recursively merge ``overrides`` into ``base`` and return the result."""
+    for key, value in overrides.items():
+        if (
+            key in base
+            and isinstance(base[key], MutableMapping)
+            and isinstance(value, Mapping)
+        ):
+            merge_configs(base[key], value)
+        else:
+            base[key] = value
+    return base
 
 
 def _validate_dict(
