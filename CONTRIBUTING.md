@@ -62,8 +62,8 @@ There are many ways to contribute to this project:
 
 1. **Fork and Clone the Repository**
 ```bash
-git clone https://github.com/yourusername/wifi-activity-recognition.git
-cd wifi-activity-recognition
+git clone https://github.com/diogoribeiro7/wifi-csi-activity-recognition.git
+cd wifi-csi-activity-recognition
 ```
 
 2. **Create a Virtual Environment**
@@ -174,17 +174,17 @@ Example docstring:
 def process_csi_data(csi_data: CSIData, method: str = "normalize") -> np.ndarray:
     """
     Process raw CSI data using specified method.
-    
+
     Args:
         csi_data: Raw CSI data from hardware
         method: Processing method ("normalize", "filter", "calibrate")
-        
+
     Returns:
         Processed CSI data as numpy array
-        
+
     Raises:
         ValueError: If method is not supported
-        
+
     Example:
         >>> csi = CSIData(...)
         >>> processed = process_csi_data(csi, method="normalize")

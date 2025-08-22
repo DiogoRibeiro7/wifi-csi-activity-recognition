@@ -30,6 +30,8 @@ For more examples and detailed documentation, visit:
 https://wifi-activity-recognition.readthedocs.io/
 """
 
+import os as _os
+
 # Models and utilities
 from . import features, hardware, models, multimodal, preprocessing, research, utils
 from .datasets import Dataset, load_public_dataset
@@ -68,11 +70,11 @@ __all__ = [
 ]
 
 # Package metadata
-__author__ = "Your Name"
-__email__ = "your.email@domain.com"
+__author__ = "Diogo Ribeiro"
+__email__ = "dfr@esmad.ipp.pt"
 __license__ = "MIT"
 __description__ = "WiFi CSI-based human activity recognition using computer vision"
-__url__ = "https://github.com/yourusername/wifi-activity-recognition"
+__url__ = "https://github.com/diogoribeiro7/wifi-csi-activity-recognition"
 
 # Supported activities (can be extended)
 SUPPORTED_ACTIVITIES = [
@@ -161,5 +163,6 @@ def check_dependencies():
             )
 
 
-# Run dependency check on import
-check_dependencies()
+# Run dependency check on import unless explicitly skipped
+if _os.environ.get("WIFI_AR_SKIP_DEPS") != "1":
+    check_dependencies()

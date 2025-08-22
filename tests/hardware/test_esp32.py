@@ -1,29 +1,12 @@
 """Tests for the simulated ESP32 hardware driver."""
 
 import struct
-import sys
-import types
-from pathlib import Path
 
 import numpy as np
 import pytest
 
-# ---------------------------------------------------------------------------
-# Make the package importable despite repository layout using hyphenated name
-# ---------------------------------------------------------------------------
-PACKAGE_ROOT = Path(__file__).resolve().parents[2] / "wifi-activity-recognition"
-package = types.ModuleType("wifi_activity_recognition")
-package.__path__ = [str(PACKAGE_ROOT)]
-sys.modules["wifi_activity_recognition"] = package
-
-from wifi_activity_recognition.hardware import (  # type: ignore  # noqa: E402
-    CSIReader,
-    ESP32Reader,
-    HardwareConfig,
-)
-from wifi_activity_recognition.hardware.base import (  # type: ignore  # noqa: E402
-    CSIData,
-)
+from wifi_activity_recognition.hardware import CSIReader, ESP32Reader, HardwareConfig
+from wifi_activity_recognition.hardware.base import CSIData
 
 
 class DummySerial:
