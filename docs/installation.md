@@ -6,7 +6,7 @@ This guide walks through software and driver installation on **Linux**,
 ## 1. Obtain the Source
 
 ```bash
-git clone https://github.com/DiogoRibeiro7/wifi-csi-activity-recognition.git
+git clone https://github.com/diogoribeiro7/wifi-csi-activity-recognition.git
 cd wifi-csi-activity-recognition
 ```
 

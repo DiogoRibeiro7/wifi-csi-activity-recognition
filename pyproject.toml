@@ -9,13 +9,13 @@ description = "A comprehensive Python package for human activity recognition usi
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
-    {name = "Your Name", email = "your.email@domain.com"}
+    {name = "Diogo Ribeiro", email = "dfr@esmad.ipp.pt"}
 ]
 maintainers = [
-    {name = "Your Name", email = "your.email@domain.com"}
+    {name = "Diogo Ribeiro", email = "dfr@esmad.ipp.pt"}
 ]
 keywords = [
-    "wifi", "csi", "activity-recognition", "computer-vision", 
+    "wifi", "csi", "activity-recognition", "computer-vision",
     "machine-learning", "iot", "sensing", "human-activity"
 ]
 classifiers = [
@@ -26,7 +26,7 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9", 
+    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -85,11 +85,11 @@ all = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/wifi-activity-recognition"
+Homepage = "https://github.com/diogoribeiro7/wifi-csi-activity-recognition"
 Documentation = "https://wifi-activity-recognition.readthedocs.io/"
-Repository = "https://github.com/yourusername/wifi-activity-recognition.git"
-"Bug Tracker" = "https://github.com/yourusername/wifi-activity-recognition/issues"
-Changelog = "https://github.com/yourusername/wifi-activity-recognition/blob/main/CHANGELOG.md"
+Repository = "https://github.com/diogoribeiro7/wifi-csi-activity-recognition.git"
+"Bug Tracker" = "https://github.com/diogoribeiro7/wifi-csi-activity-recognition/issues"
+Changelog = "https://github.com/diogoribeiro7/wifi-csi-activity-recognition/blob/main/CHANGELOG.md"
 
 [project.scripts]
 wifi-har-train = "wifi_activity_recognition.cli:train"
