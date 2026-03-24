@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # WiFi Activity Recognition - Development Environment Setup Script
-# This script sets up the complete development environment for coding agents
+# This script sets up the complete development environment for contributors
 
 set -e  # Exit on any error
 
@@ -68,12 +68,12 @@ check_python_version() {
 main() {
     print_header "WiFi Activity Recognition - Development Setup"
     
-    echo -e "${PURPLE}Setting up development environment for coding agents...${NC}\n"
+    echo -e "${PURPLE}Setting up the development environment...${NC}\n"
     
     # Check if we're in the right directory
-    if [ ! -f "pyproject.toml" ] || [ ! -f "AGENTS.md" ]; then
+    if [ ! -f "pyproject.toml" ] || [ ! -f "DEVELOPMENT_GUIDE.md" ]; then
         print_error "Please run this script from the project root directory"
-        print_info "Make sure you have pyproject.toml and AGENTS.md in the current directory"
+        print_info "Make sure you have pyproject.toml and DEVELOPMENT_GUIDE.md in the current directory"
         exit 1
     fi
     
@@ -267,12 +267,12 @@ main() {
     print_success "Project structure created"
     
     # Note about configuration files
-    print_info "Configuration files will be created by coding agents as needed"
-    print_info "See AGENTS.md for configuration file templates and patterns"
+    print_info "Configuration files can be created as needed during development"
+    print_info "See DEVELOPMENT_GUIDE.md for configuration file templates and patterns"
     
     # Note about testing files
-    print_info "Test configuration and fixtures will be created by coding agents"
-    print_info "See AGENTS.md for testing patterns and requirements"
+    print_info "Test configuration and fixtures can be created as needed"
+    print_info "See DEVELOPMENT_GUIDE.md for testing patterns and requirements"
     
     # Create development scripts
     print_header "Creating Development Scripts"
@@ -365,7 +365,7 @@ EOF
     if python -c "from wifi_activity_recognition import cli" 2>/dev/null; then
         print_success "CLI module accessible"
     else
-        print_info "CLI will be implemented by coding agents"
+        print_info "CLI will be implemented during project development"
     fi
     
     # Check code quality tools
@@ -379,9 +379,9 @@ EOF
     
     echo -e "${GREEN}✓ Development environment successfully set up!${NC}\n"
     
-    echo -e "${CYAN}Next Steps for Coding Agents:${NC}"
+    echo -e "${CYAN}Next Steps:${NC}"
     echo -e "1. Activate environment: ${YELLOW}source activate.sh${NC}"
-    echo -e "2. Read the agent instructions: ${YELLOW}cat AGENTS.md${NC}"
+    echo -e "2. Read the development guide: ${YELLOW}cat DEVELOPMENT_GUIDE.md${NC}"
     echo -e "3. Start implementing components according to ROADMAP.md"
     echo -e "4. Run tests frequently: ${YELLOW}./scripts/dev.sh test${NC}"
     echo -e "5. Check code quality: ${YELLOW}./scripts/dev.sh lint${NC}"
@@ -397,7 +397,7 @@ EOF
     echo ""
     
     echo -e "${CYAN}Development Workflow:${NC}"
-    echo -e "• Follow patterns in AGENTS.md"
+    echo -e "• Follow patterns in DEVELOPMENT_GUIDE.md"
     echo -e "• Implement hardware drivers first (Intel 5300, ESP32)"
     echo -e "• Add models (CNN2D, ResNet variants)"
     echo -e "• Build preprocessing pipeline"

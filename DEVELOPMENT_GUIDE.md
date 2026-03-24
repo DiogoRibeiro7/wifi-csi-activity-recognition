@@ -1,6 +1,6 @@
-# AGENTS.md - Coding Agent Instructions
+# Development Guide
 
-This file provides comprehensive instructions for AI coding agents to develop the WiFi Activity Recognition package. Follow these guidelines to maintain consistency, quality, and architectural integrity.
+This file provides comprehensive development instructions for the WiFi Activity Recognition package. Follow these guidelines to maintain consistency, quality, and architectural integrity.
 
 ## 🎯 Project Overview
 
@@ -507,7 +507,7 @@ logger.critical("Serious error occurred")
 
 --------------------------------------------------------------------------------
 
-## 🎯 Final Notes for Agents
+## 🎯 Final Notes for Contributors
 
 **Remember:**
 
