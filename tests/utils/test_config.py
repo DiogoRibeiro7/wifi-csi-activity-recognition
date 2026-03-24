@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-PACKAGE_ROOT = Path(__file__).resolve().parents[2] / "wifi-activity-recognition"
+PACKAGE_ROOT = Path(__file__).resolve().parents[2] / "wifi_activity_recognition"
 package = types.ModuleType("wifi_activity_recognition")
 package.__path__ = [str(PACKAGE_ROOT)]
 sys.modules["wifi_activity_recognition"] = package
@@ -56,3 +56,4 @@ def test_env_expansion_and_merge(tmp_path, monkeypatch):
     base = {"db": {"host": "localhost"}}
     merged = merge_configs(base, {"db": {"port": 9090}})
     assert merged["db"] == {"host": "localhost", "port": 9090}
+

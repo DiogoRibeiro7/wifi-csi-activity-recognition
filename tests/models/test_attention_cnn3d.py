@@ -8,7 +8,7 @@ import pytest
 import torch
 from torch import nn
 
-PACKAGE_ROOT = Path(__file__).resolve().parents[2] / "wifi-activity-recognition"
+PACKAGE_ROOT = Path(__file__).resolve().parents[2] / "wifi_activity_recognition"
 package = types.ModuleType("wifi_activity_recognition")
 package.__path__ = [str(PACKAGE_ROOT)]
 sys.modules["wifi_activity_recognition"] = package
@@ -66,3 +66,4 @@ def test_attention_cnn3d_matches_baseline_shape() -> None:
     out_base = baseline(x)
     out_adv = advanced(x)
     assert out_base.shape == out_adv.shape
+

@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-PACKAGE_ROOT = Path(__file__).resolve().parents[2] / "wifi-activity-recognition"
+PACKAGE_ROOT = Path(__file__).resolve().parents[2] / "wifi_activity_recognition"
 package = types.ModuleType("wifi_activity_recognition")
 package.__path__ = [str(PACKAGE_ROOT)]
 sys.modules["wifi_activity_recognition"] = package
@@ -50,3 +50,4 @@ def test_invalid_split_ratios():
     labels = np.zeros(10)
     with pytest.raises(ValueError):
         split_dataset(data, labels, val_ratio=0.6, test_ratio=0.5)
+

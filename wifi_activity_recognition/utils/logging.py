@@ -13,6 +13,14 @@ class _JsonFormatter(logging.Formatter):
     """Simple JSON log formatter."""
 
     def format(self, record: logging.LogRecord) -> str:  # noqa: D401
+        """Serialize a log record into a compact JSON string.
+
+        Args:
+            record: Logging record produced by the Python logging framework.
+
+        Returns:
+            JSON string containing timestamp, level, logger name, and message.
+        """
         return json.dumps(
             {
                 "time": self.formatTime(record),

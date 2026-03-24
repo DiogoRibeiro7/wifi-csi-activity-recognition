@@ -177,6 +177,15 @@ if tf is not None:
             )
 
         def call(self, x: tf.Tensor, training: bool = False) -> tf.Tensor:
+            """Apply one TensorFlow transformer encoder block.
+
+            Args:
+                x: Sequence tensor shaped ``(batch, tokens, dim)``.
+                training: Whether dropout layers should be active.
+
+            Returns:
+                Encoded sequence tensor with the same shape as ``x``.
+            """
             residual = x
             x = self.norm1(x)
             x = self.attn(x, x, training=training)

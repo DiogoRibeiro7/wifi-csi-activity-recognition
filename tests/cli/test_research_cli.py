@@ -8,7 +8,7 @@ import numpy as np
 from click.testing import CliRunner
 
 ROOT = Path(__file__).resolve().parents[2]
-PACKAGE_ROOT = ROOT / "wifi-activity-recognition"
+PACKAGE_ROOT = ROOT / "wifi_activity_recognition"
 package = types.ModuleType("wifi_activity_recognition")
 package.__path__ = [str(PACKAGE_ROOT)]
 sys.modules["wifi_activity_recognition"] = package
@@ -156,3 +156,4 @@ def test_export(tmp_path: Path):
     )
     assert result.exit_code == 0, result.output
     assert onnx_path.exists()
+

@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 import torch
 
-PACKAGE_ROOT = Path(__file__).resolve().parents[2] / "wifi-activity-recognition"
+PACKAGE_ROOT = Path(__file__).resolve().parents[2] / "wifi_activity_recognition"
 package = types.ModuleType("wifi_activity_recognition")
 package.__path__ = [str(PACKAGE_ROOT)]
 sys.modules["wifi_activity_recognition"] = package
@@ -67,3 +67,4 @@ def test_vit_tf_seq_to_seq() -> None:
     assert out.shape[0] == 1
     assert out.shape[1] == 60
     assert out.shape[2] == 2
+

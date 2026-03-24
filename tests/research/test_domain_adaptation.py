@@ -8,7 +8,7 @@ import numpy as np
 import torch
 from torch import nn
 
-PACKAGE_ROOT = Path(__file__).resolve().parents[2] / "wifi-activity-recognition"
+PACKAGE_ROOT = Path(__file__).resolve().parents[2] / "wifi_activity_recognition"
 if "wifi_activity_recognition" not in sys.modules:
     package = types.ModuleType("wifi_activity_recognition")
     package.__path__ = [str(PACKAGE_ROOT)]
@@ -78,3 +78,4 @@ def test_domain_adapter_mmd_adaptation():
     adapter.adapt_to_target([csi for csi, _ in dataset], method="mmd")
     acc = adapter.evaluate_adaptation(dataset)["accuracy"]
     assert acc == 1.0
+

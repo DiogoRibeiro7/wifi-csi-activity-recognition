@@ -2,11 +2,20 @@
 
 from __future__ import annotations
 
-import resource
 import time
 from typing import List
 
 import numpy as np
+
+try:
+    import resource
+except ImportError:  # pragma: no cover - unavailable on Windows
+    resource = None  # type: ignore[assignment]
+
+try:
+    import psutil
+except ImportError:  # pragma: no cover - optional fallback
+    psutil = None  # type: ignore[assignment]
 
 
 class PerformanceMonitor:
@@ -44,8 +53,15 @@ class PerformanceMonitor:
     # ------------------------------------------------------------------
     def memory_mb(self) -> float:
         """Return memory usage of the process in megabytes."""
-        usage_kb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-        return usage_kb / 1024.0
+        if resource is not None:
+            usage_kb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+            return usage_kb / 1024.0
+
+        if psutil is not None:
+            process = psutil.Process()
+            return float(process.memory_info().rss / (1024.0 * 1024.0))
+
+        return 0.0
 
     def packet_rate(self) -> float:
         """Return processed packets per second."""

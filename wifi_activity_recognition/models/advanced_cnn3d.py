@@ -35,6 +35,14 @@ class _SpatialAttention3D(nn.Module):
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """Apply spatial attention weights to a 3D feature map.
+
+        Args:
+            x: Input tensor shaped ``(batch, channels, time, height, width)``.
+
+        Returns:
+            Tensor with channel-compressed spatial attention applied.
+        """
         avg = torch.mean(x, dim=1, keepdim=True)
         mx, _ = torch.max(x, dim=1, keepdim=True)
         attn = torch.cat([avg, mx], dim=1)
@@ -53,6 +61,14 @@ class _TemporalAttention3D(nn.Module):
         self.softmax = nn.Softmax(dim=2)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """Apply temporal attention across the sequence dimension.
+
+        Args:
+            x: Input tensor shaped ``(batch, channels, time, height, width)``.
+
+        Returns:
+            Tensor reweighted according to the learned temporal attention map.
+        """
         # x: (N, C, T, H, W)
         n, c, t, h, w = x.shape
         x_avg = x.mean(dim=[3, 4])  # (N, C, T)
@@ -118,6 +134,14 @@ if keras is not None:
             )
 
         def call(self, inputs: tf.Tensor) -> tf.Tensor:  # type: ignore[override]
+            """Apply Keras spatial attention to the input tensor.
+
+            Args:
+                inputs: Tensor shaped ``(batch, time, height, width, channels)``.
+
+            Returns:
+                Attention-weighted tensor with the same shape as ``inputs``.
+            """
             avg = self.avg_pool(inputs)
             mx = self.max_pool(inputs)
             x = tf.concat([avg, mx], axis=4)
@@ -133,6 +157,14 @@ if keras is not None:
             self.fc2 = layers.Dense(1)
 
         def call(self, inputs: tf.Tensor) -> tf.Tensor:  # type: ignore[override]
+            """Apply temporal attention over the sequence axis.
+
+            Args:
+                inputs: Tensor shaped ``(batch, time, height, width, channels)``.
+
+            Returns:
+                Tensor scaled by a learned temporal attention distribution.
+            """
             # inputs: (N, T, H, W, C)
             x = tf.reduce_mean(inputs, axis=[2, 3])  # (N, T, C)
             attn = self.fc2(self.fc1(x))  # (N, T, 1)

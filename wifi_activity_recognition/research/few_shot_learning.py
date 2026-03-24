@@ -182,6 +182,14 @@ class MAMLLearner:
         xq, yq = self._batch(query)
 
         def loss_fn(p: Dict[str, torch.Tensor]) -> torch.Tensor:
+            """Compute support-set loss for a candidate parameter dictionary.
+
+            Args:
+                p: Parameter mapping used for the functional model call.
+
+            Returns:
+                Cross-entropy loss on the current support batch.
+            """
             logits = functional_call(self.model, p, (xs,))
             return F.cross_entropy(logits, ys)
 

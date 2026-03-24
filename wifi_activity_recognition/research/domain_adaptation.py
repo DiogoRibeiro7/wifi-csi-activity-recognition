@@ -30,6 +30,16 @@ class _GradientReverse(torch.autograd.Function):
     def forward(
         ctx, x: torch.Tensor, lambd: float
     ) -> torch.Tensor:  # pragma: no cover - trivial
+        """Return the input unchanged while storing the reversal factor.
+
+        Args:
+            ctx: Autograd context used to persist ``lambd`` for the backward pass.
+            x: Input tensor passed through unchanged.
+            lambd: Scaling factor applied to reversed gradients.
+
+        Returns:
+            View of ``x`` used by the custom autograd function.
+        """
         ctx.lambd = lambd
         return x.view_as(x)
 
@@ -37,6 +47,16 @@ class _GradientReverse(torch.autograd.Function):
     def backward(
         ctx, grad_output: torch.Tensor
     ) -> Tuple[torch.Tensor, None]:  # pragma: no cover - trivial
+        """Reverse and scale gradients during backpropagation.
+
+        Args:
+            ctx: Autograd context populated during ``forward``.
+            grad_output: Gradient flowing from subsequent layers.
+
+        Returns:
+            Tuple containing the reversed gradient for ``x`` and ``None`` for
+            the non-differentiable ``lambd`` parameter.
+        """
         return -ctx.lambd * grad_output, None
 
 

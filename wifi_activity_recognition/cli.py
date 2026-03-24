@@ -279,6 +279,12 @@ def train(
         with click.progressbar(length=epochs, label="Training") as bar:
 
             def progress_callback(epoch, metrics):
+                """Update the CLI progress bar after each training epoch.
+
+                Args:
+                    epoch: One-based epoch index reported by the trainer.
+                    metrics: Metric dictionary collected for the completed epoch.
+                """
                 bar.update(1)
                 if ctx.obj["verbose"]:
                     click.echo(f"\nEpoch {epoch}: {metrics}")
@@ -783,11 +789,27 @@ def benchmark(model: str, data: str, labels: str, hardware: str, output: str) ->
         )
 
         def predictor(csi):
+            """Run the benchmark predictor on a single CSI packet.
+
+            Args:
+                csi: Benchmark CSI packet converted into model input.
+
+            Returns:
+                Raw model output tensor for the packet.
+            """
             return model_instance(torch.tensor(csi.amplitude).float())
 
         packets = [packet]
 
         def consumer(pkt_iter):
+            """Materialize a packet iterator for memory benchmarking.
+
+            Args:
+                pkt_iter: Iterable of packets produced by the benchmark harness.
+
+            Returns:
+                List containing all packets yielded by the iterator.
+            """
             return list(pkt_iter)
 
         generate_performance_report(

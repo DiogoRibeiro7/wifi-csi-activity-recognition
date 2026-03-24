@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 from torch import nn
 
-PACKAGE_ROOT = Path(__file__).resolve().parents[2] / "wifi-activity-recognition"
+PACKAGE_ROOT = Path(__file__).resolve().parents[2] / "wifi_activity_recognition"
 package = types.ModuleType("wifi_activity_recognition")
 package.__path__ = [str(PACKAGE_ROOT)]
 sys.modules["wifi_activity_recognition"] = package
@@ -38,3 +38,4 @@ def test_cross_validation_runs():
         assert 0.0 <= results[key] <= 1.0
     assert len(results["per_class_accuracy"]) == 2
     assert np.array(results["confusion_matrix"]).shape == (2, 2)
+

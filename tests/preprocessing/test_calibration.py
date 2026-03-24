@@ -6,7 +6,7 @@ from pathlib import Path
 
 import numpy as np
 
-PACKAGE_ROOT = Path(__file__).resolve().parents[2] / "wifi-activity-recognition"
+PACKAGE_ROOT = Path(__file__).resolve().parents[2] / "wifi_activity_recognition"
 package = types.ModuleType("wifi_activity_recognition")
 package.__path__ = [str(PACKAGE_ROOT)]
 sys.modules["wifi_activity_recognition"] = package
@@ -65,3 +65,4 @@ def test_phase_unwrap_multi_axis() -> None:
     csi = _make_csi(amp, phase)
     unwrapped = phase_unwrap(csi, axes=(0, -1))
     assert np.all(np.diff(unwrapped.phase, axis=0) < np.pi)
+

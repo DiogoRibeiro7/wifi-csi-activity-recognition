@@ -6,7 +6,7 @@ from pathlib import Path
 
 import torch
 
-PACKAGE_ROOT = Path(__file__).resolve().parents[2] / "wifi-activity-recognition"
+PACKAGE_ROOT = Path(__file__).resolve().parents[2] / "wifi_activity_recognition"
 if "wifi_activity_recognition" not in sys.modules:
     package = types.ModuleType("wifi_activity_recognition")
     package.__path__ = [str(PACKAGE_ROOT)]
@@ -33,3 +33,4 @@ def test_dynamic_batch() -> None:
     items = [1, 2, 3, 4, 5]
     batches = list(dynamic_batch(items, 2))
     assert batches == [[1, 2], [3, 4], [5]]
+

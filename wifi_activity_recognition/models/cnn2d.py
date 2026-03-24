@@ -90,6 +90,15 @@ if keras is not None:
         def call(
             self, inputs: tf.Tensor, training: bool = False
         ) -> tf.Tensor:  # type: ignore[override]
+            """Run a TensorFlow forward pass for CSI spectrogram inputs.
+
+            Args:
+                inputs: Tensor of shape ``(batch, height, width, channels)``.
+                training: Whether batch normalization layers should update stats.
+
+            Returns:
+                Logit tensor with shape ``(batch, num_classes)``.
+            """
             x = self.conv1(inputs)
             x = self.bn1(x, training=training)
             x = tf.nn.relu(x)

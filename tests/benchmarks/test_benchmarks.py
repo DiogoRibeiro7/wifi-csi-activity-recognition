@@ -17,7 +17,7 @@ from torch import nn
 # ---------------------------------------------------------------------------
 REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT))
-PACKAGE_ROOT = REPO_ROOT / "wifi-activity-recognition"
+PACKAGE_ROOT = REPO_ROOT / "wifi_activity_recognition"
 package = types.ModuleType("wifi_activity_recognition")
 package.__path__ = [str(PACKAGE_ROOT)]
 sys.modules["wifi_activity_recognition"] = package
@@ -206,3 +206,4 @@ def test_generate_performance_report(tmp_path: Path) -> None:
     assert path.exists()
     assert "accuracy" in report and "latency_ms" in report and "memory_bytes" in report
     assert isinstance(report["memory_bytes"], dict)
+

@@ -10,7 +10,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-PACKAGE_ROOT = Path(__file__).resolve().parents[2] / "wifi-activity-recognition"
+PACKAGE_ROOT = Path(__file__).resolve().parents[2] / "wifi_activity_recognition"
 if "wifi_activity_recognition" not in sys.modules:
     package = types.ModuleType("wifi_activity_recognition")
     package.__path__ = [str(PACKAGE_ROOT)]
@@ -181,3 +181,4 @@ def test_buffer_overflow_records_drop(csi_packet: CSIData) -> None:
     time.sleep(0.2)
     pipeline.stop()
     assert pipeline.monitor.dropped > 0
+

@@ -4,7 +4,7 @@ import sys
 import types
 from pathlib import Path
 
-PACKAGE_ROOT = Path(__file__).resolve().parents[2] / "wifi-activity-recognition"
+PACKAGE_ROOT = Path(__file__).resolve().parents[2] / "wifi_activity_recognition"
 if "wifi_activity_recognition" not in sys.modules:
     package = types.ModuleType("wifi_activity_recognition")
     package.__path__ = [str(PACKAGE_ROOT)]
@@ -26,3 +26,4 @@ def test_circular_buffer_overflow_and_pop() -> None:
     assert buf.pop() == 2
     assert buf.pop() == 3
     assert buf.pop() is None
+

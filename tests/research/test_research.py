@@ -8,7 +8,7 @@ import numpy as np
 import torch
 from torch import nn
 
-PACKAGE_ROOT = Path(__file__).resolve().parents[2] / "wifi-activity-recognition"
+PACKAGE_ROOT = Path(__file__).resolve().parents[2] / "wifi_activity_recognition"
 if "wifi_activity_recognition" not in sys.modules:
     package = types.ModuleType("wifi_activity_recognition")
     package.__path__ = [str(PACKAGE_ROOT)]
@@ -99,3 +99,4 @@ def test_maml_learner_adaptation():
     query = [(make_csi(2.0), 0), (make_csi(-1.0), 1)]
     acc = learner.adapt(support, query)
     assert acc > 0.5
+

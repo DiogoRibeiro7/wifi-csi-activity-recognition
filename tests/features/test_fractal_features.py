@@ -6,7 +6,7 @@ from pathlib import Path
 
 import numpy as np
 
-PACKAGE_ROOT = Path(__file__).resolve().parents[2] / "wifi-activity-recognition"
+PACKAGE_ROOT = Path(__file__).resolve().parents[2] / "wifi_activity_recognition"
 package = types.ModuleType("wifi_activity_recognition")
 package.__path__ = [str(PACKAGE_ROOT)]
 sys.modules["wifi_activity_recognition"] = package
@@ -42,3 +42,4 @@ def test_katz_variation() -> None:
     fd = katz_fd(csi)
     assert fd.shape == (2, 1)
     assert np.all(fd > 0)
+

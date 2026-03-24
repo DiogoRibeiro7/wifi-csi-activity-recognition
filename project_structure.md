@@ -1,7 +1,7 @@
 # Project Structure
 
 ```
-wifi-activity-recognition/
+wifi_activity_recognition/
 ├── README.md
 ├── ROADMAP.md
 ├── LICENSE
@@ -245,3 +245,4 @@ This structure provides a solid foundation that's:
 - **Documented**: Clear documentation structure
 - **Deployable**: Ready for various deployment scenarios
 - **Professional**: Follows Python packaging best practices
+

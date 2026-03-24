@@ -1,10 +1,9 @@
 """Common test configuration for wifi-csi-activity-recognition.
 
-This ensures the real package ``wifi-activity-recognition`` (with a hyphen
-in its name on disk) can be imported as ``wifi_activity_recognition`` during
-tests by loading its ``__init__`` module via a custom import spec. This
-executes the package's initialization code so attributes like ``hardware``
-are registered as they would be in a normal installation.
+This ensures the real ``wifi_activity_recognition`` package is loaded during
+tests by importing its ``__init__`` module via a custom import spec. This
+executes the package initialization code so attributes like ``hardware`` are
+registered as they would be in a normal installation.
 """
 
 from __future__ import annotations
@@ -18,7 +17,7 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-PACKAGE_ROOT = ROOT / "wifi-activity-recognition"
+PACKAGE_ROOT = ROOT / "wifi_activity_recognition"
 
 # Skip heavy dependency checks during test collection
 os.environ.setdefault("WIFI_AR_SKIP_DEPS", "1")
@@ -43,3 +42,4 @@ MODULE = module
 def _restore_package() -> None:
     """Restore the wifi_activity_recognition package for each test."""
     sys.modules["wifi_activity_recognition"] = MODULE
+

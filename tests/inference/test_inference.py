@@ -10,7 +10,7 @@ import torch
 # ---------------------------------------------------------------------------
 # Make the package importable despite repository layout using hyphenated name
 # ---------------------------------------------------------------------------
-PACKAGE_ROOT = Path(__file__).resolve().parents[2] / "wifi-activity-recognition"
+PACKAGE_ROOT = Path(__file__).resolve().parents[2] / "wifi_activity_recognition"
 if "wifi_activity_recognition" not in sys.modules:
     package = types.ModuleType("wifi_activity_recognition")
     package.__path__ = [str(PACKAGE_ROOT)]
@@ -86,3 +86,4 @@ def test_postprocessing_helpers() -> None:
     assert np.allclose(smoothed, np.array([0.4, 0.6]))
     assert post.apply_confidence_threshold(0.7, "x", 0.5) == ("x", 0.7)
     assert post.apply_confidence_threshold(0.4, "x", 0.5) is None
+
