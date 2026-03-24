@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-import sys
 import time
-import types
 from pathlib import Path
 from typing import Iterable, List
 
@@ -12,15 +10,6 @@ import numpy as np
 import torch
 from torch import nn
 
-# ---------------------------------------------------------------------------
-# Make the package importable despite repository layout using hyphenated name
-# ---------------------------------------------------------------------------
-REPO_ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(REPO_ROOT))
-PACKAGE_ROOT = REPO_ROOT / "wifi_activity_recognition"
-package = types.ModuleType("wifi_activity_recognition")
-package.__path__ = [str(PACKAGE_ROOT)]
-sys.modules["wifi_activity_recognition"] = package
 
 from benchmarks.accuracy_benchmark import run_accuracy_benchmark  # noqa: E402
 from benchmarks.latency_benchmark import measure_latency  # noqa: E402

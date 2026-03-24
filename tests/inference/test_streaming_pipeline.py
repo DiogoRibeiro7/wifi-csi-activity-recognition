@@ -1,8 +1,6 @@
 """Integration tests for the streaming pipeline."""
 
 # isort: skip_file
-import sys
-import types
 import time
 from collections import deque
 from pathlib import Path
@@ -10,15 +8,6 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-PACKAGE_ROOT = Path(__file__).resolve().parents[2] / "wifi_activity_recognition"
-if "wifi_activity_recognition" not in sys.modules:
-    package = types.ModuleType("wifi_activity_recognition")
-    package.__path__ = [str(PACKAGE_ROOT)]
-    sys.modules["wifi_activity_recognition"] = package
-    hw = types.ModuleType("wifi_activity_recognition.hardware")
-    hw.__path__ = [str(PACKAGE_ROOT / "hardware")]
-    sys.modules["wifi_activity_recognition.hardware"] = hw
-    package.hardware = hw
 
 from wifi_activity_recognition.hardware.base import (  # type: ignore  # noqa: E402
     CSIData,

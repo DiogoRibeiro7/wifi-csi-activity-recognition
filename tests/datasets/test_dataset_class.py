@@ -1,15 +1,9 @@
 """Tests for Dataset convenience helpers."""
 
-import sys
-import types
 from pathlib import Path
 
 import numpy as np
 
-PACKAGE_ROOT = Path(__file__).resolve().parents[2] / "wifi_activity_recognition"
-package = types.ModuleType("wifi_activity_recognition")
-package.__path__ = [str(PACKAGE_ROOT)]
-sys.modules["wifi_activity_recognition"] = package
 
 from wifi_activity_recognition.datasets import Dataset  # type: ignore  # noqa: E402
 

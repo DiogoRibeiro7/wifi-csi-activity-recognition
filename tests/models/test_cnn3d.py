@@ -1,17 +1,11 @@
 """Tests for 3D CNN model."""
 
-import sys
-import types
 from pathlib import Path
 
 import pytest
 import torch
 from torch import nn
 
-PACKAGE_ROOT = Path(__file__).resolve().parents[2] / "wifi_activity_recognition"
-package = types.ModuleType("wifi_activity_recognition")
-package.__path__ = [str(PACKAGE_ROOT)]
-sys.modules["wifi_activity_recognition"] = package
 
 from wifi_activity_recognition.models.cnn3d import (  # type: ignore  # noqa: E402
     CNN3DModel,

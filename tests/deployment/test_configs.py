@@ -1,6 +1,5 @@
 """Tests for deployment configuration and optimization utilities."""
 # noqa: D100
-import sys
 from pathlib import Path
 
 import torch

@@ -1,14 +1,7 @@
 """Tests for circular buffer management."""
 
-import sys
-import types
 from pathlib import Path
 
-PACKAGE_ROOT = Path(__file__).resolve().parents[2] / "wifi_activity_recognition"
-if "wifi_activity_recognition" not in sys.modules:
-    package = types.ModuleType("wifi_activity_recognition")
-    package.__path__ = [str(PACKAGE_ROOT)]
-    sys.modules["wifi_activity_recognition"] = package
 
 from wifi_activity_recognition.inference import (  # type: ignore  # noqa: E402
     CircularBuffer,

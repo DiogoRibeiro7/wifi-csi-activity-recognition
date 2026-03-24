@@ -1,18 +1,11 @@
 """Tests for advanced domain adaptation utilities."""
 
-import sys
-import types
 from pathlib import Path
 
 import numpy as np
 import torch
 from torch import nn
 
-PACKAGE_ROOT = Path(__file__).resolve().parents[2] / "wifi_activity_recognition"
-if "wifi_activity_recognition" not in sys.modules:
-    package = types.ModuleType("wifi_activity_recognition")
-    package.__path__ = [str(PACKAGE_ROOT)]
-    sys.modules["wifi_activity_recognition"] = package
 
 from wifi_activity_recognition.hardware.base import CSIData  # noqa: E402
 from wifi_activity_recognition.research.domain_adaptation import (  # noqa: E402
