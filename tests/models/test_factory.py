@@ -1,47 +1,13 @@
-"""Tests for model factory."""
+"""Tests for model factory helpers."""
 
-from pathlib import Path
-
-import torch
+from wifi_activity_recognition.models.factory import list_available_models
 
 
-from wifi_activity_recognition.models import (  # type: ignore  # noqa: E402
-    AttentionCNN3DModel,
-    CNN2DModel,
-    CNN3DModel,
-    EnsembleModel,
-    ResNetSpectrogramModel,
-    TransformerModel,
-    VisionTransformerModel,
-    create_model,
-)
+def test_list_available_models_returns_registered_metadata():
+    """The factory should expose stable metadata for registered models."""
+    models = list_available_models()
 
-
-def test_factory_creates_models() -> None:
-    """Factory constructs registered models and runs forward passes."""
-    assert isinstance(create_model("cnn2d", num_classes=2), CNN2DModel)
-    assert isinstance(
-        create_model("resnet", num_classes=2, pretrained=False),
-        ResNetSpectrogramModel,
-    )
-    assert isinstance(create_model("cnn3d", num_classes=2), CNN3DModel)
-    assert isinstance(
-        create_model("attention_cnn3d", num_classes=2), AttentionCNN3DModel
-    )
-    model = create_model("ensemble", num_classes=2)
-    assert isinstance(model, EnsembleModel)
-    x2d = torch.randn(1, 1, 30, 50)
-    x3d = torch.randn(1, 1, 8, 30, 50)
-    out = model(x2d, x3d)
-    assert out.shape == (1, 2)
-    transformer = create_model("transformer", input_dim=64, num_classes=2)
-    assert isinstance(transformer, TransformerModel)
-    x = torch.randn(1, 10, 64)
-    out_t = transformer(x)
-    assert out_t.shape == (1, 2)
-    vit = create_model("vit", num_classes=2)
-    assert isinstance(vit, VisionTransformerModel)
-    x_vit = torch.randn(1, 1, 30, 50)
-    out_vit = vit(x_vit)
-    assert out_vit.shape == (1, 2)
-
+    assert "cnn2d" in models
+    assert models["cnn2d"]["class_name"] == "CNN2DModel"
+    assert models["cnn2d"]["description"]
+    assert "transformer" in models

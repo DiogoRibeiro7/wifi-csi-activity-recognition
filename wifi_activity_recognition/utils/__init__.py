@@ -8,6 +8,7 @@ from .io import (
     save_csi_data,
     save_csi_to_hdf5,
     save_csi_to_json,
+    save_evaluation_results,
     save_predictions,
 )
 from .logging import setup_logging
@@ -27,6 +28,7 @@ __all__ = [
     "load_csi_from_json",
     "load_csi_data",
     "save_predictions",
+    "save_evaluation_results",
     "plot_csi_heatmap",
     "plot_activity_timeline",
     "PerformanceMonitor",

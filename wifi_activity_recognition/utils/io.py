@@ -140,3 +140,9 @@ def save_predictions(
     ]
     with open(path, "w", encoding="utf-8") as f:
         json.dump(records, f)
+
+
+def save_evaluation_results(results: dict, path: str | Path) -> None:
+    """Save evaluation metrics to a JSON file."""
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(results, f, indent=2)
