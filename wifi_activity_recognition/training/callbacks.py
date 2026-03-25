@@ -9,6 +9,8 @@ from typing import Dict, Optional
 
 import torch
 
+from ..models import save_model_artifact
+
 if t.TYPE_CHECKING:  # pragma: no cover
     from .trainer import Trainer
 
@@ -82,12 +84,11 @@ class ModelCheckpoint(Callback):
             return
         if not self.save_best_only or self._best is None or current < self._best:
             self._best = current
-            state_dict = (
-                trainer.model.module.state_dict()
-                if isinstance(trainer.model, torch.nn.DataParallel)
-                else trainer.model.state_dict()
+            save_model_artifact(
+                trainer.model,
+                self.filepath,
+                metadata={"checkpoint_monitor": self.monitor, "checkpoint_value": current},
             )
-            torch.save(state_dict, self.filepath)
 
 
 @dataclass

@@ -18,6 +18,8 @@ from wifi_activity_recognition.datasets import (  # type: ignore  # noqa: E402
     Dataset,
     split_dataset,
 )
+from wifi_activity_recognition.models import load_model  # type: ignore  # noqa: E402
+from wifi_activity_recognition.models.cnn2d import CNN2DModel  # type: ignore  # noqa: E402
 from wifi_activity_recognition.training import Trainer  # type: ignore  # noqa: E402
 
 
@@ -58,4 +60,16 @@ def test_trainer_train_loop(tmp_path: Path):
     trainer.save_model(out_path)
     assert out_path.exists()
     assert any(tmp_path.iterdir())  # tensorboard files
+
+
+def test_trainer_save_model_roundtrip(tmp_path: Path) -> None:
+    """Trainer checkpoints round-trip through the shared model loader."""
+    dataset = make_dummy_dataset()
+    model = CNN2DModel(num_classes=2)
+    trainer = Trainer(model=model, dataset=dataset, batch_size=4)
+    out_path = tmp_path / "model.pt"
+    trainer.save_model(out_path)
+
+    loaded = load_model(out_path)
+    assert isinstance(loaded, CNN2DModel)
 

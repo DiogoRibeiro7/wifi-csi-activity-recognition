@@ -14,6 +14,7 @@ from sklearn.model_selection import StratifiedKFold
 from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
 
+from ..models import save_model_artifact
 from ..utils.logging import setup_logging
 from .callbacks import (
     Callback,
@@ -215,14 +216,7 @@ class Trainer:
     # ------------------------------------------------------------------
     def save_model(self, path: str | Path) -> None:
         """Persist the trained model to disk."""
-        path = Path(path)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        state_dict = (
-            self.model.module.state_dict()
-            if isinstance(self.model, nn.DataParallel)
-            else self.model.state_dict()
-        )
-        torch.save(state_dict, path)
+        save_model_artifact(self.model, path)
 
     # ------------------------------------------------------------------
     def get_metrics(self) -> Dict[str, Any]:

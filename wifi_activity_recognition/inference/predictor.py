@@ -10,6 +10,7 @@ import torch
 from torch import nn
 
 from ..hardware.base import CSIData
+from ..models import load_model
 
 
 class ActivityRecognizer:
@@ -33,9 +34,7 @@ class ActivityRecognizer:
     ) -> None:
         """Initialize the recognizer with a model or model path."""
         if isinstance(model, (str, Path)):
-            self.model: nn.Module = torch.load(
-                str(model), map_location="cpu", weights_only=False
-            )
+            self.model = load_model(model, map_location="cpu")
         else:
             self.model = model
         self.device = torch.device(

@@ -337,10 +337,8 @@ def autotrain(
     try:
         import itertools
 
-        import torch
-
         from .datasets import Dataset
-        from .models import create_model
+        from .models import build_model_artifact, create_model
         from .training import Trainer
 
         dataset = Dataset.from_files(
@@ -350,7 +348,7 @@ def autotrain(
         batches = [int(x) for x in batch_sizes.split(",") if x]
         combos = list(itertools.product(lrs, batches))
         best_acc = -1.0
-        best_state = None
+        best_artifact = None
 
         with click.progressbar(combos, label="Hyperparameter search") as bar:
             for lr, bs in bar:
@@ -369,13 +367,25 @@ def autotrain(
                 acc = trainer.get_metrics().get("val_accuracy", 0.0)
                 if acc > best_acc:
                     best_acc = acc
-                    best_state = trainer.model.state_dict()
-                if best_state is None:
+                    best_artifact = build_model_artifact(
+                        trainer.model,
+                        model_name=model,
+                        model_kwargs={
+                            "num_classes": len(dataset.classes),
+                            "in_channels": dataset.input_shape[0],
+                        },
+                        metadata={
+                            "best_val_accuracy": float(best_acc),
+                            "learning_rate": lr,
+                            "batch_size": bs,
+                        },
+                    )
+                if best_artifact is None:
                     continue
 
-        if best_state is None:
+        if best_artifact is None:
             raise RuntimeError("No successful training runs")
-        torch.save(best_state, output)
+        torch.save(best_artifact, output)
         click.echo(
             click.style("Best validation accuracy: {:.3f}".format(best_acc), fg="green")
         )
@@ -613,15 +623,14 @@ def visualize(
 
         from .hardware import CSIReader
         from .inference import ActivityRecognizer
+        from .models import load_model
         from .utils.config import load_config
         from .utils.visualization import plot_csi_heatmap
 
         hw_config = load_config(config_file) if config_file else {}
         reader = CSIReader(hardware, hw_config)
         if model:
-            from torch import load as _load
-
-            recognizer = ActivityRecognizer(_load(model, weights_only=False))
+            recognizer = ActivityRecognizer(load_model(model))
         else:
             recognizer = None
 
@@ -766,12 +775,13 @@ def benchmark(model: str, data: str, labels: str, hardware: str, output: str) ->
 
         from .datasets import Dataset
         from .hardware.base import CSIData
+        from .models import load_model
         from .training import Trainer
 
         dataset = Dataset.from_files(
             data_path=data, labels_path=labels, hardware_type=hardware
         )
-        model_instance = torch.load(model, weights_only=False)
+        model_instance = load_model(model)
         trainer = Trainer(model_instance, dataset)
         loader = trainer.val_loader
 
@@ -914,12 +924,14 @@ def evaluate(ctx, model: str, test_data: str, hardware: str, output: Optional[st
 def export(model: str, target: str, input_shape: str, output: str) -> None:
     """Export a trained model for deployment."""
     try:
-        import torch
-
         from deployment.edge.optimization import convert_to_onnx, quantize_dynamic
 
-        model_instance = torch.load(model, weights_only=False)
+        from .models import load_model
+
+        model_instance = load_model(model)
         shape = tuple(int(s) for s in input_shape.split(","))
+        import torch
+
         sample = torch.randn(*shape)
         convert_to_onnx(model_instance, sample, Path(output))
         if target == "edge":

@@ -6,6 +6,12 @@ from .cnn3d import CNN3DModel, CNN3DTensorFlowModel
 from .ensemble import EnsembleModel
 from .factory import create_model
 from .resnet import ResNetSpectrogramModel, ResNetSpectrogramTensorFlowModel
+from .serialization import (
+    build_model_artifact,
+    infer_model_spec,
+    load_model,
+    save_model_artifact,
+)
 from .transformer import TransformerModel
 from .vision_transformer import VisionTransformerModel, VisionTransformerTensorFlowModel
 
@@ -23,4 +29,8 @@ __all__ = [
     "VisionTransformerModel",
     "VisionTransformerTensorFlowModel",
     "create_model",
+    "infer_model_spec",
+    "build_model_artifact",
+    "save_model_artifact",
+    "load_model",
 ]

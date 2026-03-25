@@ -16,6 +16,9 @@ from wifi_activity_recognition.inference import (  # type: ignore  # noqa: E402
 from wifi_activity_recognition.models.cnn2d import (  # type: ignore  # noqa: E402
     CNN2DModel,
 )
+from wifi_activity_recognition.models.serialization import (  # type: ignore  # noqa: E402
+    save_model_artifact,
+)
 
 
 @pytest.fixture()
@@ -38,7 +41,7 @@ def csi_packet() -> CSIData:
 def model_file(tmp_path: Path) -> Path:
     model = CNN2DModel(num_classes=2)
     path = tmp_path / "model.pth"
-    torch.save(model, path)
+    save_model_artifact(model, path, model_name="cnn2d", model_kwargs={"num_classes": 2})
     return path
 
 
