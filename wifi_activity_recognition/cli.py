@@ -177,9 +177,16 @@ def collect(
         reader = CSIReader(hardware, hw_config)
         collected = []
         with reader:
+            stream_iter = reader.stream()
             with click.progressbar(range(packets), label="Collecting") as bar:
                 for _ in bar:
-                    pkt = next(reader.stream())
+                    try:
+                        pkt = next(stream_iter)
+                    except StopIteration as exc:
+                        raise RuntimeError(
+                            "CSI stream ended before the requested packet count "
+                            f"({packets}) was collected."
+                        ) from exc
                     collected.append(pkt)
         if not collected:
             raise RuntimeError("No CSI packets collected")

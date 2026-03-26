@@ -5,6 +5,7 @@ from pathlib import Path
 import numpy as np
 from click.testing import CliRunner
 
+from wifi_activity_recognition.hardware.base import CSIData
 
 from wifi_activity_recognition.cli import cli  # type: ignore  # noqa: E402
 
@@ -22,22 +23,70 @@ def _make_data(tmp_path: Path):
 
 def test_collect(tmp_path: Path):
     """Collect synthetic CSI packets via the CLI."""
+    class DummyReader:
+        def __init__(self) -> None:
+            self.stream_calls = 0
+            self._packets = iter(
+                [
+                    CSIData(
+                        timestamp=0.0,
+                        amplitude=np.ones((1, 1, 4)),
+                        phase=np.zeros((1, 1, 4)),
+                        frequency=2400.0,
+                        bandwidth=20.0,
+                        n_tx=1,
+                        n_rx=1,
+                        n_subcarriers=4,
+                    ),
+                    CSIData(
+                        timestamp=1.0,
+                        amplitude=np.ones((1, 1, 4)),
+                        phase=np.zeros((1, 1, 4)),
+                        frequency=2400.0,
+                        bandwidth=20.0,
+                        n_tx=1,
+                        n_rx=1,
+                        n_subcarriers=4,
+                    ),
+                ]
+            )
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def stream(self):
+            self.stream_calls += 1
+            return self._packets
+
+    reader = DummyReader()
+    import wifi_activity_recognition.hardware as hardware_module
+
+    original_reader = hardware_module.CSIReader
+    hardware_module.CSIReader = lambda *_args, **_kwargs: reader
+
     out_path = tmp_path / "csi.h5"
-    runner = CliRunner()
-    result = runner.invoke(
-        cli,
-        [
-            "collect",
-            "--hardware",
-            "intel_5300",
-            "--packets",
-            "2",
-            "--output",
-            str(out_path),
-        ],
-    )
-    assert result.exit_code == 0, result.output
-    assert out_path.exists()
+    try:
+        runner = CliRunner()
+        result = runner.invoke(
+            cli,
+            [
+                "collect",
+                "--hardware",
+                "intel_5300",
+                "--packets",
+                "2",
+                "--output",
+                str(out_path),
+            ],
+        )
+        assert result.exit_code == 0, result.output
+        assert out_path.exists()
+        assert reader.stream_calls == 1
+    finally:
+        hardware_module.CSIReader = original_reader
 
 
 def test_autotrain(tmp_path: Path):
