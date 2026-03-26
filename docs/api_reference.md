@@ -1,8 +1,13 @@
 # API Reference
 
-The reference documentation is built with **Sphinx** and the
-`autodoc` extension. Each section below mirrors a top‑level package module and
-is generated from in‑line docstrings.
+The API documentation is built with Sphinx autodoc and follows the current public package surface.
+
+## Top-level package
+
+```{eval-rst}
+.. automodule:: wifi_activity_recognition
+   :members:
+```
 
 ## Hardware
 
@@ -15,9 +20,9 @@ is generated from in‑line docstrings.
 ### Example
 
 ```python
-from wifi_activity_recognition.hardware import Intel5300Reader
-reader = Intel5300Reader(...)
-reader.connect()
+from wifi_activity_recognition.hardware import CSIReader
+
+reader = CSIReader("esp32", {"sampling_rate": 100, "channel": 6})
 ```
 
 ## Preprocessing
@@ -55,6 +60,13 @@ reader.connect()
    :members:
 ```
 
+## Inference
+
+```{eval-rst}
+.. automodule:: wifi_activity_recognition.inference
+   :members:
+```
+
 ## Utilities
 
 ```{eval-rst}
@@ -62,12 +74,8 @@ reader.connect()
    :members:
 ```
 
-## Deployment Helpers
+Build the docs with:
 
-```{eval-rst}
-.. automodule:: wifi_activity_recognition.inference
-   :members:
+```bash
+sphinx-build -b html docs docs/_build/html
 ```
-
-These directives produce a complete API when building the docs with
-`sphinx-build docs docs/_build`.

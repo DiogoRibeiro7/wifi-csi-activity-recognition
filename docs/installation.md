@@ -1,85 +1,70 @@
 # Installation Guide
 
-This guide walks through software and driver installation on **Linux**,
-**macOS**, and **Windows** hosts. A Python 3.10+ environment is recommended.
+This guide covers the current package install flow and the minimum checks needed before using the CLI or Python API.
 
-## 1. Obtain the Source
+## 1. Python version
+
+Use Python 3.10 for the cleanest path. The package metadata is broader, but CI currently validates 3.10.
+
+## 2. Clone the repository
 
 ```bash
 git clone https://github.com/diogoribeiro7/wifi-csi-activity-recognition.git
 cd wifi-csi-activity-recognition
 ```
 
-## 2. Install System Prerequisites
-
-| Platform | Packages |
-| --- | --- |
-| Ubuntu/Debian | `build-essential libpcap-dev python3-venv git` |
-| Fedora | `gcc-c++ libpcap-devel python3-virtualenv git` |
-| macOS (Homebrew) | `brew install libpcap python@3 git` |
-| Windows (WSL) | install Ubuntu/Fedora packages inside WSL |
-
-> **Note:** Native Windows lacks official CSI drivers; use **WSL** for full
-> functionality.
-
-## 3. Create a Virtual Environment
+## 3. Create a virtual environment
 
 ### Linux/macOS/WSL
 
 ```bash
-python3 -m venv .venv
+python3.10 -m venv .venv
 source .venv/bin/activate
 ```
 
-### Windows (PowerShell, limited functionality)
+### Windows PowerShell
 
 ```powershell
-py -3 -m venv .venv
+py -3.10 -m venv .venv
 .venv\Scripts\Activate.ps1
 ```
 
-## 4. Install Python Dependencies
+## 4. Install the package
+
+For normal usage:
 
 ```bash
-pip install -r requirements.txt -r requirements-dev.txt
+pip install wifi-activity-recognition
 ```
 
-## 5. Install Hardware Drivers
+For local development:
 
-### Intel 5300
-- Linux: build and install the modified `iwlwifi` driver from the
-  [Linux 5300 CSI Tool](https://github.com/dhalperi/linux-80211n-csitool).
-- Windows/macOS: not supported; use an ESP32 device instead.
+```bash
+pip install -e .[dev,docs]
+```
 
-### ESP32
-- Flash the CSI-enabled firmware from
-  [Espressif's repo](https://github.com/espressif/esp32-wifi-csi).
-- Install USB‑serial drivers if required (`cp210x` on Windows/macOS).
+If you plan to train or run inference, install a compatible PyTorch build for your platform after the base install.
 
-### Atheros AR9300
-- Ensure the `ath9k` driver is present (Linux kernel 3.2+).
-- Load the module in monitor mode with `sudo modprobe ath9k`.
+## 5. Verify the software install
 
-## 6. Final Verification
+Run the lightweight test suite:
 
-1. **Run tests** to verify software components:
+```bash
+pytest -q
+```
 
-   ```bash
-   pytest -q
-   ```
+Then inspect the current hardware registry:
 
-2. **Check hardware connectivity** using the CLI:
+```bash
+python -m wifi_activity_recognition.cli info --hardware all
+```
 
-   ```bash
-   python -m wifi_activity_recognition.cli info --device intel5300
-   ```
+## 6. Platform notes
 
-   The command should display device information without errors.
+- Linux or WSL is the most realistic environment for hardware-backed CSI workflows.
+- Native Windows can be useful for development and non-hardware tests, but real driver support is limited.
+- GPU support depends on the PyTorch build you install separately.
 
-## 7. Optional: GPU Support
+## 7. Hardware-specific setup
 
-If training on a GPU, install the appropriate PyTorch build from
-[pytorch.org](https://pytorch.org/get-started/locally/) after activating the
-environment.
-
-Your system is now ready for data collection and model training.
+Use [hardware_setup.md](hardware_setup.md) for Intel 5300, ESP32, Atheros AR9300, and Qualcomm setup notes.

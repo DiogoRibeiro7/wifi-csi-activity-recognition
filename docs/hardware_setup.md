@@ -1,83 +1,66 @@
 # Hardware Setup
 
-This guide walks through configuring the currently supported WiFi chipsets.
-Each section assumes the software environment from the installation guide is
-ready and highlights platform‑specific notes and troubleshooting tips.
+This guide reflects the hardware drivers that are currently registered in the package: Intel 5300, ESP32, Atheros AR9300, and Qualcomm.
+
+## Check the current registry
+
+Before device-specific setup, confirm what the installed environment exposes:
+
+```bash
+python -m wifi_activity_recognition.cli info --hardware all
+```
 
 ## Intel 5300
 
-1. Install the modified iwlwifi driver and firmware from the
-   [Linux 5300 CSI Tool](https://github.com/dhalperi/linux-80211n-csitool).
-   On Ubuntu, the provided build scripts compile both driver and firmware.
-2. Load the module and verify the interface with `iw dev`. If the interface
-   does not appear, ensure Secure Boot is disabled and the module is signed.
-3. Attach external antennas if required and position them according to the
-   experiment design.
-4. Run the calibration utility:
-   `python -m wifi_activity_recognition.cli calibrate --device intel5300`.
+1. Install the modified driver and firmware from the Linux 5300 CSI Tool project.
+2. Verify the interface is visible with `iw dev`.
+3. Confirm the package can instantiate the reader:
 
-**Troubleshooting**
-
-- *"Operation not permitted"*: run driver commands with `sudo`.
-- *Missing firmware*: copy firmware files to `/lib/firmware` and reload the
-  module.
+```bash
+python -m wifi_activity_recognition.cli stream \
+  --hardware intel_5300 \
+  --duration 5
+```
 
 ## ESP32
 
-1. Flash the ESP32 board with the CSI-enabled firmware from the
-   [Espressif CSI repo](https://github.com/espressif/esp32-wifi-csi). Both the
-   original tool (``v1``) and the updated ``v2`` firmware with configurable
-   endianness are supported.
-2. Connect the board via USB and note the serial port (`COMx` on Windows,
-   `/dev/ttyUSBx` on Linux, `/dev/tty.SLAB_USBtoUART` on macOS).
-3. Configure the reader with the proper board type and mode. Example:
+1. Flash an ESP32 board with CSI-capable firmware.
+2. Configure the serial connection through `additional_params` in your config file.
+3. Test collection:
 
-   ```yaml
-   additional_params:
-     serial_port: /dev/ttyUSB0
-     baud_rate: 115200
-     mode: real        # use "mock" for synthetic data
-     board: esp32      # esp32, esp32-s2 or esp32-c3
-     firmware_version: v1
-   ```
-
-   The driver attempts to detect the firmware version automatically; if
-   detection fails you can set ``firmware_version`` manually.
-4. Ensure the device is in monitor mode and streaming CSI packets.
-5. Start the listener:
-   `python -m wifi_activity_recognition.cli listen --device esp32 --port /dev/ttyUSB0`.
-
-**Troubleshooting**
-
-- *Port not found*: check `dmesg` (Linux) or Device Manager (Windows) for
-  correct driver installation.
-- *No packets*: verify the firmware build, selected board type and that the
-  board is within range of the transmitter.
+```bash
+python -m wifi_activity_recognition.cli collect \
+  --hardware esp32 \
+  --packets 10 \
+  --output esp32_capture.json
+```
 
 ## Atheros AR9300
 
-1. Install the `ath9k` driver and ensure the interface is in monitor mode.
-2. Use the provided `hardware.atheros.AtherosReader` class to capture CSI:
-   `python -m wifi_activity_recognition.cli listen --device atheros`.
-3. If phase or amplitude offsets appear, run the calibration command with the
-   `--device atheros` option.
-
-**Troubleshooting**
-
-- *Interface fails to enter monitor mode*: stop NetworkManager and reload the
-  driver.
-- *Inconsistent timestamps*: verify system clock and disable power saving
-  features.
-
-## Verifying Packet Capture
-
-After configuring a device, confirm that CSI frames arrive:
+1. Ensure the `ath9k` driver is available and the interface is in monitor mode.
+2. Test collection with the registered alias:
 
 ```bash
-python -m wifi_activity_recognition.cli listen --device <device> --duration 5
+python -m wifi_activity_recognition.cli collect \
+  --hardware atheros_ar9300 \
+  --packets 10 \
+  --output atheros_capture.h5
 ```
 
-The command should report the number of packets captured. You can further
-inspect raw packets with tools like `tcpdump` or `Wireshark`.
+The shorter alias `atheros` may also be available, depending on how the registry was loaded.
 
-With hardware confirmed, proceed to the preprocessing or training pipelines.
+## Qualcomm
+
+1. Verify the Qualcomm reader is available in your environment:
+
+```bash
+python -m wifi_activity_recognition.cli info --hardware qualcomm
+```
+
+2. If the driver is registered successfully, use `collect`, `stream`, or `live` with `--hardware qualcomm`.
+
+## Notes
+
+- Broadcom and MediaTek are not currently enabled in the active hardware registry.
+- The current CLI does not provide `listen` or `calibrate` commands.
+- The current CLI uses `--hardware`, not `--device`.

@@ -1,158 +1,150 @@
-# WiFi Activity Recognition 📡
+# WiFi Activity Recognition
 
 [![PyPI version](https://img.shields.io/pypi/v/wifi-activity-recognition.svg)](https://pypi.org/project/wifi-activity-recognition/)
 [![CI](https://github.com/diogoribeiro7/wifi-csi-activity-recognition/actions/workflows/ci.yml/badge.svg)](https://github.com/diogoribeiro7/wifi-csi-activity-recognition/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-WiFi Activity Recognition is a research-grade yet production-ready Python library that uses WiFi Channel State Information (CSI) and modern computer vision techniques to detect human activities without cameras.
-
-## Table of Contents
-- [Features](#features)
-- [Installation](#installation)
-- [Quickstart](#quickstart)
-- [Architecture](#architecture)
-- [Hardware Compatibility](#hardware-compatibility)
-- [Benchmarks](#benchmarks)
-- [Code Examples](#code-examples)
-- [Research Toolkit](#research-toolkit)
-- [Deployment Options](#deployment-options)
-- [Community](#community)
-- [License & Citation](#license--citation)
+WiFi Activity Recognition is a Python package for CSI-based human activity recognition. It provides a hardware abstraction layer, preprocessing and feature utilities, train/evaluate/predict workflows, and research modules for adaptation and federated learning.
 
 ## Features
-- Supports Intel 5300, ESP32, Atheros, Qualcomm, Broadcom and MediaTek adapters.
-- Provides state-of-the-art models including CNN2D/3D, ResNet and Vision Transformers.
-- Real-time inference with sub -50 ms latency and performance monitoring.
-- Advanced preprocessing such as filtering, calibration and multipath analysis.
-- Privacy-preserving training with federated learning and domain adaptation.
-- Ready for production through Docker/Kubernetes deployment and edge optimization.
+
+- Hardware abstraction for currently registered readers: Intel 5300, ESP32, Atheros AR9300, and Qualcomm.
+- Model implementations including CNN2D, CNN3D, ResNet, Transformer, and Vision Transformer variants.
+- CLI workflows for collection, training, prediction, evaluation, streaming, benchmarking, export, and visualization.
+- Research utilities for domain adaptation, few-shot learning, and federated training.
+- Dataset helpers and a PyTorch-based training loop for reproducible experiments.
 
 ## Installation
-The library requires **Python 3.9+** and a C++ build toolchain.
+
+For the current codebase, Python 3.10 is the safest documented choice because that is what CI runs today.
 
 ```bash
 pip install wifi-activity-recognition
 ```
 
-To work from source or to access optional components, clone the repository and install the project in editable mode:
+For local development:
 
 ```bash
 git clone https://github.com/diogoribeiro7/wifi-csi-activity-recognition.git
 cd wifi-csi-activity-recognition
-pip install -e .[dev]
+pip install -e .[dev,docs]
 ```
 
-Refer to the [installation guide](docs/installation.md) for platform-specific notes, hardware drivers and troubleshooting.
+If you plan to train or run inference, install a compatible PyTorch build for your platform as well.
+
+See [docs/installation.md](docs/installation.md) for environment and hardware notes.
 
 ## Quickstart
-Run the command-line quickstart to stream data from a supported device:
+
+Create a small synthetic dataset:
 
 ```bash
-wifi-activity-recognition quickstart  # downloads demo data and runs a live example
+python - <<'PY'
+import numpy as np
+
+rng = np.random.default_rng(42)
+data = rng.random((24, 1, 8, 8), dtype=np.float32)
+labels = rng.integers(0, 2, size=24, dtype=np.int64)
+
+np.save("demo_data.npy", data)
+np.save("demo_labels.npy", labels)
+PY
 ```
 
-Using the Python API:
+Train a model:
+
+```bash
+python -m wifi_activity_recognition.cli train \
+  --data demo_data.npy \
+  --labels demo_labels.npy \
+  --model cnn2d \
+  --hardware esp32 \
+  --epochs 1 \
+  --batch-size 4 \
+  --output demo_model.pt
+```
+
+Evaluate it:
+
+```bash
+python -m wifi_activity_recognition.cli evaluate \
+  --model demo_model.pt \
+  --data demo_data.npy \
+  --labels demo_labels.npy \
+  --hardware esp32
+```
+
+See [docs/quickstart.md](docs/quickstart.md) for a slightly fuller walkthrough.
+
+## Python API
+
+### Train a model
 
 ```python
-from wifi_activity_recognition.hardware import HardwareFactory
-from wifi_activity_recognition.models import factory
+import numpy as np
 
-reader = HardwareFactory.create("esp32")
-model = factory.create("cnn2d", pretrained=True)
-
-for csi in reader.stream():
-    pred = model.predict(csi)
-    print(pred.label, pred.confidence)
-```
-
-## Architecture
-```mermaid
-flowchart LR
-    A[Hardware Drivers] --> B[CSIData]
-    B --> C[Preprocessing]
-    C --> D[Feature Extraction]
-    D --> E[Models]
-    E --> F[Streaming / Benchmarks / Deployment]
-```
-
-## Hardware Compatibility
-| Hardware Platform | Subcarriers | Antennas | Difficulty | Notes |
-|-------------------|-------------|----------|------------|-------|
-| Intel 5300        | 30          | 1 -3      | 🟢 Easy    | Research standard |
-| ESP32 / ESP32 -S2  | 64/128      | 1 -2      | 🟢 Easy    | Low -cost IoT boards |
-| Atheros AR9300    | 56          | 1 -3      | 🟡 Medium  | Legacy NICs |
-| Qualcomm Android  | 64 -256      | 1 -4      | 🟡 Medium  | Mobile devices |
-| Broadcom          | 64 -256      | 1 -4      | 🔴 Hard    | Router firmware |
-| MediaTek          | 64 -256      | 1 -4      | 🔴 Hard    | Emerging platform |
-
-See the [hardware setup guide](docs/hardware_setup.md) for detailed instructions.
-
-## Benchmarks
-| Metric | Target | Achieved* |
-|--------|--------|-----------|
-| Accuracy (Widar3.0) | >90 % | 94 % |
-| End -to -end latency (95th) | <25 ms | 22 ms |
-| Memory during streaming | <128 MB | 96 MB |
-| Cross -hardware variance | <2 % | 1.3 % |
-
-\*See `benchmarks/performance_report.py` for full reproducible metrics.
-
-## Code Examples
-### Training
-```python
+from wifi_activity_recognition.datasets import Dataset, split_dataset
+from wifi_activity_recognition.models import create_model
 from wifi_activity_recognition.training import Trainer
-from wifi_activity_recognition.datasets import loaders
-from wifi_activity_recognition.models import factory
 
-dataset = loaders.load("widar", split=(0.7,0.2,0.1))
-model = factory.create("resnet", num_classes=dataset.num_classes)
-trainer = Trainer(model, device="cuda")
-trainer.fit(dataset.train, val_data=dataset.val, epochs=20)
+data = np.load("demo_data.npy")
+labels = np.load("demo_labels.npy")
+train, val, test = split_dataset(data, labels, val_ratio=0.2, test_ratio=0.2)
+dataset = Dataset(train=train, val=val, test=test)
+
+model = create_model("cnn2d", num_classes=len(dataset.classes), in_channels=1)
+trainer = Trainer(model=model, dataset=dataset, batch_size=4)
+trainer.train(epochs=1)
+trainer.save_model("demo_model.pt")
 ```
 
-### Real -time Streaming
+### Run packet-level inference
+
 ```python
-from wifi_activity_recognition.inference import StreamingPipeline
-pipeline = StreamingPipeline(reader, model)
-pipeline.run()  # prints activity labels in real time
+from wifi_activity_recognition.inference import ActivityRecognizer
+from wifi_activity_recognition.models import load_model
+from wifi_activity_recognition.utils.io import load_csi_data
+
+model = load_model("demo_model.pt")
+recognizer = ActivityRecognizer(model)
+packets = load_csi_data("captured_packets.json")
+
+label, confidence = recognizer.predict(packets[0])
+print(label, confidence)
 ```
 
-### Feature Extraction
+### Stream from hardware
+
 ```python
-from wifi_activity_recognition.features import cv_transforms, time_domain
-spec = cv_transforms.csi_to_spectrogram(csi)
-features = time_domain.basic_stats(spec.amplitude)
+from wifi_activity_recognition.hardware import CSIReader
+
+reader = CSIReader("esp32", {"sampling_rate": 100, "channel": 6})
+
+with reader:
+    for packet in reader.stream():
+        print(packet.shape)
+        break
 ```
 
-## Research Toolkit
-- Domain adversarial neural networks & CORAL alignment
-- Few -shot learning: MAML, Prototypical & Relation Networks
-- Federated learning: FedAvg, FedProx with differential privacy
-- Cross -hardware adaptation and simulation utilities
+## Hardware Status
 
-## Deployment Options
-- Docker / docker -compose for reproducible environments
-- Kubernetes manifests with health probes and resource limits
-- Edge runtimes for Raspberry Pi, NVIDIA Jetson and Android
-- Automated model conversion (ONNX, TensorRT) and OTA updates
+The current registry-backed CLI and factory surface expose the hardware drivers that are actually registered at import time. At the moment that means Intel 5300, ESP32, Atheros AR9300, and Qualcomm. Broadcom and MediaTek are not enabled in the active registry yet.
 
-See the [deployment guide](docs/deployment.md) for details.
+Use the CLI to inspect the current environment:
 
-## Community
-- [Contributing Guide](CONTRIBUTING.md)
-- [CHANGELOG](CHANGELOG.md) and [AUTHORS](AUTHORS.md)
-- Questions? Contact **Diogo Ribeiro** (<dfr@esmad.ipp.pt>) or open a GitHub issue.
+```bash
+python -m wifi_activity_recognition.cli info --hardware all
+```
 
-## License & Citation
+## Documentation
+
+- [Installation Guide](docs/installation.md)
+- [Quickstart](docs/quickstart.md)
+- [Hardware Setup](docs/hardware_setup.md)
+- [Training Guide](docs/training_guide.md)
+- [Deployment Guide](docs/deployment.md)
+- [API Reference](docs/api_reference.md)
+
+## License
+
 Distributed under the [MIT License](LICENSE).
-
-```bibtex
-@software{wifi_activity_recognition,
-  title   = {WiFi Activity Recognition: A Universal Framework for CSI-based Human Activity Recognition},
-  author  = {Ribeiro, Diogo},
-  year    = {2025},
-  url     = {https://github.com/diogoribeiro7/wifi-csi-activity-recognition}
-}
-```
-
-**Happy sensing!** 🛰️
