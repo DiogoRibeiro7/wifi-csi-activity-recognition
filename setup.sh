@@ -16,7 +16,7 @@ NC='\033[0m' # No Color
 
 # Configuration
 PROJECT_NAME="wifi-activity-recognition"
-PYTHON_MIN_VERSION="3.8"
+PYTHON_MIN_VERSION="3.10"
 VENV_NAME="wifi-har-dev"
 
 # Functions
@@ -53,7 +53,7 @@ check_command() {
 check_python_version() {
     if command -v python3 >/dev/null 2>&1; then
         local version=$(python3 -c 'import sys; print(".".join(map(str, sys.version_info[:2])))')
-        local required="3.8"
+        local required="$PYTHON_MIN_VERSION"
         if [ "$(printf '%s\n' "$required" "$version" | sort -V | head -n1)" = "$required" ]; then
             return 0
         else
@@ -87,8 +87,8 @@ main() {
         local version=$(python3 --version)
         print_success "Python found: $version"
     else
-        print_error "Python 3.8+ is required but not found"
-        print_info "Please install Python 3.8 or higher:"
+        print_error "Python ${PYTHON_MIN_VERSION}+ is required but not found"
+        print_info "Please install Python ${PYTHON_MIN_VERSION} or higher:"
         print_info "  Ubuntu/Debian: sudo apt install python3 python3-pip python3-venv"
         print_info "  macOS: brew install python3"
         print_info "  Windows: Download from python.org"
@@ -157,7 +157,7 @@ main() {
     print_header "Installing Package Dependencies"
     
     print_info "Installing package in development mode..."
-    pip install -e ".[dev]"
+    pip install -e ".[dev,docs]"
     print_success "Package installed in development mode"
     
     # Install additional development tools
@@ -338,7 +338,8 @@ echo "Python: \$(which python)"
 echo "Pip: \$(which pip)"
 echo ""
 echo "Available commands:"
-echo "  wifi-har-* - CLI commands for the package"
+echo "  python -m wifi_activity_recognition.cli --help"
+echo "  wifi-har-train / wifi-har-predict / wifi-har-stream"
 echo "  ./scripts/dev.sh test - Run tests"
 echo "  ./scripts/dev.sh lint - Check code quality"
 echo "  ./scripts/dev.sh format - Format code"
@@ -358,7 +359,7 @@ EOF
     if python -c "import wifi_activity_recognition" 2>/dev/null; then
         print_success "Package import: OK"
     else
-        print_warning "Package import not yet available (will be implemented by agents)"
+        print_warning "Package import failed; inspect the editable install and dependencies"
     fi
     
     # Test CLI (may not exist yet)
@@ -382,7 +383,7 @@ EOF
     echo -e "${CYAN}Next Steps:${NC}"
     echo -e "1. Activate environment: ${YELLOW}source activate.sh${NC}"
     echo -e "2. Read the development guide: ${YELLOW}cat DEVELOPMENT_GUIDE.md${NC}"
-    echo -e "3. Start implementing components according to ROADMAP.md"
+    echo -e "3. Review the roadmap: ${YELLOW}cat docs/roadmap_execution_plan.md${NC}"
     echo -e "4. Run tests frequently: ${YELLOW}./scripts/dev.sh test${NC}"
     echo -e "5. Check code quality: ${YELLOW}./scripts/dev.sh lint${NC}"
     echo ""

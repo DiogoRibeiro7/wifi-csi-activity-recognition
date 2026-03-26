@@ -3,13 +3,11 @@
 ```
 wifi_activity_recognition/
 ├── README.md
-├── ROADMAP.md
+├── DEVELOPMENT_GUIDE.md
 ├── LICENSE
 ├── CHANGELOG.md
 ├── CONTRIBUTING.md
 ├── pyproject.toml
-├── requirements.txt
-├── requirements-dev.txt
 ├── .gitignore
 ├── .pre-commit-config.yaml
 ├── 
@@ -25,8 +23,8 @@ wifi_activity_recognition/
 │   │   ├── esp32.py                   # ESP32 CSI interface
 │   │   ├── atheros.py                 # Atheros chipset support
 │   │   ├── qualcomm.py                # Qualcomm platform
-│   │   ├── broadcom.py                # Broadcom support
-│   │   ├── mediatek.py                # MediaTek integration
+│   │   ├── broadcom.py                # Planned / inactive support
+│   │   ├── mediatek.py                # Planned / inactive support
 │   │   └── factory.py                 # Hardware factory pattern
 │   │
 │   ├── preprocessing/                  # Data preprocessing
@@ -51,11 +49,10 @@ wifi_activity_recognition/
 │   │   ├── cnn2d.py                   # 2D CNN models
 │   │   ├── cnn3d.py                   # 3D CNN models
 │   │   ├── resnet.py                  # ResNet variants
-│   │   ├── efficientnet.py            # EfficientNet models
 │   │   ├── transformer.py             # Transformer models
 │   │   ├── ensemble.py                # Ensemble methods
-│   │   ├── pretrained.py              # Pre-trained model loading
-│   │   └── factory.py                 # Model factory
+│   │   ├── factory.py                 # Model factory
+│   │   └── serialization.py           # Model artifact helpers
 │   │
 │   ├── training/                       # Training pipeline
 │   │   ├── __init__.py
@@ -63,11 +60,10 @@ wifi_activity_recognition/
 │   │   ├── losses.py                  # Custom loss functions
 │   │   ├── metrics.py                 # Evaluation metrics
 │   │   ├── callbacks.py               # Training callbacks
-│   │   └── optimization.py            # Optimizers and schedulers
+│   │   └── federated/                 # Federated learning helpers
 │   │
 │   ├── datasets/                       # Dataset handling
 │   │   ├── __init__.py
-│   │   ├── base.py                    # Base dataset interface
 │   │   ├── loaders.py                 # Data loading utilities
 │   │   ├── public_datasets.py         # Public dataset loaders
 │   │   ├── synthetic.py               # Synthetic data generation
@@ -78,7 +74,8 @@ wifi_activity_recognition/
 │   │   ├── predictor.py               # Activity predictor
 │   │   ├── streaming.py               # Real-time streaming
 │   │   ├── postprocessing.py          # Output smoothing
-│   │   └── deployment.py              # Deployment utilities
+│   │   ├── streaming_pipeline.py      # Streaming orchestration
+│   │   └── latency_optimization.py    # Inference optimization
 │   │
 │   ├── utils/                          # Utilities
 │   │   ├── __init__.py
@@ -86,8 +83,7 @@ wifi_activity_recognition/
 │   │   ├── logging.py                 # Logging setup
 │   │   ├── visualization.py           # Plotting and visualization
 │   │   ├── io.py                      # File I/O utilities
-│   │   ├── math.py                    # Mathematical utilities
-│   │   └── validation.py              # Data validation
+│   │   └── performance_monitoring.py  # Runtime monitoring
 │   │
 │   └── configs/                        # Configuration files
 │       ├── hardware/
@@ -105,25 +101,23 @@ wifi_activity_recognition/
 ├── tests/                              # Test suite
 │   ├── __init__.py
 │   ├── conftest.py                    # Test configuration
-│   ├── test_hardware/
-│   │   ├── __init__.py
-│   │   ├── test_base.py
-│   │   ├── test_intel5300.py
-│   │   └── test_esp32.py
-│   ├── test_preprocessing/
-│   │   ├── __init__.py
-│   │   ├── test_normalization.py
-│   │   └── test_filtering.py
-│   ├── test_models/
-│   │   ├── __init__.py
-│   │   ├── test_cnn2d.py
-│   │   └── test_training.py
-│   ├── test_integration/
-│   │   ├── __init__.py
-│   │   └── test_end_to_end.py
-│   └── data/                          # Test data
-│       ├── sample_csi.csv
-│       └── mock_hardware_data/
+│   ├── benchmarks/
+│   ├── cli/
+│   ├── datasets/
+│   ├── deployment/
+│   ├── e2e/
+│   ├── features/
+│   ├── functional/
+│   ├── hardware/
+│   ├── inference/
+│   ├── models/
+│   ├── multimodal/
+│   ├── preprocessing/
+│   ├── regression/
+│   ├── research/
+│   ├── training/
+│   ├── unit/
+│   └── utils/
 │
 ├── examples/                           # Usage examples
 │   ├── notebooks/
@@ -144,16 +138,11 @@ wifi_activity_recognition/
 │   ├── index.rst
 │   ├── installation.md
 │   ├── quickstart.md
-│   ├── api/
-│   │   ├── hardware.rst
-│   │   ├── models.rst
-│   │   └── datasets.rst
-│   ├── tutorials/
-│   │   ├── hardware_setup.md
-│   │   ├── training_guide.md
-│   │   └── deployment.md
-│   └── _static/
-│       └── images/
+│   ├── api_reference.md
+│   ├── hardware_setup.md
+│   ├── quickstart.md
+│   ├── roadmap_execution_plan.md
+│   └── training_guide.md
 │
 ├── benchmarks/                         # Performance benchmarks
 │   ├── __init__.py
