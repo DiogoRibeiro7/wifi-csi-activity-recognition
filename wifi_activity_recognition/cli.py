@@ -16,6 +16,44 @@ from .utils.logging import setup_logging
 from .version import __version__
 
 
+def _list_cli_hardware(include_all: bool = False) -> list[str]:
+    """Return hardware names from the registered driver registry."""
+    from .hardware import list_supported_hardware
+
+    hardware = list_supported_hardware()
+    if include_all:
+        hardware = [*hardware, "all"]
+    return hardware
+
+
+def _validate_hardware_option(
+    _ctx: click.Context, _param: click.Parameter, value: Optional[str]
+) -> Optional[str]:
+    """Validate a hardware CLI option against the registered drivers."""
+    if value is None:
+        return value
+    available = _list_cli_hardware()
+    if value not in available:
+        raise click.BadParameter(
+            f"Unsupported hardware '{value}'. Choose from: {', '.join(available)}"
+        )
+    return value
+
+
+def _validate_info_hardware_option(
+    _ctx: click.Context, _param: click.Parameter, value: Optional[str]
+) -> Optional[str]:
+    """Validate the info command hardware selector, including ``all``."""
+    if value is None:
+        return value
+    available = _list_cli_hardware(include_all=True)
+    if value not in available:
+        raise click.BadParameter(
+            f"Unsupported hardware '{value}'. Choose from: {', '.join(available)}"
+        )
+    return value
+
+
 @click.group()
 @click.version_option(version=__version__, prog_name="wifi-activity-recognition")
 @click.option("--verbose", "-v", is_flag=True, help="Enable verbose output")
@@ -48,7 +86,8 @@ def cli(ctx, verbose: bool, config: Optional[str]):
     "--hardware",
     "-h",
     required=True,
-    type=click.Choice(["intel_5300", "esp32", "atheros"]),
+    type=str,
+    callback=_validate_hardware_option,
     help="Hardware platform to use",
 )
 @click.option(
@@ -115,7 +154,13 @@ def stream(
 
 
 @cli.command()
-@click.option("--hardware", "-h", type=str, help="Hardware platform to use")
+@click.option(
+    "--hardware",
+    "-h",
+    type=str,
+    callback=_validate_hardware_option,
+    help="Hardware platform to use",
+)
 @click.option(
     "--config-file",
     "-c",
@@ -236,7 +281,8 @@ def collect(
     "--hardware",
     "-h",
     required=True,
-    type=click.Choice(["intel_5300", "esp32", "atheros"]),
+    type=str,
+    callback=_validate_hardware_option,
     help="Hardware platform used for data collection",
 )
 @click.pass_context
@@ -322,7 +368,8 @@ def train(
     "--hardware",
     "-h",
     required=True,
-    type=click.Choice(["intel_5300", "esp32", "atheros"]),
+    type=str,
+    callback=_validate_hardware_option,
 )
 @click.option("--epochs", "-e", default=1, type=int, help="Epochs per trial")
 @click.option("--learning-rates", default="1e-3", help="Comma-separated learning rates")
@@ -420,7 +467,8 @@ def autotrain(
     "--hardware",
     "-h",
     required=True,
-    type=click.Choice(["intel_5300", "esp32", "atheros"]),
+    type=str,
+    callback=_validate_hardware_option,
     help="Hardware platform used for data collection",
 )
 @click.option("--output", "-o", type=click.Path(), help="Output file for predictions")
@@ -506,7 +554,8 @@ def predict(
     "--hardware",
     "-h",
     required=True,
-    type=click.Choice(["intel_5300", "esp32", "atheros"]),
+    type=str,
+    callback=_validate_hardware_option,
     help="Hardware platform to use",
 )
 @click.option(
@@ -613,7 +662,8 @@ def live(
     "--hardware",
     "-h",
     required=True,
-    type=click.Choice(["intel_5300", "esp32", "atheros"]),
+    type=str,
+    callback=_validate_hardware_option,
 )
 @click.option(
     "--model", "-m", type=click.Path(exists=True), help="Optional model for predictions"
@@ -677,7 +727,8 @@ def visualize(
 @click.option(
     "--hardware",
     "-h",
-    type=click.Choice(["intel_5300", "esp32", "atheros", "all"]),
+    type=str,
+    callback=_validate_info_hardware_option,
     default="all",
     help="Hardware platform to show info for",
 )
@@ -778,7 +829,8 @@ def info(hardware: str):
     "--hardware",
     "-h",
     required=True,
-    type=click.Choice(["intel_5300", "esp32", "atheros"]),
+    type=str,
+    callback=_validate_hardware_option,
 )
 @click.option("--output", "-o", required=True, type=click.Path())
 def benchmark(model: str, data: str, labels: str, hardware: str, output: str) -> None:
@@ -877,7 +929,8 @@ def benchmark(model: str, data: str, labels: str, hardware: str, output: str) ->
     "--hardware",
     "-h",
     required=True,
-    type=click.Choice(["intel_5300", "esp32", "atheros"]),
+    type=str,
+    callback=_validate_hardware_option,
     help="Hardware platform used for data",
 )
 @click.option(

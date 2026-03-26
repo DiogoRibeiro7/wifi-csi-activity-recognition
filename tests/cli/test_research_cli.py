@@ -1,5 +1,7 @@
 """CLI workflow integration tests."""
 
+import sys
+import types
 from pathlib import Path
 
 import numpy as np
@@ -197,4 +199,34 @@ def test_export(tmp_path: Path):
     )
     assert result.exit_code == 0, result.output
     assert onnx_path.exists()
+
+
+def test_info_accepts_registry_backed_hardware(monkeypatch) -> None:
+    """The info command should accept hardware names from the registry."""
+    fake_hardware = types.ModuleType("wifi_activity_recognition.hardware")
+    fake_hardware.list_supported_hardware = lambda: ["esp32", "qualcomm"]
+    fake_hardware.get_hardware_info = lambda name: {"name": name}
+    fake_hardware.CSIReader = lambda *_args, **_kwargs: object()
+    monkeypatch.setitem(sys.modules, "wifi_activity_recognition.hardware", fake_hardware)
+
+    runner = CliRunner()
+    result = runner.invoke(cli, ["info", "--hardware", "qualcomm"])
+
+    assert result.exit_code == 0, result.output
+    assert "Hardware: qualcomm" in result.output
+
+
+def test_info_rejects_unregistered_hardware(monkeypatch) -> None:
+    """The info command should reject names that are not registered."""
+    fake_hardware = types.ModuleType("wifi_activity_recognition.hardware")
+    fake_hardware.list_supported_hardware = lambda: ["esp32", "qualcomm"]
+    fake_hardware.get_hardware_info = lambda name: {"name": name}
+    fake_hardware.CSIReader = lambda *_args, **_kwargs: object()
+    monkeypatch.setitem(sys.modules, "wifi_activity_recognition.hardware", fake_hardware)
+
+    runner = CliRunner()
+    result = runner.invoke(cli, ["info", "--hardware", "intel_5300"])
+
+    assert result.exit_code != 0
+    assert "Unsupported hardware 'intel_5300'" in result.output
 
