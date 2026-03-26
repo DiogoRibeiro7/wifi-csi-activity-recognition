@@ -16,7 +16,7 @@ WiFi Activity Recognition is a Python package for CSI-based human activity recog
 
 ## Installation
 
-For the current codebase, Python 3.10 is the safest documented choice because that is what CI runs today.
+The package supports Python 3.10 through 3.12.
 
 ```bash
 pip install wifi-activity-recognition

@@ -4,7 +4,7 @@ This guide covers the current package install flow and the minimum checks needed
 
 ## 1. Python version
 
-Use Python 3.10 for the cleanest path. The package metadata is broader, but CI currently validates 3.10.
+Use Python 3.10, 3.11, or 3.12.
 
 ## 2. Clone the repository
 
