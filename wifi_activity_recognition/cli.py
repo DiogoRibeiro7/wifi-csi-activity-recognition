@@ -853,11 +853,18 @@ def benchmark(model: str, data: str, labels: str, hardware: str, output: str) ->
     help="Path to trained model",
 )
 @click.option(
-    "--test-data",
+    "--data",
     "-d",
     required=True,
     type=click.Path(exists=True),
-    help="Path to test dataset",
+    help="Path to evaluation data array (.npy)",
+)
+@click.option(
+    "--labels",
+    "-l",
+    required=True,
+    type=click.Path(exists=True),
+    help="Path to evaluation label array (.npy)",
 )
 @click.option(
     "--hardware",
@@ -870,7 +877,14 @@ def benchmark(model: str, data: str, labels: str, hardware: str, output: str) ->
     "--output", "-o", type=click.Path(), help="Output file for evaluation results"
 )
 @click.pass_context
-def evaluate(ctx, model: str, test_data: str, hardware: str, output: Optional[str]):
+def evaluate(
+    ctx,
+    model: str,
+    data: str,
+    labels: str,
+    hardware: str,
+    output: Optional[str],
+):
     """Evaluate model performance on test dataset."""
     try:
         from .datasets import Dataset
@@ -881,20 +895,17 @@ def evaluate(ctx, model: str, test_data: str, hardware: str, output: Optional[st
         click.echo(f"Loading model from {model}...")
         model_instance = load_model(model)
 
-        click.echo(f"Loading test dataset from {test_data}...")
-        test_dataset = Dataset.from_files(
-            data_path=test_data,
-            labels_path=os.path.join(test_data, "labels.csv"),
+        click.echo(f"Loading evaluation dataset from {data}...")
+        dataset = Dataset.from_files(
+            data_path=data,
+            labels_path=labels,
             hardware_type=hardware,
         )
 
-        click.echo(f"Evaluating on {len(test_dataset)} samples...")
+        click.echo(f"Evaluating on {len(dataset.test[0])} test samples...")
 
-        # Create trainer for evaluation
-        trainer = Trainer(model_instance, test_dataset)
-
-        # Run evaluation
-        results = trainer.evaluate(test_dataset)
+        trainer = Trainer(model_instance, dataset)
+        results = trainer.evaluate(split="test")
 
         # Display results
         click.echo("Evaluation Results:")
@@ -918,7 +929,7 @@ def evaluate(ctx, model: str, test_data: str, hardware: str, output: Optional[st
             click.echo(f"\nResults saved to {output}")
 
     except (OSError, ValueError, RuntimeError) as exc:
-        logger.error("Benchmark failed: %s", exc)
+        logger.error("Evaluation failed: %s", exc)
         raise click.ClickException(str(exc)) from exc
 
 

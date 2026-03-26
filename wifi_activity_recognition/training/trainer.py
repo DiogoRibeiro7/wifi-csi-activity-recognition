@@ -214,6 +214,37 @@ class Trainer:
         return metrics
 
     # ------------------------------------------------------------------
+    def evaluate(self, split: str = "test") -> Dict[str, Any]:
+        """Evaluate the model on one dataset split and return report-friendly metrics."""
+        split_name = split.lower()
+        split_map = {
+            "train": self.dataset.train,
+            "val": self.dataset.val,
+            "validation": self.dataset.val,
+            "test": self.dataset.test,
+        }
+        try:
+            data, labels = split_map[split_name]
+        except KeyError as exc:  # pragma: no cover - defensive branch
+            raise ValueError(
+                f"Unknown evaluation split '{split}'. Expected train, val, or test."
+            ) from exc
+
+        eval_loader = DataLoader(
+            TensorDataset(
+                torch.tensor(data, dtype=torch.float32),
+                torch.tensor(labels, dtype=torch.long),
+            ),
+            batch_size=self.batch_size,
+            shuffle=False,
+        )
+        metrics = self._evaluate(eval_loader)
+        metrics["f1_score"] = metrics["f1"]
+        metrics["split"] = "val" if split_name == "validation" else split_name
+        metrics["num_samples"] = int(len(labels))
+        return metrics
+
+    # ------------------------------------------------------------------
     def save_model(self, path: str | Path) -> None:
         """Persist the trained model to disk."""
         save_model_artifact(self.model, path)
