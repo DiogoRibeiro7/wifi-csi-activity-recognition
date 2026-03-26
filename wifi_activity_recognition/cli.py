@@ -431,6 +431,7 @@ def predict(
     """Run activity prediction on CSI data."""
     try:
         from .inference import ActivityRecognizer
+        from .hardware.base import CSIData
         from .models import load_model
         from .utils.io import load_csi_data, save_predictions
 
@@ -438,7 +439,14 @@ def predict(
         model_instance = load_model(model)
 
         click.echo(f"Loading CSI data from {input}...")
-        csi_data = load_csi_data(input, hardware_type=hardware)
+        csi_data = load_csi_data(input)
+        if not isinstance(csi_data, list) or any(
+            not isinstance(sample, CSIData) for sample in csi_data
+        ):
+            raise ValueError(
+                "Prediction input must contain serialized CSIData packets. "
+                "Use JSON or HDF5 files created from CSI packet collections."
+            )
 
         click.echo(f"Running predictions on {len(csi_data)} samples...")
 
