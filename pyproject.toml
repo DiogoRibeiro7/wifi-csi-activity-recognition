@@ -162,6 +162,11 @@ minversion = "6.0"
 addopts = "-ra -q --strict-markers --strict-config"
 testpaths = ["tests"]
 markers = [
+    "unit: marks fast isolated unit tests",
+    "regression: marks tests that lock in previously broken behavior",
+    "functional: marks tests for user-facing workflows with mocked boundaries",
+    "e2e: marks end-to-end tests spanning multiple package layers",
+    "smoke: marks lightweight confidence tests for critical paths",
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",
     "hardware: marks tests that require specific hardware",
