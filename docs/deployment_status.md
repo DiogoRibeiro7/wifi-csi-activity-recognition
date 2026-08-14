@@ -66,6 +66,25 @@ Until one of those lands, a `Deployment` has nothing durable to run, which is
 why the manifest is labelled an example rather than quietly left looking
 production-ready.
 
+## Container-specific dependency substitutions
+
+Two requirements are replaced inside the image. Both were found by building and
+running it, and neither is visible from the source tree.
+
+**`opencv-python` → `opencv-python-headless`.** The GUI wheel links against
+`libGL`, which `python:*-slim` does not ship. `import cv2` therefore fails at
+runtime, and because `__init__.py` runs a dependency check on import, the
+container aborted on start with:
+
+```
+ImportError: Missing required dependencies: ['cv2']
+```
+
+The headless wheel is the same library without the GUI bindings and is the
+standard choice for servers and containers.
+
+**`torch` → CPU-only wheels.** See below.
+
 ## Note on image size
 
 `requirements.txt` names plain `torch`, which on `linux/amd64` resolves to the

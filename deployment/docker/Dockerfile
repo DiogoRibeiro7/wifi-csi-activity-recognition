@@ -6,13 +6,21 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 WORKDIR /app
 COPY requirements.txt ./
-# CPU-only torch first, so the pinned requirements below find it already
-# satisfied. requirements.txt names plain `torch`, which on linux/amd64
-# resolves to the CUDA build: several GB of GPU runtime that no container here
-# can use, and actively wrong for the edge stage.
+# Two substitutions, both container-specific:
+#
+# 1. CPU-only torch first, so the pinned requirements below find it satisfied.
+#    requirements.txt names plain `torch`, which on linux/amd64 resolves to the
+#    CUDA build: several GB of GPU runtime no container here can use, and
+#    actively wrong for the edge stage.
+# 2. opencv-python-headless in place of opencv-python. The GUI wheel links
+#    against libGL, which python:*-slim does not ship, so `import cv2` fails at
+#    runtime and the package's own dependency check aborts on start. The
+#    headless wheel is the same library without the GUI bindings.
 RUN pip install --no-cache-dir torch torchvision \
         --index-url https://download.pytorch.org/whl/cpu \
-    && pip install --no-cache-dir -r requirements.txt
+    && grep -v '^opencv-python' requirements.txt > /tmp/requirements-container.txt \
+    && pip install --no-cache-dir -r /tmp/requirements-container.txt \
+        opencv-python-headless
 
 # Create unprivileged user for runtime stages
 RUN useradd -m appuser
@@ -46,9 +54,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends libatlas-base-d
     && useradd -m appuser
 WORKDIR /app
 COPY requirements.txt ./
+# Same two substitutions as the base stage; see the comment there.
 RUN pip install --no-cache-dir torch torchvision \
         --index-url https://download.pytorch.org/whl/cpu \
-    && pip install --no-cache-dir -r requirements.txt
+    && grep -v '^opencv-python' requirements.txt > /tmp/requirements-container.txt \
+    && pip install --no-cache-dir -r /tmp/requirements-container.txt \
+        opencv-python-headless
 COPY . .
 RUN pip install --no-cache-dir --no-deps .
 USER appuser
