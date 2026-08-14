@@ -49,9 +49,16 @@ CMD ["python", "-m", "wifi_activity_recognition", "--help"]
 FROM python:3.11-slim AS edge
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
-RUN apt-get update && apt-get install -y --no-install-recommends libatlas-base-dev \
-    && rm -rf /var/lib/apt/lists/* \
-    && useradd -m appuser
+# libatlas-base-dev used to be installed here for BLAS. It was dropped from
+# Debian in trixie, which python:3.11-slim now tracks, so this stage failed to
+# build at all:
+#
+#     E: Package 'libatlas-base-dev' has no installation candidate
+#
+# No system BLAS is needed: the numpy and scipy wheels vendor OpenBLAS, and
+# nothing in this image compiles against a BLAS, so the -dev headers were never
+# used even when the package existed.
+RUN useradd -m appuser
 WORKDIR /app
 COPY requirements.txt ./
 # Same two substitutions as the base stage; see the comment there.
