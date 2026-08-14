@@ -1,0 +1,37 @@
+{
+  "title": "WiFi Activity Recognition: A Universal Framework for CSI-based Human Activity Recognition",
+  "upload_type": "software",
+  "description": "WiFi Activity Recognition is a Python package for CSI-based human activity recognition. It provides a hardware abstraction layer, preprocessing and feature utilities, train/evaluate/predict workflows, and research modules for adaptation and federated learning.",
+  "creators": [
+    {
+      "name": "Ribeiro, Diogo",
+      "affiliation": "School of Media Arts and Design, Polytechnic of Porto, Portugal",
+      "orcid": "0009-0001-2022-7072"
+    }
+  ],
+  "publication_date": "2025-01-01",
+  "version": "0.1.0",
+  "license": "mit",
+  "access_right": "open",
+  "language": "eng",
+  "keywords": [
+    "WiFi",
+    "CSI",
+    "channel state information",
+    "human activity recognition",
+    "computer vision",
+    "machine learning",
+    "IoT",
+    "wireless sensing",
+    "domain adaptation",
+    "few-shot learning",
+    "federated learning"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/diogoribeiro7/wifi-csi-activity-recognition",
+      "relation": "isSupplementTo",
+      "resource_type": "software"
+    }
+  ]
+}
