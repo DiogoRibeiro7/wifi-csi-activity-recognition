@@ -1,0 +1,152 @@
+name: Release
+
+# Publishing is driven by GitHub Releases rather than raw tag pushes: a stray
+# `git push --tags` should not be able to burn a version number, and PyPI
+# uploads are immutable -- a version, once published, can never be reused.
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and verify distributions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Build sdist and wheel
+        run: |
+          python -m pip install --upgrade pip build
+          python -m build
+
+      # The release tag and the packaged version are independent inputs, and
+      # nothing else forces them to agree. Publishing v0.2.0 containing 0.1.0
+      # is unrecoverable, so fail before upload rather than after.
+      - name: Check the tag matches the packaged version
+        run: |
+          python - <<'PY'
+          import os
+          import sys
+          import tomllib
+
+          tag = os.environ["RELEASE_TAG"].removeprefix("v")
+          pyproject = tomllib.load(open("pyproject.toml", "rb"))["project"]["version"]
+
+          scope: dict = {}
+          exec(open("wifi_activity_recognition/version.py").read(), scope)
+          module = scope["__version__"]
+
+          print(f"tag={tag} pyproject={pyproject} version.py={module}")
+          if not tag == pyproject == module:
+              sys.exit("version mismatch: tag, pyproject.toml and version.py must agree")
+          PY
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+
+      # Guards the exact defect that shipped undetected before: setuptools was
+      # configured with an explicit package list, so the wheel contained only
+      # the top-level module. Lazy __getattr__ in __init__.py means a bare
+      # import still succeeds against such a wheel, so assert on the archive.
+      - name: Assert the wheel contains every subpackage
+        run: |
+          python - <<'PY'
+          import glob
+          import sys
+          import zipfile
+
+          wheel = glob.glob("dist/*.whl")[0]
+          names = zipfile.ZipFile(wheel).namelist()
+          expected = [
+              "datasets", "features", "hardware", "inference", "models",
+              "multimodal", "preprocessing", "research", "training", "utils",
+              "training/federated",
+          ]
+          missing = [
+              pkg for pkg in expected
+              if f"wifi_activity_recognition/{pkg}/__init__.py" not in names
+          ]
+          if missing:
+              sys.exit(f"{wheel} is missing subpackages: {missing}")
+          modules = len([n for n in names if n.endswith(".py")])
+          print(f"{wheel}: {modules} modules, all subpackages present")
+          PY
+
+      - name: Check distribution metadata
+        run: |
+          python -m pip install twine
+          python -m twine check dist/*
+
+      # Install the real artifact and exercise it, so a broken release is
+      # caught here rather than by the first person to `pip install`.
+      - name: Smoke test the built wheel in a clean environment
+        run: |
+          python -m venv /tmp/clean
+          /tmp/clean/bin/pip install --upgrade pip
+          /tmp/clean/bin/pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+          /tmp/clean/bin/pip install "$(ls dist/*.whl)"
+
+      - name: Import subpackages and run the console scripts
+        working-directory: /tmp
+        run: |
+          /tmp/clean/bin/python - <<'PY'
+          import importlib
+          import sys
+
+          import wifi_activity_recognition as pkg
+
+          if "/tmp/clean/" not in pkg.__file__:
+              sys.exit(f"resolved to {pkg.__file__}, not the installed wheel")
+
+          for name in [
+              "utils.config", "models.factory", "hardware.base",
+              "preprocessing.filtering", "datasets.loaders",
+              "features.spectrogram", "inference.predictor",
+              "research.domain_adaptation", "multimodal.fusion_strategies",
+              "training.federated.server", "models.transformer",
+              "datasets.public_datasets",
+          ]:
+              importlib.import_module(f"wifi_activity_recognition.{name}")
+              print("ok", name)
+          PY
+          /tmp/clean/bin/wifi-har-train --help > /dev/null
+          /tmp/clean/bin/wifi-har-predict --help > /dev/null
+          /tmp/clean/bin/wifi-har-stream --help > /dev/null
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    name: Publish to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+
+    # No `environment:` here, matching a trusted publisher registered with the
+    # optional environment field left blank. PyPI only verifies the claims it
+    # was configured with, so the two sides must agree: if you later set an
+    # environment name on PyPI, add a matching `environment:` block or the
+    # upload is rejected.
+    #
+    # The trade-off of omitting it: anyone who can publish a Release can
+    # publish to PyPI. Adding an environment lets you require an approval.
+
+    # The OIDC grant that Trusted Publishing runs on. Scoped to this job alone
+    # so no other step can mint a token. No API token or secret is involved.
+    permissions:
+      id-token: write
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Publish
+        uses: pypa/gh-action-pypi-publish@release/v1
