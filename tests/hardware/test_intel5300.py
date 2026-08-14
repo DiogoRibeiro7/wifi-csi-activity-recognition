@@ -1,5 +1,6 @@
 """Tests for the Intel 5300 CSI reader."""
 
+import types
 from pathlib import Path
 
 import numpy as np

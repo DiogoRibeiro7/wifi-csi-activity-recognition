@@ -1,10 +1,12 @@
 """Tests for attention-based 3D CNN model."""
-import resource
-from pathlib import Path
-
 import pytest
 import torch
 from torch import nn
+
+try:  # ``resource`` is POSIX-only; the memory test is skipped elsewhere.
+    import resource
+except ImportError:  # pragma: no cover - Windows
+    resource = None
 
 
 from wifi_activity_recognition.models import (  # type: ignore  # noqa: E402
@@ -39,6 +41,7 @@ def test_attention_cnn3d_gradients() -> None:
     assert grad_exists
 
 
+@pytest.mark.skipif(resource is None, reason="resource module is POSIX-only")
 def test_attention_cnn3d_memory_usage() -> None:
     """Forward/backward pass should not excessively increase memory usage."""
     model = AttentionCNN3DModel(num_classes=3)
@@ -60,4 +63,3 @@ def test_attention_cnn3d_matches_baseline_shape() -> None:
     out_base = baseline(x)
     out_adv = advanced(x)
     assert out_base.shape == out_adv.shape
-

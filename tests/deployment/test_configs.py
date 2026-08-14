@@ -1,5 +1,6 @@
 """Tests for deployment configuration and optimization utilities."""
 # noqa: D100
+import sys
 from pathlib import Path
 
 import torch
@@ -31,7 +32,9 @@ def test_kubernetes_deployment() -> None:
     k8s_path = BASE_DIR / "kubernetes" / "deployment.yaml"
     deployment = yaml.safe_load(k8s_path.read_text())
     container = deployment["spec"]["template"]["spec"]["containers"][0]
-    assert container["image"] == "wifi_activity_recognition:latest"
+    # Matches the distribution name; Kubernetes object names are RFC-1123
+    # labels, so the underscored import name is not valid here.
+    assert container["image"] == "wifi-activity-recognition:latest"
 
 
 def test_optimize_model(tmp_path: Path) -> None:
@@ -43,4 +46,3 @@ def test_optimize_model(tmp_path: Path) -> None:
     output_model = tmp_path / "model_opt.pt"
     optimize_model(input_model, output_model)
     assert output_model.exists()
-
