@@ -120,9 +120,9 @@ Create the most comprehensive, user-friendly, and performant WiFi sensing packag
 
 - [ ] **Transformer-based Models**
 
-  - [ ] Self-attention for temporal patterns
+  - [x] Self-attention for temporal patterns
   - [ ] Multi-head attention across antennas
-  - [ ] Positional encoding for CSI sequences
+  - [x] Positional encoding for CSI sequences
 
 #### Enhanced Features
 
