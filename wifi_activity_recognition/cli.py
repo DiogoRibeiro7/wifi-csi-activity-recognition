@@ -391,6 +391,8 @@ def autotrain(
     try:
         import itertools
 
+        import torch
+
         from .datasets import Dataset
         from .models import build_model_artifact, create_model
         from .training import Trainer
