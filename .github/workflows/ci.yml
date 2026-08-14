@@ -174,6 +174,73 @@ jobs:
           name: wheel
           path: dist/*.whl
 
+  deployment:
+    name: Container build and run
+    runs-on: ubuntu-latest
+    # The one deployment flow verified end to end. The prod image previously
+    # ran `python -m wifi_activity_recognition` with no __main__ module, so it
+    # exited on start; nothing built or ran the image to notice.
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build the prod image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: deployment/docker/Dockerfile
+          target: prod
+          tags: wifi-activity-recognition:ci
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # The image must start and do something, not merely build.
+      - name: Container runs its default command
+        run: docker run --rm wifi-activity-recognition:ci
+
+      - name: Package is importable inside the image
+        run: |
+          docker run --rm wifi-activity-recognition:ci \
+            python -c "import wifi_activity_recognition as w; print(w.__version__)"
+
+      # Guards the defect this job exists for: the package must be installed,
+      # not merely present as source under WORKDIR.
+      - name: Console scripts are installed in the image
+        run: |
+          docker run --rm wifi-activity-recognition:ci wifi-har-train --help
+          docker run --rm wifi-activity-recognition:ci wifi-har-predict --help
+          docker run --rm wifi-activity-recognition:ci wifi-har-stream --help
+
+      - name: Resolve outside the source tree
+        run: |
+          docker run --rm --workdir / wifi-activity-recognition:ci \
+            python -c "import wifi_activity_recognition as w; print(w.__file__)"
+
+      - name: Kubernetes liveness probe command succeeds in the image
+        run: |
+          docker run --rm wifi-activity-recognition:ci \
+            python -m wifi_activity_recognition --version
+
+      - name: Build the edge image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: deployment/docker/Dockerfile
+          target: edge
+          tags: wifi-activity-recognition:ci-edge
+          load: true
+          cache-from: type=gha
+
+      - name: Edge image runs
+        run: docker run --rm wifi-activity-recognition:ci-edge
+
+      - name: Kubernetes manifest is valid
+        run: |
+          docker run --rm -v "$PWD:/work" -w /work \
+            ghcr.io/yannh/kubeconform:latest \
+            -strict -summary deployment/kubernetes/deployment.yaml
+
   docs:
     name: Build documentation
     runs-on: ubuntu-latest

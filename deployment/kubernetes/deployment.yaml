@@ -1,3 +1,15 @@
+# EXAMPLE MANIFEST -- not a verified deployment path.
+#
+# This package ships a CLI and a library. It has no HTTP server: nothing binds
+# a port and no /health endpoint exists. The previous version of this manifest
+# exposed containerPort 8080 with httpGet liveness and readiness probes
+# against /health, which would have failed on every probe and driven the pod
+# into CrashLoopBackOff.
+#
+# The probes below run the CLI instead, so they reflect something the image can
+# actually do. A long-running workload still needs either an HTTP service
+# interface or a CSI driver that runs headless -- see docs/deployment_status.md
+# for what is verified today.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -16,8 +28,6 @@ spec:
         - name: app
           image: wifi-activity-recognition:latest
           imagePullPolicy: IfNotPresent
-          ports:
-            - containerPort: 8080
           env:
             - name: APP_ENV
               value: production
@@ -28,15 +38,23 @@ spec:
             limits:
               cpu: "1"
               memory: "512Mi"
+          # Exec probes: the CLI responding is a claim the image can support.
+          # An httpGet probe would assert an endpoint that does not exist.
           livenessProbe:
-            httpGet:
-              path: /health
-              port: 8080
+            exec:
+              command:
+                - python
+                - -m
+                - wifi_activity_recognition
+                - --version
             initialDelaySeconds: 30
             periodSeconds: 30
           readinessProbe:
-            httpGet:
-              path: /health
-              port: 8080
+            exec:
+              command:
+                - python
+                - -m
+                - wifi_activity_recognition
+                - --version
             initialDelaySeconds: 5
             periodSeconds: 10
