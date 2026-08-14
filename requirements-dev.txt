@@ -5,7 +5,7 @@
 pytest>=6.0.0
 pytest-cov>=2.10.0
 pytest-mock>=3.3.0
-pytest-xdist>=2.2.0  # Parallel test execution
+pytest-xdist>=3.8.0  # Parallel test execution
 pytest-benchmark>=3.4.0  # Performance benchmarking
 
 # Code quality
