@@ -130,8 +130,10 @@ jobs:
           python -m venv /tmp/clean
           /tmp/clean/bin/pip install --upgrade pip
           # CPU-only torch: the default PyPI build drags in the CUDA stack and
-          # costs hundreds of MB per run for no benefit here.
-          /tmp/clean/bin/pip install torch --index-url https://download.pytorch.org/whl/cpu
+          # costs hundreds of MB per run for no benefit here. torchvision is
+          # required too -- models/resnet.py imports it at module scope, and
+          # models/__init__.py reaches it lazily via serialization -> ensemble.
+          /tmp/clean/bin/pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
           /tmp/clean/bin/pip install "$(ls dist/*.whl)"
 
       # Runs from /tmp so the import resolves to the installed wheel and cannot
