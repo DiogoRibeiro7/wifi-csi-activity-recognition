@@ -35,7 +35,7 @@ wheel>=0.36.0  # Package building
 # Profiling and debugging
 line_profiler>=3.3.0
 memory_profiler>=0.58.0
-pdbpp>=0.10.0  # imports as pdb++; "pdb++" is not a valid PEP 508 name
+pdbpp>=0.12.1  # imports as pdb++; "pdb++" is not a valid PEP 508 name
 
 # Additional ML tools for development
 tensorboard>=2.5.0  # Experiment tracking
