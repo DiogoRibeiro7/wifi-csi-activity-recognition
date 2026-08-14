@@ -1,9 +1,11 @@
 """Tests for edge deployment framework."""
+import sys
 from pathlib import Path
 from typing import List
 
 import torch
 
+ROOT = Path(__file__).resolve().parents[2]
 sys.path.append(str(ROOT))
 
 from deployment.edge.device_profiles import get_profile  # type: ignore  # noqa: E402

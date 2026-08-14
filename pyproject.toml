@@ -96,8 +96,9 @@ wifi-har-train = "wifi_activity_recognition.cli:train"
 wifi-har-predict = "wifi_activity_recognition.cli:predict"
 wifi-har-stream = "wifi_activity_recognition.cli:stream"
 
-[tool.setuptools]
-packages = ["wifi_activity_recognition"]
+[tool.setuptools.packages.find]
+include = ["wifi_activity_recognition*"]
+namespaces = false
 
 [tool.setuptools.package-data]
 wifi_activity_recognition = [
