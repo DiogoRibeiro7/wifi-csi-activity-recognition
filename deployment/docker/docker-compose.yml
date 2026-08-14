@@ -1,5 +1,6 @@
-version: '3.8'
-
+# Port mappings were removed from every service: nothing in this package binds
+# a socket, so publishing 8080 advertised a listener that does not exist. Add
+# them back alongside a real server interface -- see docs/deployment_status.md.
 services:
   dev:
     build:
@@ -8,8 +9,6 @@ services:
       target: dev
     volumes:
       - ../../:/app
-    ports:
-      - "8080:8080"
     environment:
       - APP_ENV=development
 
@@ -18,8 +17,6 @@ services:
       context: ../../
       dockerfile: deployment/docker/Dockerfile
       target: prod
-    ports:
-      - "8080:8080"
     environment:
       - APP_ENV=production
 
@@ -28,9 +25,9 @@ services:
       context: ../../
       dockerfile: deployment/docker/Dockerfile
       target: edge
+    # Passing the whole /dev tree through is what a real CSI capture device
+    # would need; harmless when no device is attached.
     devices:
       - "/dev:/dev"
-    ports:
-      - "8080:8080"
     environment:
       - APP_ENV=edge
