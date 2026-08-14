@@ -77,9 +77,17 @@ def test_streaming_pipeline_runs(csi_packet: CSIData) -> None:
     recognizer = ActivityRecognizer(model, class_names=["a", "b"])
     pipeline = StreamingPipeline(reader, recognizer, buffer_size=2, smoothing=1)
     pipeline.start()
-    time.sleep(0.1)
-    result = pipeline.get_latest()
-    pipeline.stop()
+    try:
+        # Poll rather than sleeping a fixed interval: the worker thread has to
+        # run a real CNN2D forward pass, which can exceed any fixed budget when
+        # the machine is loaded by the rest of the suite.
+        deadline = time.monotonic() + 10.0
+        result = pipeline.get_latest()
+        while result is None and time.monotonic() < deadline:
+            time.sleep(0.01)
+            result = pipeline.get_latest()
+    finally:
+        pipeline.stop()
     assert result is not None
     label, conf, ts = result
     assert label in {"a", "b"}
