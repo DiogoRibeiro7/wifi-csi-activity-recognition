@@ -39,7 +39,7 @@ pdbpp>=0.10.0  # imports as pdb++; "pdb++" is not a valid PEP 508 name
 
 # Additional ML tools for development
 tensorboard>=2.5.0  # Experiment tracking
-wandb>=0.12.0  # Experiment management (optional)
+wandb>=0.28.1  # Experiment management (optional)
 
 # Code analysis
 bandit>=1.7.0  # Security analysis
