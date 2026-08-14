@@ -9,8 +9,12 @@ Supported Hardware:
 - ESP32 with CSI capability
 - Atheros AR9300 (legacy research)
 - Qualcomm platforms (commercial devices)
+
+Planned, not yet implemented (no driver module, not registered):
 - Broadcom chipsets (routers)
 - MediaTek platforms (emerging)
+
+Use :func:`list_supported_hardware` for the authoritative runtime list.
 
 Basic Usage:
     >>> from wifi_activity_recognition.hardware import CSIReader
