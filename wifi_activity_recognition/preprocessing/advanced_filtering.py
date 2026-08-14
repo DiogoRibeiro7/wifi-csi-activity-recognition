@@ -141,9 +141,34 @@ def multirate_resample(
 
     Typical values for ``up`` and ``down`` range from 1 to 4.  Both must be
     positive integers.
+
+    Raises
+    ------
+    ValueError
+        If ``up`` or ``down`` is not positive, if ``fields`` is empty, or if
+        resampling the subcarrier axis would leave ``amplitude`` and ``phase``
+        with different lengths.
     """
     if up <= 0 or down <= 0:
         raise ValueError("up and down must be positive integers")
+
+    # ``fields`` is typed as an Iterable, so materialise it before iterating:
+    # a generator would otherwise be exhausted by the first pass, and the old
+    # code indexed it directly, which fails for any non-sequence iterable.
+    fields = tuple(fields)
+    if not fields:
+        raise ValueError("fields must name at least one field to resample")
+
+    # Resampling the subcarrier axis changes n_subcarriers, which both
+    # amplitude and phase are validated against. Leaving one behind produces a
+    # CSIData that cannot be constructed.
+    resamples_subcarriers = axis in (-1, csi.amplitude.ndim - 1)
+    if resamples_subcarriers and set(fields) != {"amplitude", "phase"}:
+        raise ValueError(
+            "resampling the subcarrier axis requires fields to include both "
+            f"'amplitude' and 'phase', got {fields}"
+        )
+
     updates = {}
     for field in fields:
         data = getattr(csi, field)
@@ -151,8 +176,14 @@ def multirate_resample(
             lambda m: signal.resample_poly(m, up, down), axis, data
         )
         updates[field] = resampled
-    n_sc_new = getattr(csi, fields[0]).shape[axis] * up // down
-    return replace(csi, n_subcarriers=n_sc_new, **updates)
+
+    # Take the new length from the resampled array itself. resample_poly
+    # returns ceil(n * up / down) samples, which floor division gets wrong
+    # whenever n * up is not divisible by down.
+    n_sc_new = updates[fields[0]].shape[axis] if resamples_subcarriers else None
+    if n_sc_new is None:
+        return replace(csi, **updates)
+    return replace(csi, n_subcarriers=int(n_sc_new), **updates)
 
 
 __all__ = [
