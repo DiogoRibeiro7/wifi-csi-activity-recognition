@@ -128,11 +128,14 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
 
-    # Must match the environment registered with the PyPI trusted publisher.
-    # Add required reviewers here to gate publication behind an approval.
-    environment:
-      name: pypi
-      url: https://pypi.org/p/wifi-activity-recognition
+    # No `environment:` here, matching a trusted publisher registered with the
+    # optional environment field left blank. PyPI only verifies the claims it
+    # was configured with, so the two sides must agree: if you later set an
+    # environment name on PyPI, add a matching `environment:` block or the
+    # upload is rejected.
+    #
+    # The trade-off of omitting it: anyone who can publish a Release can
+    # publish to PyPI. Adding an environment lets you require an approval.
 
     # The OIDC grant that Trusted Publishing runs on. Scoped to this job alone
     # so no other step can mint a token. No API token or secret is involved.
