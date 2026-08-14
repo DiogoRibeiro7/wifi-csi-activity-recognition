@@ -1,0 +1,59 @@
+# Dependabot version updates.
+#
+# Security updates were already enabled for this repository, but version
+# updates were not configured, so no dependency-bump PRs had ever been raised.
+# Security updates only fire when an advisory matches an installed version;
+# with zero open alerts that meant nothing arrived at all.
+version: 2
+
+updates:
+  # Python dependencies, read from pyproject.toml and requirements*.txt.
+  - package-ecosystem: pip
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels:
+      - packaging
+    commit-message:
+      prefix: "build"
+      include: scope
+    groups:
+      # Routine bumps arrive as one reviewable PR rather than a dozen.
+      minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+    ignore:
+      # Major bumps of the heavy ML stack change numerics and API surface, so
+      # they belong in a deliberate upgrade rather than an automated PR. CI
+      # pins nothing, so a breaking major would surface as a red build with no
+      # obvious owner.
+      - dependency-name: torch
+        update-types: ["version-update:semver-major"]
+      - dependency-name: torchvision
+        update-types: ["version-update:semver-major"]
+      - dependency-name: torchaudio
+        update-types: ["version-update:semver-major"]
+      - dependency-name: tensorflow
+        update-types: ["version-update:semver-major"]
+
+  # Workflow actions. These drift silently and are easy to forget: the CI
+  # workflow was still on actions/setup-python@v4 until recently.
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels:
+      - ci
+    commit-message:
+      prefix: "ci"
+    groups:
+      actions:
+        patterns:
+          - "*"
