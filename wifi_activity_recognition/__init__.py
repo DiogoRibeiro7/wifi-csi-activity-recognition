@@ -46,11 +46,21 @@ SUPPORTED_ACTIVITIES = [
     "no_activity",
 ]
 
+# Canonical names of the drivers actually registered at import time. Aliases
+# such as "intel5300" and "atheros" also resolve; see the hardware registry.
+# Kept in step with the registry by
+# tests/hardware/test_supported_hardware_claims.py.
 SUPPORTED_HARDWARE = [
     "intel_5300",
     "esp32",
     "atheros_ar9300",
     "qualcomm",
+]
+
+# Platforms that are documented as future work and have no driver module. These
+# are deliberately NOT reported as supported: advertising them made the public
+# API claim capability the package does not have.
+PLANNED_HARDWARE = [
     "broadcom",
     "mediatek",
 ]
@@ -105,6 +115,7 @@ def get_package_info() -> dict[str, Any]:
     return {
         "version": __version__,
         "supported_hardware": SUPPORTED_HARDWARE,
+        "planned_hardware": PLANNED_HARDWARE,
         "supported_activities": SUPPORTED_ACTIVITIES,
         "author": __author__,
         "license": __license__,
