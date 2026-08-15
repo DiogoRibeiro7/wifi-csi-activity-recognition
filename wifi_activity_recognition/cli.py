@@ -1022,6 +1022,151 @@ def export(model: str, target: str, input_shape: str, output: str) -> None:
         raise click.ClickException(str(exc)) from exc
 
 
+@cli.command()
+@click.option(
+    "--output-dir",
+    "-o",
+    type=click.Path(),
+    default="quickstart_demo",
+    show_default=True,
+    help="Directory for the generated dataset and trained model",
+)
+@click.option(
+    "--epochs", "-e", default=8, show_default=True, type=int, help="Training epochs"
+)
+@click.option(
+    "--samples",
+    "-n",
+    default=240,
+    show_default=True,
+    type=int,
+    help="Synthetic samples to generate",
+)
+@click.option(
+    "--seed", default=0, show_default=True, type=int, help="Random seed for the data"
+)
+def quickstart(output_dir: str, epochs: int, samples: int, seed: int):
+    """Run an end-to-end demo on synthetic CSI, no hardware required.
+
+    Generates a learnable synthetic dataset, trains a CNN2D model on it,
+    evaluates it on a held-out split and runs a prediction -- exercising the
+    same Dataset, model factory and Trainer APIs used with real captures.
+    """
+    try:
+        import numpy as np
+        import torch
+
+        from .datasets import Dataset
+        from .datasets.synthetic import generate_synthetic_csi
+        from .models import create_model, load_model, save_model_artifact
+        from .training import Trainer
+
+        out = Path(output_dir)
+        out.mkdir(parents=True, exist_ok=True)
+
+        # 1. Generate ------------------------------------------------------
+        click.echo(click.style("[1/5] Generating synthetic CSI...", bold=True))
+        # Class identity is encoded as the frequency of a sine across
+        # subcarriers, so the task is genuinely learnable. Random arrays with
+        # random labels would train to chance and demonstrate nothing.
+        data, labels = generate_synthetic_csi(
+            num_samples=samples,
+            num_subcarriers=32,
+            num_antennas=8,
+            num_classes=3,
+            noise_std=0.15,
+            random_state=seed,
+        )
+        # Models expect an explicit channel axis: (samples, channels, H, W).
+        data = data[:, np.newaxis, :, :]
+
+        data_path = out / "demo_data.npy"
+        labels_path = out / "demo_labels.npy"
+        np.save(data_path, data)
+        np.save(labels_path, labels)
+        click.echo(f"      {samples} samples of shape {data.shape[1:]} -> {out}")
+
+        # 2. Load ----------------------------------------------------------
+        click.echo(click.style("[2/5] Loading as a Dataset...", bold=True))
+        dataset = Dataset.from_files(
+            data_path=data_path, labels_path=labels_path, val_ratio=0.2, test_ratio=0.2
+        )
+        click.echo(
+            f"      {len(dataset)} train samples, "
+            f"{len(dataset.classes)} classes {dataset.classes}"
+        )
+
+        # 3. Train ---------------------------------------------------------
+        click.echo(
+            click.style(f"[3/5] Training cnn2d for {epochs} epochs...", bold=True)
+        )
+        model_instance = create_model(
+            "cnn2d",
+            num_classes=len(dataset.classes),
+            in_channels=dataset.input_shape[0],
+        )
+        trainer = Trainer(model=model_instance, dataset=dataset, batch_size=16)
+        with click.progressbar(length=epochs, label="      training") as bar:
+
+            def _tick(_epoch, _metrics):
+                bar.update(1)
+
+            trainer.train(epochs=epochs, progress_callback=_tick)
+
+        # 4. Evaluate ------------------------------------------------------
+        click.echo(click.style("[4/5] Evaluating on the held-out split...", bold=True))
+        report = trainer.evaluate("test")
+        accuracy = float(report.get("accuracy", 0.0))
+        click.echo(
+            f"      accuracy={accuracy:.3f}  f1={float(report.get('f1', 0.0)):.3f}"
+        )
+
+        model_path = out / "demo_model.pt"
+        save_model_artifact(
+            trainer.model,
+            model_path,
+            model_name="cnn2d",
+            model_kwargs={
+                "num_classes": len(dataset.classes),
+                "in_channels": dataset.input_shape[0],
+            },
+            metadata={"source": "quickstart", "accuracy": accuracy},
+        )
+        click.echo(f"      saved model artifact -> {model_path}")
+
+        # 5. Predict -------------------------------------------------------
+        click.echo(
+            click.style("[5/5] Predicting with the reloaded model...", bold=True)
+        )
+        reloaded = load_model(model_path)
+        sample, expected = dataset.test[0][:1], int(dataset.test[1][0])
+        with torch.no_grad():
+            predicted = int(
+                reloaded(torch.tensor(sample, dtype=torch.float32)).argmax()
+            )
+        click.echo(f"      predicted class {predicted}, actual {expected}")
+
+        click.echo()
+        if accuracy >= 0.8:
+            click.echo(click.style(f"Quickstart complete ({out}).", fg="green"))
+        else:
+            # Low accuracy is a legitimate outcome on a short run; say so
+            # rather than implying something is broken.
+            click.echo(
+                click.style(
+                    f"Quickstart complete ({out}), but accuracy was {accuracy:.2f}. "
+                    "Try --epochs 20.",
+                    fg="yellow",
+                )
+            )
+        click.echo("Next: swap the demo arrays for your own capture, or run")
+        click.echo("  wifi-har-stream --hardware esp32   to read from a device.")
+
+    except (OSError, ValueError, RuntimeError) as exc:
+        logger.error("Quickstart failed: %s", exc)
+        raise click.ClickException(str(exc)) from exc
+
+
 def main():
     """Run the CLI entry point."""
     cli()
