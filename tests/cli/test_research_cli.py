@@ -7,9 +7,8 @@ from pathlib import Path
 import numpy as np
 from click.testing import CliRunner
 
-from wifi_activity_recognition.hardware.base import CSIData
-
 from wifi_activity_recognition.cli import cli  # type: ignore  # noqa: E402
+from wifi_activity_recognition.hardware.base import CSIData
 
 
 def _make_data(tmp_path: Path):
@@ -25,6 +24,7 @@ def _make_data(tmp_path: Path):
 
 def test_collect(tmp_path: Path):
     """Collect synthetic CSI packets via the CLI."""
+
     class DummyReader:
         def __init__(self) -> None:
             self.stream_calls = 0
@@ -207,7 +207,9 @@ def test_info_accepts_registry_backed_hardware(monkeypatch) -> None:
     fake_hardware.list_supported_hardware = lambda: ["esp32", "qualcomm"]
     fake_hardware.get_hardware_info = lambda name: {"name": name}
     fake_hardware.CSIReader = lambda *_args, **_kwargs: object()
-    monkeypatch.setitem(sys.modules, "wifi_activity_recognition.hardware", fake_hardware)
+    monkeypatch.setitem(
+        sys.modules, "wifi_activity_recognition.hardware", fake_hardware
+    )
 
     runner = CliRunner()
     result = runner.invoke(cli, ["info", "--hardware", "qualcomm"])
@@ -222,11 +224,12 @@ def test_info_rejects_unregistered_hardware(monkeypatch) -> None:
     fake_hardware.list_supported_hardware = lambda: ["esp32", "qualcomm"]
     fake_hardware.get_hardware_info = lambda name: {"name": name}
     fake_hardware.CSIReader = lambda *_args, **_kwargs: object()
-    monkeypatch.setitem(sys.modules, "wifi_activity_recognition.hardware", fake_hardware)
+    monkeypatch.setitem(
+        sys.modules, "wifi_activity_recognition.hardware", fake_hardware
+    )
 
     runner = CliRunner()
     result = runner.invoke(cli, ["info", "--hardware", "intel_5300"])
 
     assert result.exit_code != 0
     assert "Unsupported hardware 'intel_5300'" in result.output
-

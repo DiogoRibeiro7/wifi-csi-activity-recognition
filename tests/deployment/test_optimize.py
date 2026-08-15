@@ -3,8 +3,11 @@ from pathlib import Path
 
 import torch
 
+# The deployment package lives outside the installed distribution, so the repo
+# root has to be on sys.path before this import can resolve.
 sys.path.append(str(Path(__file__).resolve().parents[2]))
-from deployment.edge.raspberry_pi.optimize import optimize_model
+
+from deployment.edge.raspberry_pi.optimize import optimize_model  # noqa: E402
 
 
 class SimpleModel(torch.nn.Module):

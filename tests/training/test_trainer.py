@@ -19,7 +19,9 @@ from wifi_activity_recognition.datasets import (  # type: ignore  # noqa: E402
     split_dataset,
 )
 from wifi_activity_recognition.models import load_model  # type: ignore  # noqa: E402
-from wifi_activity_recognition.models.cnn2d import CNN2DModel  # type: ignore  # noqa: E402
+from wifi_activity_recognition.models.cnn2d import (  # type: ignore  # noqa: E402
+    CNN2DModel,
+)
 from wifi_activity_recognition.training import Trainer  # type: ignore  # noqa: E402
 
 
@@ -72,4 +74,3 @@ def test_trainer_save_model_roundtrip(tmp_path: Path) -> None:
 
     loaded = load_model(out_path)
     assert isinstance(loaded, CNN2DModel)
-

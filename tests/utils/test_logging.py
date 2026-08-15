@@ -2,7 +2,6 @@
 
 import json
 import logging
-from pathlib import Path
 
 from wifi_activity_recognition.utils.logging import (  # type: ignore  # noqa: E402
     setup_logging,
@@ -26,5 +25,3 @@ def test_json_logging_format(capfd):
     err = capfd.readouterr().err.strip()
     parsed = json.loads(err)
     assert parsed["message"] == "world"
-
-

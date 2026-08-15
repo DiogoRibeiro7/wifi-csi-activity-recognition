@@ -1,9 +1,6 @@
 """Tests for advanced filtering utilities."""
 
-from pathlib import Path
-
 import numpy as np
-
 
 from wifi_activity_recognition.hardware.base import (  # type: ignore  # noqa: E402
     CSIData,
@@ -85,4 +82,3 @@ def test_multirate_resample_shape() -> None:
     resampled = multirate_resample(csi, up=2, down=1)
     assert resampled.n_subcarriers == 16
     assert csi.n_subcarriers == 8
-

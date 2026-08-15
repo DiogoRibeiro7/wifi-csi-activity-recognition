@@ -1,9 +1,6 @@
 """Tests for fractal feature extraction."""
 
-from pathlib import Path
-
 import numpy as np
-
 
 from wifi_activity_recognition.features import (  # type: ignore  # noqa: E402
     higuchi_fd,
@@ -36,4 +33,3 @@ def test_katz_variation() -> None:
     fd = katz_fd(csi)
     assert fd.shape == (2, 1)
     assert np.all(fd > 0)
-

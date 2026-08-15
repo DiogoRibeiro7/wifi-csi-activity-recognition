@@ -215,7 +215,7 @@ class Trainer:
 
     # ------------------------------------------------------------------
     def evaluate(self, split: str = "test") -> Dict[str, Any]:
-        """Evaluate the model on one dataset split and return report-friendly metrics."""
+        """Evaluate the model on one split, returning report-friendly metrics."""
         split_name = split.lower()
         split_map = {
             "train": self.dataset.train,
@@ -268,9 +268,9 @@ class Trainer:
             )
             model = copy.deepcopy(self.model)
             model.apply(
-                lambda m: m.reset_parameters()
-                if hasattr(m, "reset_parameters")
-                else None
+                lambda m: (
+                    m.reset_parameters() if hasattr(m, "reset_parameters") else None
+                )
             )
             fold_trainer = Trainer(
                 model=model,

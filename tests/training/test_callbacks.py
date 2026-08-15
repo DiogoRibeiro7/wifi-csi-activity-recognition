@@ -6,7 +6,6 @@ import pytest
 import torch
 from torch import nn
 
-
 from wifi_activity_recognition.training import (  # type: ignore  # noqa: E402
     EarlyStopping,
     LRScheduler,
@@ -66,4 +65,3 @@ def test_tensorboard_logger_writes(tmp_path: Path):
     logger.on_epoch_end(DummyTrainer(), 1, {"val_loss": 1.0})
     logger.on_train_end(DummyTrainer())
     assert any(tmp_path.iterdir())
-

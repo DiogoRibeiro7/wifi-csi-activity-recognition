@@ -33,6 +33,7 @@ class CNN2DModel(nn.Module):
     """
 
     def __init__(self, num_classes: int, in_channels: int = 1) -> None:
+        """Build the convolutional stack and classifier head."""
         super().__init__()
         self.features = nn.Sequential(
             nn.Conv2d(in_channels, 32, kernel_size=3, padding=1),
@@ -58,7 +59,6 @@ class CNN2DModel(nn.Module):
         x:
             Tensor of shape ``(batch, channels, height, width)``.
         """
-
         x = self.features(x)
         x = self.pool(x)
         x = torch.flatten(x, 1)
@@ -75,6 +75,7 @@ if keras is not None:
         """
 
         def __init__(self, num_classes: int, in_channels: int = 1) -> None:
+            """Build the Keras convolutional stack and classifier head."""
             super().__init__()
             self.conv1 = layers.Conv2D(
                 32, 3, padding="same", input_shape=(None, None, in_channels)
@@ -118,7 +119,8 @@ else:  # pragma: no cover - TensorFlow is optional
     class CNN2DTensorFlowModel:  # type: ignore[too-many-ancestors]
         """Placeholder when TensorFlow is not installed."""
 
-        def __init__(self, *args, **kwargs) -> None:  # noqa: D401
+        def __init__(self, *args, **kwargs) -> None:
+            """Refuse construction: the TensorFlow backend is unavailable."""
             raise ImportError("TensorFlow is required for CNN2DTensorFlowModel")
 
 

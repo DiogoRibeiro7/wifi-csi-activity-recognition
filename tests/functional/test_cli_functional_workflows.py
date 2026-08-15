@@ -46,7 +46,9 @@ def test_evaluate_writes_report_and_prints_metrics(monkeypatch, tmp_path: Path) 
 
     fake_datasets = types.ModuleType("wifi_activity_recognition.datasets")
     fake_datasets.Dataset = FakeDataset
-    monkeypatch.setitem(sys.modules, "wifi_activity_recognition.datasets", fake_datasets)
+    monkeypatch.setitem(
+        sys.modules, "wifi_activity_recognition.datasets", fake_datasets
+    )
 
     fake_models = types.ModuleType("wifi_activity_recognition.models")
     fake_models.load_model = lambda path: {"model_path": str(path)}
@@ -54,7 +56,9 @@ def test_evaluate_writes_report_and_prints_metrics(monkeypatch, tmp_path: Path) 
 
     fake_training = types.ModuleType("wifi_activity_recognition.training")
     fake_training.Trainer = FakeTrainer
-    monkeypatch.setitem(sys.modules, "wifi_activity_recognition.training", fake_training)
+    monkeypatch.setitem(
+        sys.modules, "wifi_activity_recognition.training", fake_training
+    )
 
     def fake_save_results(results, path) -> None:
         Path(path).write_text(json.dumps(results), encoding="utf-8")

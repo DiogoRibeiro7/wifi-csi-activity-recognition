@@ -1,9 +1,6 @@
 """Tests for filtering utilities."""
 
-from pathlib import Path
-
 import numpy as np
-
 
 from wifi_activity_recognition.hardware.base import (  # type: ignore  # noqa: E402
     CSIData,
@@ -62,4 +59,3 @@ def test_kalman_filter() -> None:
     mse_filtered = ((filtered.amplitude[0, 0] - signal) ** 2).mean()
     mse_noisy = ((noisy - signal) ** 2).mean()
     assert mse_filtered < mse_noisy
-

@@ -1,5 +1,4 @@
-"""
-Base classes and interfaces for WiFi CSI hardware abstraction.
+"""Base classes and interfaces for WiFi CSI hardware abstraction.
 
 This module defines the abstract base classes that all hardware drivers must implement,
 ensuring a consistent interface across different WiFi platforms.
@@ -15,8 +14,7 @@ import numpy as np
 
 @dataclass
 class CSIData:
-    """
-    Standardized CSI data format across all hardware platforms.
+    """Standardized CSI data format across all hardware platforms.
 
     This class provides a unified representation of Channel State Information
     regardless of the underlying hardware platform.
@@ -92,8 +90,7 @@ class CSIData:
 
 @dataclass
 class HardwareConfig:
-    """
-    Configuration for hardware-specific parameters.
+    """Configuration for hardware-specific parameters.
 
     This class stores hardware-specific configuration parameters
     that may vary between different platforms.
@@ -110,16 +107,14 @@ class HardwareConfig:
 
 
 class CSIReaderBase(ABC):
-    """
-    Abstract base class for all CSI hardware readers.
+    """Abstract base class for all CSI hardware readers.
 
     This class defines the interface that all hardware-specific implementations
     must follow to ensure consistent behavior across platforms.
     """
 
     def __init__(self, config: HardwareConfig):
-        """
-        Initialize the CSI reader with hardware configuration.
+        """Initialize the CSI reader with hardware configuration.
 
         Args:
             config: Hardware-specific configuration parameters
@@ -141,8 +136,7 @@ class CSIReaderBase(ABC):
 
     @abstractmethod
     def connect(self) -> bool:
-        """
-        Establish connection to hardware.
+        """Establish connection to hardware.
 
         Returns:
             True if connection successful, False otherwise
@@ -166,8 +160,7 @@ class CSIReaderBase(ABC):
 
     @abstractmethod
     def read_packet(self) -> Optional[CSIData]:
-        """
-        Read a single CSI packet from hardware.
+        """Read a single CSI packet from hardware.
 
         Returns:
             CSIData object if packet available, None if no data
@@ -177,8 +170,7 @@ class CSIReaderBase(ABC):
     def read_batch(
         self, num_packets: int, timeout: Optional[float] = None
     ) -> List[CSIData]:
-        """
-        Read multiple CSI packets from hardware.
+        """Read multiple CSI packets from hardware.
 
         Args:
             num_packets: Number of packets to read
@@ -204,8 +196,7 @@ class CSIReaderBase(ABC):
         return packets
 
     def stream(self, buffer_size: Optional[int] = None) -> Iterator[CSIData]:
-        """
-        Create an iterator for continuous CSI data streaming.
+        """Create an iterator for continuous CSI data streaming.
 
         Args:
             buffer_size: Size of internal buffer for streaming
@@ -228,8 +219,7 @@ class CSIReaderBase(ABC):
 
     @abstractmethod
     def get_hardware_info(self) -> Dict[str, Any]:
-        """
-        Get hardware-specific information.
+        """Get hardware-specific information.
 
         Returns:
             Dictionary containing hardware details
@@ -238,8 +228,7 @@ class CSIReaderBase(ABC):
 
     @abstractmethod
     def calibrate(self) -> bool:
-        """
-        Perform hardware-specific calibration.
+        """Perform hardware-specific calibration.
 
         Returns:
             True if calibration successful, False otherwise
@@ -263,8 +252,7 @@ class HardwareFactory:
 
     @classmethod
     def register_driver(cls, hardware_type: str, driver_class: type):
-        """
-        Register a new hardware driver.
+        """Register a new hardware driver.
 
         Args:
             hardware_type: Unique identifier for hardware type
@@ -277,8 +265,7 @@ class HardwareFactory:
 
     @classmethod
     def create_reader(cls, hardware_type: str, config: HardwareConfig) -> CSIReaderBase:
-        """
-        Create a CSI reader for specified hardware type.
+        """Create a CSI reader for specified hardware type.
 
         Args:
             hardware_type: Type of hardware to create reader for
@@ -307,8 +294,7 @@ class HardwareFactory:
 
 # Utility functions
 def validate_csi_data(csi_data: CSIData) -> bool:
-    """
-    Validate CSI data for consistency and reasonable values.
+    """Validate CSI data for consistency and reasonable values.
 
     Args:
         csi_data: CSI data to validate
@@ -346,8 +332,7 @@ def validate_csi_data(csi_data: CSIData) -> bool:
 def normalize_csi_amplitude(
     amplitude: np.ndarray, method: str = "minmax"
 ) -> np.ndarray:
-    """
-    Normalize CSI amplitude data.
+    """Normalize CSI amplitude data.
 
     Args:
         amplitude: Raw amplitude data

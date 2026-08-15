@@ -46,9 +46,7 @@ def test_package_is_executable_with_python_dash_m() -> None:
         timeout=120,
     )
 
-    assert result.returncode == 0, (
-        f"python -m failed with:\n{result.stderr.strip()}"
-    )
+    assert result.returncode == 0, f"python -m failed with:\n{result.stderr.strip()}"
     assert "wifi" in result.stdout.lower()
 
 
@@ -88,9 +86,9 @@ def test_runtime_stages_install_the_package(stage: str) -> None:
     and leaves the console scripts absent from the image entirely.
     """
     body = DOCKERFILE.read_text().split(f"AS {stage}")[1].split("\nFROM ")[0]
-    assert "pip install" in body and " ." in body, (
-        f"the {stage} stage does not install the package itself"
-    )
+    assert (
+        "pip install" in body and " ." in body
+    ), f"the {stage} stage does not install the package itself"
 
 
 def test_dockerfile_entrypoints_use_a_module_that_exists() -> None:
@@ -140,9 +138,9 @@ def test_kubernetes_probes_do_not_assume_an_http_endpoint() -> None:
     for probe_name in ("livenessProbe", "readinessProbe"):
         probe = container.get(probe_name)
         assert probe is not None, f"{probe_name} missing"
-        assert "httpGet" not in probe, (
-            f"{probe_name} uses httpGet, but the package serves no HTTP"
-        )
+        assert (
+            "httpGet" not in probe
+        ), f"{probe_name} uses httpGet, but the package serves no HTTP"
         assert "exec" in probe, f"{probe_name} should exec a command"
 
 
@@ -159,9 +157,9 @@ def test_kubernetes_probe_commands_are_runnable() -> None:
     result = subprocess.run(
         [sys.executable, *command[1:]], capture_output=True, text=True, timeout=120
     )
-    assert result.returncode == 0, (
-        f"liveness probe command {command} fails: {result.stderr.strip()}"
-    )
+    assert (
+        result.returncode == 0
+    ), f"liveness probe command {command} fails: {result.stderr.strip()}"
 
 
 def test_kubernetes_image_matches_the_distribution_name() -> None:

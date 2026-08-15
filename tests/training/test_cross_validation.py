@@ -1,10 +1,7 @@
 """Tests for cross-validation utility."""
 
-from pathlib import Path
-
 import numpy as np
 from torch import nn
-
 
 from wifi_activity_recognition.datasets import (  # type: ignore  # noqa: E402
     Dataset,
@@ -32,4 +29,3 @@ def test_cross_validation_runs():
         assert 0.0 <= results[key] <= 1.0
     assert len(results["per_class_accuracy"]) == 2
     assert np.array(results["confusion_matrix"]).shape == (2, 2)
-

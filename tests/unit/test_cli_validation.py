@@ -14,7 +14,11 @@ def test_validate_hardware_option_accepts_registered_value(monkeypatch) -> None:
     monkeypatch.setattr(
         cli_module,
         "_list_cli_hardware",
-        lambda include_all=False: ["esp32", "qualcomm", *(["all"] if include_all else [])],
+        lambda include_all=False: [
+            "esp32",
+            "qualcomm",
+            *(["all"] if include_all else []),
+        ],
     )
 
     value = cli_module._validate_hardware_option(None, None, "qualcomm")
@@ -24,7 +28,9 @@ def test_validate_hardware_option_accepts_registered_value(monkeypatch) -> None:
 
 def test_validate_hardware_option_rejects_unknown_value(monkeypatch) -> None:
     """Unknown hardware names should raise a click validation error."""
-    monkeypatch.setattr(cli_module, "_list_cli_hardware", lambda include_all=False: ["esp32"])
+    monkeypatch.setattr(
+        cli_module, "_list_cli_hardware", lambda include_all=False: ["esp32"]
+    )
 
     with pytest.raises(Exception, match="Unsupported hardware 'intel_5300'"):
         cli_module._validate_hardware_option(None, None, "intel_5300")
@@ -35,7 +41,11 @@ def test_validate_info_hardware_option_accepts_all(monkeypatch) -> None:
     monkeypatch.setattr(
         cli_module,
         "_list_cli_hardware",
-        lambda include_all=False: ["esp32", "qualcomm", *(["all"] if include_all else [])],
+        lambda include_all=False: [
+            "esp32",
+            "qualcomm",
+            *(["all"] if include_all else []),
+        ],
     )
 
     value = cli_module._validate_info_hardware_option(None, None, "all")

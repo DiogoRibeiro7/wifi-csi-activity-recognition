@@ -1,8 +1,5 @@
 """Tests for circular buffer management."""
 
-from pathlib import Path
-
-
 from wifi_activity_recognition.inference import (  # type: ignore  # noqa: E402
     CircularBuffer,
 )
@@ -19,4 +16,3 @@ def test_circular_buffer_overflow_and_pop() -> None:
     assert buf.pop() == 2
     assert buf.pop() == 3
     assert buf.pop() is None
-

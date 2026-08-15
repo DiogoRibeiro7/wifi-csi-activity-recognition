@@ -1,9 +1,6 @@
 """Tests for normalization utilities."""
 
-from pathlib import Path
-
 import numpy as np
-
 
 from wifi_activity_recognition.hardware.base import (  # type: ignore  # noqa: E402
     CSIData,
@@ -70,4 +67,3 @@ def test_log_normalize() -> None:
     csi = _make_csi(amp)
     norm = log_normalize(csi)
     assert np.allclose(norm.amplitude, [[[0.0, 1.0]]])
-

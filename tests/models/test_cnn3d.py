@@ -1,11 +1,8 @@
 """Tests for 3D CNN model."""
 
-from pathlib import Path
-
 import pytest
 import torch
 from torch import nn
-
 
 from wifi_activity_recognition.models.cnn3d import (  # type: ignore  # noqa: E402
     CNN3DModel,
@@ -36,4 +33,3 @@ def test_cnn3d_training_step_decreases_loss() -> None:
         optimizer.step()
     loss2 = criterion(model(x), y)
     assert loss2.item() < loss1.item()
-

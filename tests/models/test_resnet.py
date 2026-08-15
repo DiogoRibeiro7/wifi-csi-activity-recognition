@@ -1,11 +1,8 @@
 """Tests for ResNet model."""
 
-from pathlib import Path
-
 import pytest
 import torch
 from torch import nn
-
 
 from wifi_activity_recognition.models.resnet import (  # type: ignore  # noqa: E402
     ResNetSpectrogramModel,
@@ -37,4 +34,3 @@ def test_resnet_training_step_decreases_loss() -> None:
         optimizer.step()
     loss2 = criterion(model(x), y)
     assert loss2.item() < loss1.item()
-

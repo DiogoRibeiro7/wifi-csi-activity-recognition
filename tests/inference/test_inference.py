@@ -3,20 +3,19 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-import torch
 
-from wifi_activity_recognition.hardware.base import (  # type: ignore  # noqa: E402
+from wifi_activity_recognition.hardware.base import (
     CSIData,
 )
-from wifi_activity_recognition.inference import (  # type: ignore  # noqa: E402
+from wifi_activity_recognition.inference import (
     ActivityRecognizer,
     StreamingPredictor,
     postprocessing as post,
 )
-from wifi_activity_recognition.models.cnn2d import (  # type: ignore  # noqa: E402
+from wifi_activity_recognition.models.cnn2d import (
     CNN2DModel,
 )
-from wifi_activity_recognition.models.serialization import (  # type: ignore  # noqa: E402
+from wifi_activity_recognition.models.serialization import (
     save_model_artifact,
 )
 
@@ -41,7 +40,9 @@ def csi_packet() -> CSIData:
 def model_file(tmp_path: Path) -> Path:
     model = CNN2DModel(num_classes=2)
     path = tmp_path / "model.pth"
-    save_model_artifact(model, path, model_name="cnn2d", model_kwargs={"num_classes": 2})
+    save_model_artifact(
+        model, path, model_name="cnn2d", model_kwargs={"num_classes": 2}
+    )
     return path
 
 
@@ -74,5 +75,3 @@ def test_postprocessing_helpers() -> None:
     assert np.allclose(smoothed, np.array([0.4, 0.6]))
     assert post.apply_confidence_threshold(0.7, "x", 0.5) == ("x", 0.7)
     assert post.apply_confidence_threshold(0.4, "x", 0.5) is None
-
-

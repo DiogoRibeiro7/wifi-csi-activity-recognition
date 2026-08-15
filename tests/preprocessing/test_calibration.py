@@ -1,9 +1,6 @@
 """Tests for calibration utilities."""
 
-from pathlib import Path
-
 import numpy as np
-
 
 from wifi_activity_recognition.hardware.base import (  # type: ignore  # noqa: E402
     CSIData,
@@ -59,4 +56,3 @@ def test_phase_unwrap_multi_axis() -> None:
     csi = _make_csi(amp, phase)
     unwrapped = phase_unwrap(csi, axes=(0, -1))
     assert np.all(np.diff(unwrapped.phase, axis=0) < np.pi)
-

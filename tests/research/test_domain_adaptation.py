@@ -1,11 +1,8 @@
 """Tests for advanced domain adaptation utilities."""
 
-from pathlib import Path
-
 import numpy as np
 import torch
 from torch import nn
-
 
 from wifi_activity_recognition.hardware.base import CSIData  # noqa: E402
 from wifi_activity_recognition.research.domain_adaptation import (  # noqa: E402
@@ -71,4 +68,3 @@ def test_domain_adapter_mmd_adaptation():
     adapter.adapt_to_target([csi for csi, _ in dataset], method="mmd")
     acc = adapter.evaluate_adaptation(dataset)["accuracy"]
     assert acc == 1.0
-

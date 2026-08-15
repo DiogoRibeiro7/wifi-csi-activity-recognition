@@ -5,7 +5,6 @@ from pathlib import Path
 import numpy as np
 from click.testing import CliRunner
 
-
 from wifi_activity_recognition.cli import cli  # type: ignore  # noqa: E402
 
 
@@ -42,4 +41,3 @@ def test_cli_train(tmp_path: Path):
     )
     assert result.exit_code == 0, result.output
     assert model_path.exists()
-

@@ -1,10 +1,7 @@
 """Tests for VisionTransformerModel."""
 
-from pathlib import Path
-
 import pytest
 import torch
-
 
 from wifi_activity_recognition.models.vision_transformer import (  # noqa: E402
     VisionTransformerModel,
@@ -61,4 +58,3 @@ def test_vit_tf_seq_to_seq() -> None:
     assert out.shape[0] == 1
     assert out.shape[1] == 60
     assert out.shape[2] == 2
-

@@ -83,9 +83,9 @@ def test_inference_is_deterministic(spec: ModelSpec) -> None:
         first = model(*inputs)
         second = model(*inputs)
 
-    assert torch.allclose(first, second, atol=1e-6), (
-        f"{spec.name} gives different logits for identical input in eval mode"
-    )
+    assert torch.allclose(
+        first, second, atol=1e-6
+    ), f"{spec.name} gives different logits for identical input in eval mode"
 
 
 @pytest.mark.parametrize("spec", SPECS, ids=IDS)
@@ -103,9 +103,9 @@ def test_predictions_do_not_depend_on_batch_composition(spec: ModelSpec) -> None
         batched = model(*inputs)
         alone = model(*(tensor[:1] for tensor in inputs))
 
-    assert torch.allclose(batched[0], alone[0], atol=1e-5), (
-        f"{spec.name} predictions depend on batch composition"
-    )
+    assert torch.allclose(
+        batched[0], alone[0], atol=1e-5
+    ), f"{spec.name} predictions depend on batch composition"
 
 
 @pytest.mark.parametrize("spec", SPECS, ids=IDS)
@@ -136,9 +136,9 @@ def test_checkpoint_round_trip_preserves_predictions(spec: ModelSpec) -> None:
     restored.eval()
 
     with torch.no_grad():
-        assert torch.allclose(original(*inputs), restored(*inputs), atol=1e-6), (
-            f"{spec.name} predictions changed across a state_dict round trip"
-        )
+        assert torch.allclose(
+            original(*inputs), restored(*inputs), atol=1e-6
+        ), f"{spec.name} predictions changed across a state_dict round trip"
 
 
 @pytest.mark.parametrize("spec", SPECS, ids=IDS)
@@ -182,4 +182,6 @@ def test_model_can_reduce_loss_on_a_tiny_task(spec: ModelSpec) -> None:
             first = loss.item()
         last = loss.item()
 
-    assert last < first, f"{spec.name} loss did not decrease ({first:.4f} -> {last:.4f})"
+    assert (
+        last < first
+    ), f"{spec.name} loss did not decrease ({first:.4f} -> {last:.4f})"

@@ -1,9 +1,6 @@
 """Tests for time-domain feature utilities."""
 
-from pathlib import Path
-
 import numpy as np
-
 
 from wifi_activity_recognition.features import (  # type: ignore  # noqa: E402
     compute_rms,
@@ -23,4 +20,3 @@ def test_zero_crossing_rate() -> None:
     signal = np.array([[1, -1, 1, -1]])
     zcr = zero_crossing_rate(signal, axis=1)
     assert np.isclose(zcr, 0.75)
-

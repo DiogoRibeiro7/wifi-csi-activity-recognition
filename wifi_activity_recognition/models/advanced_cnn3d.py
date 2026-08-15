@@ -6,6 +6,7 @@ mechanisms. It exposes both PyTorch and TensorFlow implementations and
 uses adaptive pooling to handle variable input sizes produced by
 heterogeneous WiFi hardware.
 """
+
 from __future__ import annotations
 
 from typing import Tuple

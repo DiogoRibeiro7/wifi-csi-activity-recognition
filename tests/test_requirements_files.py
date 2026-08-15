@@ -65,6 +65,6 @@ def test_requirement_names_are_installable(filename: str) -> None:
         if not all(char.isalnum() or char in "._-" for char in name):
             offenders.append(f"{filename}:{number}: {name!r}")
 
-    assert not offenders, (
-        "these names contain characters PyPI does not permit:\n" + "\n".join(offenders)
-    )
+    assert (
+        not offenders
+    ), "these names contain characters PyPI does not permit:\n" + "\n".join(offenders)

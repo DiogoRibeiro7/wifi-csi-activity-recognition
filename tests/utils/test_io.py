@@ -1,9 +1,6 @@
 """Tests for I/O utilities."""
 
-from pathlib import Path
-
 import numpy as np
-
 
 from wifi_activity_recognition.hardware.base import (  # type: ignore  # noqa: E402
     CSIData,
@@ -115,4 +112,3 @@ def test_csidata_hdf5_roundtrip(tmp_path):
     loaded = load_csi_from_hdf5(path)
     assert isinstance(loaded, list)
     assert np.allclose(loaded[0].phase, csi.phase)
-

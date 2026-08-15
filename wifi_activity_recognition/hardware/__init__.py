@@ -1,5 +1,4 @@
-"""
-Provide a hardware abstraction layer for WiFi CSI devices.
+"""Provide a hardware abstraction layer for WiFi CSI devices.
 
 This module provides a unified interface for working with different WiFi hardware
 platforms that support Channel State Information (CSI) extraction.
@@ -141,8 +140,7 @@ def CSIReader(hardware_type: str, config: dict = None) -> CSIReaderBase:
 
 
 def list_supported_hardware():
-    """
-    Get list of currently supported hardware platforms.
+    """Get list of currently supported hardware platforms.
 
     Returns:
         List of supported hardware type strings
@@ -151,8 +149,7 @@ def list_supported_hardware():
 
 
 def get_hardware_info(hardware_type: str) -> dict:
-    """
-    Get information about specific hardware platform.
+    """Get information about specific hardware platform.
 
     Args:
         hardware_type: Type of hardware to get info for

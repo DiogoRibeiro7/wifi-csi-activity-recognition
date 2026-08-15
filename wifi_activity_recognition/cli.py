@@ -5,7 +5,6 @@ running inference, and streaming real-time data.
 """
 
 import logging
-import os
 from pathlib import Path
 from typing import Optional
 
@@ -487,8 +486,8 @@ def predict(
 ):
     """Run activity prediction on CSI data."""
     try:
-        from .inference import ActivityRecognizer
         from .hardware.base import CSIData
+        from .inference import ActivityRecognizer
         from .models import load_model
         from .utils.io import load_csi_data, save_predictions
 

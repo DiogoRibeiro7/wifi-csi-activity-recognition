@@ -10,12 +10,12 @@ wifi_activity_recognition/
 ├── pyproject.toml
 ├── .gitignore
 ├── .pre-commit-config.yaml
-├── 
+├──
 ├── wifi_activity_recognition/           # Main package
 │   ├── __init__.py
 │   ├── version.py
 │   ├── cli.py                          # Command line interface
-│   ├── 
+│   ├──
 │   ├── hardware/                       # Hardware abstraction layer
 │   │   ├── __init__.py
 │   │   ├── base.py                     # Base CSI reader interface
@@ -234,4 +234,3 @@ This structure provides a solid foundation that's:
 - **Documented**: Clear documentation structure
 - **Deployable**: Ready for various deployment scenarios
 - **Professional**: Follows Python packaging best practices
-

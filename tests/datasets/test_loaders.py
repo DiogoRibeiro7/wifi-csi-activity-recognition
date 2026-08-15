@@ -5,7 +5,6 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-
 from wifi_activity_recognition.datasets import (  # type: ignore  # noqa: E402
     load_dataset,
     split_dataset,
@@ -44,4 +43,3 @@ def test_invalid_split_ratios():
     labels = np.zeros(10)
     with pytest.raises(ValueError):
         split_dataset(data, labels, val_ratio=0.6, test_ratio=0.5)
-

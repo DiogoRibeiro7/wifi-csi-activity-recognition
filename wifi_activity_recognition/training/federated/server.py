@@ -108,8 +108,9 @@ class FederatedServer:
         self,
         rounds: int,
         epochs: int,
-        eval_fn: Callable[[nn.Module, Sequence["FederatedClient"]], Dict[str, float]]
-        | None = None,
+        eval_fn: (
+            Callable[[nn.Module, Sequence["FederatedClient"]], Dict[str, float]] | None
+        ) = None,
     ) -> List[Dict[str, float]]:
         """Run multiple federated rounds and collect evaluation metrics."""
         history: List[Dict[str, float]] = []

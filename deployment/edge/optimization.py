@@ -6,6 +6,7 @@ hardware. Functions return optimized models or paths to converted
 artifacts and avoid external dependencies so they can execute during
 unit tests.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass

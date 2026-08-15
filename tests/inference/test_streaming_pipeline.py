@@ -3,7 +3,6 @@
 # isort: skip_file
 import time
 from collections import deque
-from pathlib import Path
 
 import numpy as np
 import pytest
@@ -178,4 +177,3 @@ def test_buffer_overflow_records_drop(csi_packet: CSIData) -> None:
     time.sleep(0.2)
     pipeline.stop()
     assert pipeline.monitor.dropped > 0
-

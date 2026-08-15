@@ -1,9 +1,6 @@
-from pathlib import Path
-
 import pytest
 import torch
 from torch import nn
-
 
 from wifi_activity_recognition.models.cnn2d import (  # type: ignore  # noqa: E402
     CNN2DModel,
@@ -63,4 +60,3 @@ def test_cnn2d_tf_training_step_decreases_loss() -> None:
     optimizer.apply_gradients(zip(grads, model.trainable_variables))
     loss2 = loss_fn(y, model(x, training=False))
     assert loss2.numpy() <= loss1.numpy()
-
