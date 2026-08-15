@@ -21,7 +21,6 @@ from click.testing import CliRunner
 
 from wifi_activity_recognition.cli import cli
 
-
 # Deliberately small: these assert the pipeline works, not that it reaches a
 # particular score. The signal is strong enough that 3 epochs clears chance
 # comfortably, and the suite stays fast.
@@ -87,9 +86,7 @@ def test_the_demo_task_is_actually_learnable(tmp_path: Path) -> None:
     # this asserts the experience a user actually gets from `wifi-har-quickstart`
     # with no arguments. The shorter runs elsewhere are for structure only.
     runner = CliRunner()
-    result = runner.invoke(
-        cli, ["quickstart", "--output-dir", str(tmp_path / "demo")]
-    )
+    result = runner.invoke(cli, ["quickstart", "--output-dir", str(tmp_path / "demo")])
     assert result.exit_code == 0, result.output
 
     accuracy_line = next(
