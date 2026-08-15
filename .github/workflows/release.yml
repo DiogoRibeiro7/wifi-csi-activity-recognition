@@ -15,8 +15,8 @@ jobs:
     name: Build and verify distributions
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.11"
 
@@ -118,7 +118,7 @@ jobs:
           /tmp/clean/bin/wifi-har-predict --help > /dev/null
           /tmp/clean/bin/wifi-har-stream --help > /dev/null
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: dist
           path: dist/
@@ -143,7 +143,7 @@ jobs:
       id-token: write
 
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: dist
           path: dist/
