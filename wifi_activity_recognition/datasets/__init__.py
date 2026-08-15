@@ -30,7 +30,7 @@ class Dataset:
     def __post_init__(self) -> None:
         """Compute class labels and input shape."""
         train_labels = self.train[1]
-        self.classes = sorted(set(int(l) for l in train_labels.tolist()))
+        self.classes = sorted(set(int(label) for label in train_labels.tolist()))
         self.input_shape = tuple(self.train[0][0].shape)
 
     def __len__(self) -> int:  # pragma: no cover - trivial

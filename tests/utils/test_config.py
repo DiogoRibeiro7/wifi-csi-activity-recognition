@@ -1,10 +1,7 @@
 """Tests for configuration utilities."""
 
-from pathlib import Path
-
 import pytest
 import yaml
-
 
 from wifi_activity_recognition.utils.config import (  # type: ignore  # noqa: E402
     get_default_config,
@@ -50,4 +47,3 @@ def test_env_expansion_and_merge(tmp_path, monkeypatch):
     base = {"db": {"host": "localhost"}}
     merged = merge_configs(base, {"db": {"port": 9090}})
     assert merged["db"] == {"host": "localhost", "port": 9090}
-

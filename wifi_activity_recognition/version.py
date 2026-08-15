@@ -30,5 +30,5 @@ def get_version_info():
         "major": VERSION_MAJOR,
         "minor": VERSION_MINOR,
         "patch": VERSION_PATCH,
-        "suffix": VERSION_SUFFIX
+        "suffix": VERSION_SUFFIX,
     }

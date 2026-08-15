@@ -1,5 +1,5 @@
-import os
-import sys
+"""Sphinx configuration for the project documentation."""
+
 from datetime import datetime
 
 project = "WiFi Activity Recognition"

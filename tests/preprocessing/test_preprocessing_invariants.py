@@ -169,9 +169,9 @@ def test_smoothing_reduces_error_against_the_clean_signal(filter_name: str) -> N
         filtered = kalman_filter(packets, process_variance=1e-3)
 
     result = _series_of(filtered)
-    assert ((result - clean) ** 2).mean() < ((noisy - clean) ** 2).mean(), (
-        f"{filter_name} did not reduce error against the clean signal"
-    )
+    assert ((result - clean) ** 2).mean() < (
+        (noisy - clean) ** 2
+    ).mean(), f"{filter_name} did not reduce error against the clean signal"
 
 
 def test_moving_average_preserves_the_mean_of_a_constant() -> None:
@@ -264,9 +264,9 @@ def test_outlier_removal_marks_an_extreme_value_and_spares_the_rest() -> None:
 
     assert np.isnan(cleaned[100]), "the injected spike was not flagged"
     untouched = np.delete(np.arange(200), 100)
-    assert np.allclose(cleaned[untouched], data[untouched]), (
-        "outlier removal altered samples that were not outliers"
-    )
+    assert np.allclose(
+        cleaned[untouched], data[untouched]
+    ), "outlier removal altered samples that were not outliers"
 
 
 def test_outlier_detection_is_not_dragged_off_by_the_outlier_itself() -> None:

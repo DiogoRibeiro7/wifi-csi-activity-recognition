@@ -1,4 +1,5 @@
 """Lightweight inference runtime for edge devices."""
+
 from __future__ import annotations
 
 from pathlib import Path

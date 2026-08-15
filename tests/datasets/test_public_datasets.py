@@ -4,7 +4,6 @@ from pathlib import Path
 
 import numpy as np
 
-
 from wifi_activity_recognition.datasets import (  # type: ignore  # noqa: E402
     load_signfi,
     load_widar3,
@@ -39,4 +38,3 @@ def test_load_signfi(tmp_path: Path):
     assert len(train) == 9
     assert len(val) == 3
     assert len(test) == 3
-

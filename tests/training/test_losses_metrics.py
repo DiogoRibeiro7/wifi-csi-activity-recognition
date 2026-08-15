@@ -1,9 +1,6 @@
 """Tests for loss and metric utilities."""
 
-from pathlib import Path
-
 import torch
-
 
 from wifi_activity_recognition.training import (  # type: ignore  # noqa: E402
     classification_metrics,
@@ -35,4 +32,3 @@ def test_classification_metrics():
         assert 0.0 <= metrics[key] <= 1.0
     assert metrics["per_class_accuracy"] == [0.5, 0.5]
     assert metrics["confusion_matrix"] == [[1, 1], [1, 1]]
-

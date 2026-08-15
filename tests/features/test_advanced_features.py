@@ -1,9 +1,6 @@
 """Tests for advanced feature extraction."""
 
-from pathlib import Path
-
 import numpy as np
-
 
 from wifi_activity_recognition.features import (  # type: ignore  # noqa: E402
     sample_entropy,
@@ -53,4 +50,3 @@ def test_sample_entropy_constant() -> None:
     csi = _make_csi(amp)
     ent = sample_entropy(csi, m=2, r=0.2)
     assert np.all(ent < 1e-6)
-

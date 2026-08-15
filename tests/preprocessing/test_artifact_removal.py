@@ -1,9 +1,6 @@
 """Tests for artifact removal utilities."""
 
-from pathlib import Path
-
 import numpy as np
-
 
 from wifi_activity_recognition.hardware.base import (  # type: ignore  # noqa: E402
     CSIData,
@@ -57,4 +54,3 @@ def test_remove_motion_artifacts_constant_series() -> None:
     csi = _make_csi(amp)
     cleaned = remove_motion_artifacts(csi, threshold=2.0)
     assert np.allclose(cleaned.amplitude, amp)
-

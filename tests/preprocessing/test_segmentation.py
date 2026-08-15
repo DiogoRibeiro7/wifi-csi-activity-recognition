@@ -1,9 +1,6 @@
 """Tests for segmentation utilities."""
 
-from pathlib import Path
-
 import numpy as np
-
 
 from wifi_activity_recognition.hardware.base import (  # type: ignore  # noqa: E402
     CSIData,
@@ -45,4 +42,3 @@ def test_segment_windows_invalid() -> None:
     except ValueError:
         return
     raise AssertionError("expected ValueError")
-

@@ -111,9 +111,9 @@ def test_packet_construction_scales_linearly_with_subcarriers() -> None:
         return [_packet(subcarriers) for _ in range(20)]
 
     ratio = _scaling_ratio(work, base_size=64)
-    assert ratio < SUPERLINEAR_BUDGET, (
-        f"packet construction grew {ratio:.1f}x for {GROWTH_FACTOR}x the data"
-    )
+    assert (
+        ratio < SUPERLINEAR_BUDGET
+    ), f"packet construction grew {ratio:.1f}x for {GROWTH_FACTOR}x the data"
 
 
 # ---------------------------------------------------------------------------
@@ -134,9 +134,9 @@ def test_streaming_memory_scales_with_the_stream_not_faster() -> None:
     )
 
     ratio = large / max(small, 1)
-    assert ratio < SUPERLINEAR_BUDGET, (
-        f"peak memory grew {ratio:.1f}x for a {GROWTH_FACTOR}x longer stream"
-    )
+    assert (
+        ratio < SUPERLINEAR_BUDGET
+    ), f"peak memory grew {ratio:.1f}x for a {GROWTH_FACTOR}x longer stream"
 
 
 @pytest.mark.regression

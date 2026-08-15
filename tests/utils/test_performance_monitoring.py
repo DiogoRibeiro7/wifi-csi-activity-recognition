@@ -1,7 +1,5 @@
 """Tests for performance monitoring utilities."""
 
-from pathlib import Path
-
 from wifi_activity_recognition.utils import (  # type: ignore  # noqa: E402
     PerformanceMonitor,
 )
@@ -22,5 +20,3 @@ def test_performance_monitor_records_and_resets() -> None:
     assert mon.latencies == []
     assert mon.processed == 0
     assert mon.dropped == 0
-
-

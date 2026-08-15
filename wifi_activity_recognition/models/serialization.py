@@ -199,15 +199,23 @@ def load_model(
         path: Checkpoint path to load.
         map_location: Device mapping passed to ``torch.load``.
         model_name: Explicit model name used when loading a legacy raw state dict.
-        model_kwargs: Constructor kwargs used with ``model_name`` for legacy state dicts.
+        model_kwargs: Constructor kwargs used with ``model_name`` for legacy
+            state dicts.
 
     Returns:
         Reconstructed PyTorch model in evaluation mode.
 
     Raises:
-        ValueError: If the checkpoint does not include enough metadata to rebuild the model.
+        ValueError: If the checkpoint does not include enough metadata to
+            rebuild the model.
     """
-    obj = torch.load(path, map_location=map_location, weights_only=False)
+    # nosec B614 - weights_only=False is required to read the legacy pickled
+    # artifact format, which stores whole model objects rather than a state
+    # dict. It executes arbitrary code from the checkpoint, so a model file
+    # must be trusted. Making the structured state_dict + model_spec format the
+    # only safe default, with this path moved behind an explicitly named unsafe
+    # loader, is tracked separately.
+    obj = torch.load(path, map_location=map_location, weights_only=False)  # nosec B614
 
     if isinstance(obj, nn.Module):
         obj.eval()
@@ -221,7 +229,10 @@ def load_model(
         model.eval()
         return model
 
-    if isinstance(obj, dict) and obj.get("artifact_type") == PICKLED_MODEL_ARTIFACT_TYPE:
+    if (
+        isinstance(obj, dict)
+        and obj.get("artifact_type") == PICKLED_MODEL_ARTIFACT_TYPE
+    ):
         model = obj["model"]
         model.eval()
         return model

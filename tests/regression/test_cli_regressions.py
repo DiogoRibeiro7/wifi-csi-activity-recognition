@@ -41,13 +41,13 @@ def _packet() -> CSIData:
     )
 
 
-def test_predict_rejects_array_payloads_regression(
-    monkeypatch, tmp_path: Path
-) -> None:
+def test_predict_rejects_array_payloads_regression(monkeypatch, tmp_path: Path) -> None:
     """Predict must reject ndarray payloads instead of pretending they are packets."""
     fake_inference = types.ModuleType("wifi_activity_recognition.inference")
     fake_inference.ActivityRecognizer = _DummyRecognizer
-    monkeypatch.setitem(sys.modules, "wifi_activity_recognition.inference", fake_inference)
+    monkeypatch.setitem(
+        sys.modules, "wifi_activity_recognition.inference", fake_inference
+    )
 
     fake_models = types.ModuleType("wifi_activity_recognition.models")
     fake_models.load_model = lambda _path: object()
@@ -82,6 +82,7 @@ def test_predict_rejects_array_payloads_regression(
 
 def test_collect_uses_one_stream_session_regression(tmp_path: Path) -> None:
     """Collect must not recreate the stream iterator for every packet."""
+
     class DummyReader:
         def __init__(self) -> None:
             self.stream_calls = 0

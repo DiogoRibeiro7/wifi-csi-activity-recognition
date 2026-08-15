@@ -1,9 +1,6 @@
 """Tests for information theoretic features."""
 
-from pathlib import Path
-
 import numpy as np
-
 
 from wifi_activity_recognition.features import (  # type: ignore  # noqa: E402
     mutual_information,
@@ -45,4 +42,3 @@ def test_mutual_information_independent() -> None:
     mi_same = mutual_information(csi1, _make_csi(amp1))
     mi_ind = mutual_information(csi1, _make_csi(np.random.randn(1, 1, 32)))
     assert mi_ind < mi_same
-

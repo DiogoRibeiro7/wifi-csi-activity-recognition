@@ -1,9 +1,6 @@
 """Tests for dataset augmentation transforms."""
 
-from pathlib import Path
-
 import numpy as np
-
 
 from wifi_activity_recognition.datasets import (  # type: ignore  # noqa: E402
     add_noise,
@@ -32,4 +29,3 @@ def test_time_shift_axis():
     data = np.arange(6).reshape(2, 3)
     shifted = time_shift(data, 1, axis=1)
     assert np.array_equal(shifted[0], np.roll(data[0], 1))
-

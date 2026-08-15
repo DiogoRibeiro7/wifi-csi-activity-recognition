@@ -3,13 +3,11 @@
 from __future__ import annotations
 
 import copy
-from pathlib import Path
 from typing import Dict
 
 import numpy as np
 import torch
 from torch import nn
-
 
 from wifi_activity_recognition.datasets import Dataset  # type: ignore  # noqa: E402
 from wifi_activity_recognition.training import (  # type: ignore  # noqa: E402
@@ -115,4 +113,3 @@ def test_simulation_returns_metrics():
     history = run_simulation(server, rounds=2, epochs=1, eval_fn=eval_fn)
     assert len(history) == 2
     assert set(history[0].keys()) == {"home", "office"}
-

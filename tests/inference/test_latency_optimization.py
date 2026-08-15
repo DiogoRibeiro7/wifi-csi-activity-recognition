@@ -1,9 +1,6 @@
 """Tests for latency optimization utilities."""
 
-from pathlib import Path
-
 import torch
-
 
 from wifi_activity_recognition.inference import (  # type: ignore  # noqa: E402
     dynamic_batch,
@@ -26,4 +23,3 @@ def test_dynamic_batch() -> None:
     items = [1, 2, 3, 4, 5]
     batches = list(dynamic_batch(items, 2))
     assert batches == [[1, 2], [3, 4], [5]]
-

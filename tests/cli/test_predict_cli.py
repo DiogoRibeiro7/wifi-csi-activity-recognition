@@ -45,7 +45,9 @@ def test_predict_command_uses_loaded_csi_packets(monkeypatch, tmp_path: Path) ->
     """The predict command should work with serialized CSIData packets."""
     fake_inference = types.ModuleType("wifi_activity_recognition.inference")
     fake_inference.ActivityRecognizer = _DummyRecognizer
-    monkeypatch.setitem(sys.modules, "wifi_activity_recognition.inference", fake_inference)
+    monkeypatch.setitem(
+        sys.modules, "wifi_activity_recognition.inference", fake_inference
+    )
     fake_models = types.ModuleType("wifi_activity_recognition.models")
     fake_models.load_model = lambda _path: object()
     monkeypatch.setitem(sys.modules, "wifi_activity_recognition.models", fake_models)
@@ -100,7 +102,9 @@ def test_predict_command_rejects_non_csidata_inputs(
     """The predict command should fail clearly on array-only input files."""
     fake_inference = types.ModuleType("wifi_activity_recognition.inference")
     fake_inference.ActivityRecognizer = _DummyRecognizer
-    monkeypatch.setitem(sys.modules, "wifi_activity_recognition.inference", fake_inference)
+    monkeypatch.setitem(
+        sys.modules, "wifi_activity_recognition.inference", fake_inference
+    )
     fake_models = types.ModuleType("wifi_activity_recognition.models")
     fake_models.load_model = lambda _path: object()
     monkeypatch.setitem(sys.modules, "wifi_activity_recognition.models", fake_models)

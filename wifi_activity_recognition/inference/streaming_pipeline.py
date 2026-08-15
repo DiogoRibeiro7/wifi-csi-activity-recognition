@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import threading
 import time
 from collections import Counter, deque
@@ -11,6 +12,8 @@ from ..hardware.base import CSIData, CSIReaderBase
 from ..utils.performance_monitoring import PerformanceMonitor
 from .buffer_management import CircularBuffer
 from .predictor import ActivityRecognizer
+
+logger = logging.getLogger(__name__)
 
 
 class StreamingPipeline:
@@ -48,8 +51,8 @@ class StreamingPipeline:
         self.reader.connect()
         try:  # pragma: no cover - hardware may not support
             self.reader.start_streaming()
-        except Exception:
-            pass
+        except Exception:  # noqa: BLE001 - reader may not implement this
+            logger.debug("reader operation not supported", exc_info=True)
         self._acq_thread.start()
         self._infer_thread.start()
 
@@ -60,12 +63,12 @@ class StreamingPipeline:
         self._infer_thread.join(timeout=1)
         try:  # pragma: no cover
             self.reader.stop_streaming()
-        except Exception:
-            pass
+        except Exception:  # noqa: BLE001 - reader may not implement this
+            logger.debug("reader operation not supported", exc_info=True)
         try:  # pragma: no cover
             self.reader.disconnect()
-        except Exception:
-            pass
+        except Exception:  # noqa: BLE001 - reader may not implement this
+            logger.debug("reader operation not supported", exc_info=True)
 
     # ------------------------------------------------------------------
     def _acquire_loop(self) -> None:
@@ -132,8 +135,8 @@ class StreamingPipeline:
         self.reader.connect()
         try:  # pragma: no cover - optional
             self.reader.start_streaming()
-        except Exception:
-            pass
+        except Exception:  # noqa: BLE001 - reader may not implement this
+            logger.debug("reader operation not supported", exc_info=True)
         for _ in range(packets):
             try:
                 pkt = self.reader.read_packet()
@@ -145,10 +148,10 @@ class StreamingPipeline:
             results.append(self._process_packet(pkt))
         try:  # pragma: no cover
             self.reader.stop_streaming()
-        except Exception:
-            pass
+        except Exception:  # noqa: BLE001 - reader may not implement this
+            logger.debug("reader operation not supported", exc_info=True)
         try:  # pragma: no cover
             self.reader.disconnect()
-        except Exception:
-            pass
+        except Exception:  # noqa: BLE001 - reader may not implement this
+            logger.debug("reader operation not supported", exc_info=True)
         return results

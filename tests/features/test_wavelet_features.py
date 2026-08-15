@@ -1,9 +1,6 @@
 """Tests for wavelet feature extraction."""
 
-from pathlib import Path
-
 import numpy as np
-
 
 from wifi_activity_recognition.features import (  # type: ignore  # noqa: E402
     cwt_coefficients,
@@ -53,4 +50,3 @@ def test_scale_energy() -> None:
     scales = [1, 2]
     energy = scale_energy(csi, scales)
     assert energy.shape == (1, 1, len(scales))
-

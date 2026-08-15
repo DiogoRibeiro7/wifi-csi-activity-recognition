@@ -1,9 +1,6 @@
 """Tests for frequency-domain feature utilities."""
 
-from pathlib import Path
-
 import numpy as np
-
 
 from wifi_activity_recognition.features import (  # type: ignore  # noqa: E402
     compute_fft,
@@ -23,4 +20,3 @@ def test_power_spectrum_non_negative() -> None:
     signal = np.random.randn(2, 8)
     ps = power_spectrum(signal, axis=1)
     assert np.all(ps >= 0)
-

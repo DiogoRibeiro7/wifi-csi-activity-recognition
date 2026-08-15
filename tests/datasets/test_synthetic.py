@@ -1,9 +1,6 @@
 """Tests for synthetic CSI data generation."""
 
-from pathlib import Path
-
 import numpy as np
-
 
 from wifi_activity_recognition.datasets import (  # type: ignore  # noqa: E402
     generate_synthetic_csi,
@@ -28,4 +25,3 @@ def test_generate_synthetic_csi_dtype():
     """Generator respects requested output dtype."""
     data, _ = generate_synthetic_csi(4, 4, dtype=np.float64)
     assert data.dtype == np.float64
-

@@ -160,7 +160,9 @@ def kalman_filter(
 ) -> Union[CSIData, list[CSIData]]:
     """Filter with a scalar Kalman filter, along time or within a packet."""
     if process_variance < 0:
-        raise ValueError(f"process_variance must be non-negative, got {process_variance}")
+        raise ValueError(
+            f"process_variance must be non-negative, got {process_variance}"
+        )
     if measurement_variance <= 0:
         raise ValueError(
             f"measurement_variance must be positive, got {measurement_variance}"

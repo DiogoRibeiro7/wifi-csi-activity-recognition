@@ -94,9 +94,9 @@ def test_positional_encoding_differs_between_positions() -> None:
 
     for i in range(table.size(0)):
         for j in range(i + 1, table.size(0)):
-            assert not torch.allclose(table[i], table[j], atol=1e-6), (
-                f"positions {i} and {j} share an encoding"
-            )
+            assert not torch.allclose(
+                table[i], table[j], atol=1e-6
+            ), f"positions {i} and {j} share an encoding"
 
 
 @pytest.mark.parametrize("d_model", [7, 15, 31, 64])

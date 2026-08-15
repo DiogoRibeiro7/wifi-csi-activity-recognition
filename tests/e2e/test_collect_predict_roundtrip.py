@@ -93,7 +93,9 @@ def test_collect_then_predict_roundtrip(monkeypatch, tmp_path: Path) -> None:
 
     fake_inference = types.ModuleType("wifi_activity_recognition.inference")
     fake_inference.ActivityRecognizer = _RoundTripRecognizer
-    monkeypatch.setitem(sys.modules, "wifi_activity_recognition.inference", fake_inference)
+    monkeypatch.setitem(
+        sys.modules, "wifi_activity_recognition.inference", fake_inference
+    )
 
     fake_models = types.ModuleType("wifi_activity_recognition.models")
     fake_models.load_model = lambda _path: object()

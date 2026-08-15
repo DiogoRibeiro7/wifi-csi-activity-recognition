@@ -1,9 +1,6 @@
 """Tests for graph-based features."""
 
-from pathlib import Path
-
 import numpy as np
-
 
 from wifi_activity_recognition.features import (  # type: ignore  # noqa: E402
     build_correlation_graph,
@@ -51,4 +48,3 @@ def test_community_structure() -> None:
     G = build_correlation_graph(csi, threshold=0.0)
     comms = community_structure(G)
     assert len(comms) == 1
-

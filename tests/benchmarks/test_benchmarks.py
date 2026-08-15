@@ -10,7 +10,6 @@ import numpy as np
 import torch
 from torch import nn
 
-
 from benchmarks.accuracy_benchmark import run_accuracy_benchmark  # noqa: E402
 from benchmarks.latency_benchmark import measure_latency  # noqa: E402
 from benchmarks.memory_benchmark import (  # noqa: E402
@@ -195,4 +194,3 @@ def test_generate_performance_report(tmp_path: Path) -> None:
     assert path.exists()
     assert "accuracy" in report and "latency_ms" in report and "memory_bytes" in report
     assert isinstance(report["memory_bytes"], dict)
-

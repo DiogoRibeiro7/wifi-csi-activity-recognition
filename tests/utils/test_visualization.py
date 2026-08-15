@@ -1,7 +1,5 @@
 """Tests for visualization utilities."""
 
-from pathlib import Path
-
 import matplotlib
 import numpy as np
 
@@ -27,4 +25,3 @@ def test_plot_activity_timeline_returns_axes():
     labels = ["a", "b", "b", "a"]
     ax = viz.plot_activity_timeline(times, labels)
     assert ax.lines
-

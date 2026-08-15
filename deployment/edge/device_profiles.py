@@ -1,4 +1,5 @@
 """Device specific optimization profiles for edge deployment."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

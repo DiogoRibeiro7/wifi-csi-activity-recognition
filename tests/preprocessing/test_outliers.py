@@ -1,7 +1,4 @@
-from pathlib import Path
-
 import numpy as np
-
 
 from wifi_activity_recognition.preprocessing import (  # type: ignore  # noqa: E402
     detect_outliers_zscore,
@@ -20,4 +17,3 @@ def test_remove_outliers_zscore():
     cleaned = remove_outliers_zscore(data, threshold=3)
     assert np.isnan(cleaned[-1])
     assert cleaned[0] == 1.0
-

@@ -1,11 +1,8 @@
 """Tests for research utilities."""
 
-from pathlib import Path
-
 import numpy as np
 import torch
 from torch import nn
-
 
 from wifi_activity_recognition.research import (  # type: ignore  # noqa: E402
     DomainAdapter,
@@ -92,4 +89,3 @@ def test_maml_learner_adaptation():
     query = [(make_csi(2.0), 0), (make_csi(-1.0), 1)]
     acc = learner.adapt(support, query)
     assert acc > 0.5
-

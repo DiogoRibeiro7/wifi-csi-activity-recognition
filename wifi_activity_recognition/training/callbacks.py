@@ -87,7 +87,10 @@ class ModelCheckpoint(Callback):
             save_model_artifact(
                 trainer.model,
                 self.filepath,
-                metadata={"checkpoint_monitor": self.monitor, "checkpoint_value": current},
+                metadata={
+                    "checkpoint_monitor": self.monitor,
+                    "checkpoint_value": current,
+                },
             )
 
 
