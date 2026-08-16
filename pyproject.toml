@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "wifi-activity-recognition"
-version = "0.1.0"
+version = "0.2.0"
 description = "A comprehensive Python package for human activity recognition using WiFi CSI and computer vision"
 readme = "README.md"
 license = {text = "MIT"}
