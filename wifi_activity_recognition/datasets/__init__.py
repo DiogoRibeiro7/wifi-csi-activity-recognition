@@ -6,7 +6,12 @@ from typing import Callable, Dict, List, Tuple
 
 import numpy as np
 
-from .loaders import load_dataset, split_dataset
+from .loaders import (
+    leave_one_group_out,
+    load_dataset,
+    split_dataset,
+    split_dataset_by_groups,
+)
 from .public_datasets import load_signfi, load_widar3
 from .synthetic import generate_synthetic_csi
 from .transforms import add_noise, time_shift
@@ -95,8 +100,10 @@ __all__ = [
     "add_noise",
     "time_shift",
     "generate_synthetic_csi",
+    "leave_one_group_out",
     "load_dataset",
     "split_dataset",
+    "split_dataset_by_groups",
     "load_public_dataset",
     "load_widar3",
     "load_signfi",
