@@ -36,45 +36,39 @@ See [docs/installation.md](docs/installation.md) for environment and hardware no
 
 ## Quickstart
 
-Create a small synthetic dataset:
+One command runs a complete train, evaluate and predict cycle in about ten
+seconds. No hardware, no downloads:
 
 ```bash
-python - <<'PY'
-import numpy as np
-
-rng = np.random.default_rng(42)
-data = rng.random((24, 1, 8, 8), dtype=np.float32)
-labels = rng.integers(0, 2, size=24, dtype=np.int64)
-
-np.save("demo_data.npy", data)
-np.save("demo_labels.npy", labels)
-PY
+wifi-har-quickstart
 ```
 
-Train a model:
+```text
+[1/5] Generating synthetic CSI...
+      240 samples of shape (1, 8, 32) -> quickstart_demo
+[2/5] Loading as a Dataset...
+      144 train samples, 3 classes [0, 1, 2]
+[3/5] Training cnn2d for 8 epochs...
+[4/5] Evaluating on the held-out split...
+      accuracy=1.000  f1=1.000
+      saved model artifact -> quickstart_demo/demo_model.pt
+[5/5] Predicting with the reloaded model...
+      predicted class 0, actual 0
+```
+
+The synthetic task is genuinely learnable -- each class is a different sine
+frequency across subcarriers -- so a high score means your install works end to
+end, not that the numbers were faked.
+
+It leaves `demo_data.npy`, `demo_labels.npy` and `demo_model.pt` behind, which
+every other command accepts:
 
 ```bash
-python -m wifi_activity_recognition.cli train \
-  --data demo_data.npy \
-  --labels demo_labels.npy \
-  --model cnn2d \
-  --hardware esp32 \
-  --epochs 1 \
-  --batch-size 4 \
-  --output demo_model.pt
+wifi-har-train   --data quickstart_demo/demo_data.npy   --labels quickstart_demo/demo_labels.npy   --model cnn2d   --hardware esp32   --epochs 8   --batch-size 16   --output my_model.pt
 ```
 
-Evaluate it:
-
-```bash
-python -m wifi_activity_recognition.cli evaluate \
-  --model demo_model.pt \
-  --data demo_data.npy \
-  --labels demo_labels.npy \
-  --hardware esp32
-```
-
-See [docs/quickstart.md](docs/quickstart.md) for a slightly fuller walkthrough.
+See [docs/quickstart.md](docs/quickstart.md) for the full walkthrough and how to
+move to your own captures.
 
 ## Python API
 

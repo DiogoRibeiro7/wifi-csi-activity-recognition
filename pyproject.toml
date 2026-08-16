@@ -92,6 +92,7 @@ Repository = "https://github.com/diogoribeiro7/wifi-csi-activity-recognition.git
 Changelog = "https://github.com/diogoribeiro7/wifi-csi-activity-recognition/blob/main/CHANGELOG.md"
 
 [project.scripts]
+wifi-har-quickstart = "wifi_activity_recognition.cli:quickstart"
 wifi-har-train = "wifi_activity_recognition.cli:train"
 wifi-har-predict = "wifi_activity_recognition.cli:predict"
 wifi-har-stream = "wifi_activity_recognition.cli:stream"
