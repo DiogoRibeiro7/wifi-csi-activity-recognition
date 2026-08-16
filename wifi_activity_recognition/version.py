@@ -1,10 +1,16 @@
-"""Version information for wifi-activity-recognition package."""
+"""Version information for wifi-activity-recognition package.
 
-__version__ = "0.1.0"
+The numeric components below are the single source of truth. ``__version__``
+is derived from them.
 
-# Version components
+This module previously also assigned ``__version__`` as a literal at the top
+and then overwrote it here, so editing that literal -- the obvious place --
+had no effect at all.
+"""
+
+# Version components: edit these.
 VERSION_MAJOR = 0
-VERSION_MINOR = 1
+VERSION_MINOR = 2
 VERSION_PATCH = 0
 VERSION_SUFFIX = ""  # e.g., "alpha", "beta", "rc1"
 

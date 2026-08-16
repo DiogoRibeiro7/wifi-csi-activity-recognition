@@ -1,398 +1,193 @@
-# WiFi Activity Recognition - Project Roadmap
+# WiFi Activity Recognition — Project Roadmap
 
-This roadmap outlines the planned development phases for the WiFi Activity Recognition package. The project is structured in phases to ensure stable, incremental progress while building toward comprehensive hardware support and advanced features.
+This roadmap records what is built, what is next, and what is deliberately not
+being worked on yet.
+
+It was previously a plan written before the code existed, describing the
+project as a planning-phase alpha targeting Q3 2025 with Phase 1 items
+unchecked — while most of Phase 1 and Phase 2 had shipped. This version
+describes the repository as it is.
 
 ## 🎯 Project Vision
 
-Create the most comprehensive, user-friendly, and performant WiFi sensing package for activity recognition, supporting diverse hardware platforms and enabling both researchers and practitioners to deploy robust WiFi-based sensing solutions.
+A comprehensive, correct and honestly-documented WiFi sensing package for
+activity recognition, usable by researchers who need results that survive peer
+review and by practitioners who need software that installs and runs.
 
-## 🚧 Current Status: Planning Phase
+## 📍 Current status
 
-**Version**: 0.1.0-alpha
-**Focus**: Core architecture design and initial implementation
-**Target Release**: Q3 2025
+**Version**: 0.2.0
+**Published**: [PyPI](https://pypi.org/project/wifi-activity-recognition/) ·
+[Zenodo DOI](https://doi.org/10.5281/zenodo.21935219)
+**CI**: twelve jobs, green on Python 3.10–3.12
+**Tests**: 350+, coverage 83%
 
---------------------------------------------------------------------------------
-
-## 📅 Development Phases
-
-### Phase 1: Foundation (Q3 2025) - v0.1.0
-
-**🎯 Objective**: Establish core architecture with support for primary hardware platforms
-
-#### Core Infrastructure
-
-- [ ] **Hardware Abstraction Layer**
-
-  - [ ] Base CSI reader interface
-  - [ ] Standardized CSI data format
-  - [ ] Hardware profile configuration system
-  - [ ] Plugin architecture for hardware drivers
-
-#### Hardware Support (Tier 1)
-
-- [ ] **Intel 5300 NIC Driver**
-
-  - [ ] Raw CSI data parsing (.dat files)
-  - [ ] Real-time streaming interface
-  - [ ] Phase calibration algorithms
-  - [ ] Multi-antenna support
-
-- [ ] **ESP32 CSI Integration**
-
-  - [ ] Serial communication interface
-  - [ ] Firmware compatibility layer
-  - [ ] Real-time data streaming
-  - [ ] Configuration management
-
-#### Data Processing Pipeline
-
-- [ ] **Preprocessing Module**
-
-  - [ ] Noise filtering (moving average, Kalman)
-  - [ ] Outlier detection and removal
-  - [ ] Phase unwrapping algorithms
-  - [ ] Amplitude normalization
-
-- [ ] **Feature Extraction**
-
-  - [ ] Time-domain features (statistical moments)
-  - [ ] Frequency-domain transforms (FFT, PSD)
-  - [ ] Spectrogram generation
-  - [ ] Doppler-time image creation
-
-#### Basic Models
-
-- [ ] **CNN2D Implementation**
-
-  - [ ] ResNet-based architecture for spectrograms
-  - [ ] EfficientNet variant for mobile deployment
-  - [ ] Transfer learning capabilities
-
-- [ ] **Training Pipeline**
-
-  - [ ] Data loading and augmentation
-  - [ ] Cross-validation framework
-  - [ ] Model evaluation metrics
-
-#### Testing & Documentation
-
-- [ ] Unit tests for core components
-- [ ] Integration tests with synthetic data
-- [ ] API documentation (Sphinx)
-- [ ] Hardware setup guides
-- [ ] Basic usage examples
-
-**Deliverables**:
-
-- Working package installable via pip
-- Support for Intel 5300 and ESP32
-- Basic activity recognition models
-- Comprehensive documentation
+The emphasis has shifted from adding features to making the existing surface
+demonstrably correct. 0.2.0 was largely that work.
 
 --------------------------------------------------------------------------------
 
-### Phase 2: Expansion (Q4 2025) - v0.2.0
+## ✅ Shipped
 
-**🎯 Objective**: Add more hardware support and advanced features
+### Core infrastructure
 
-#### Hardware Support (Tier 2)
+- [x] Base CSI reader interface and driver registry
+- [x] Standardized `CSIData` format
+- [x] Hardware profile configuration
+- [x] Plugin architecture for drivers
+- [x] Packaging that produces a complete, installable wheel
+- [x] CI that builds the wheel, installs it clean and runs the console scripts
 
-- [ ] **Atheros AR9300 Support**
+### Hardware
 
-  - [ ] Driver integration
-  - [ ] CSI format standardization
-  - [ ] Performance optimization
+- [x] Intel 5300 driver, with file replay
+- [x] ESP32 driver with real binary parsing and firmware detection
+- [x] Atheros AR9300 driver
+- [x] Qualcomm driver (network, no mock mode)
+- [x] Headless mock capture for Intel 5300, ESP32 and Atheros
+- [x] Real-device verification procedure and script
+- [ ] Broadcom — no driver; listed in `PLANNED_HARDWARE`
+- [ ] MediaTek — no driver; listed in `PLANNED_HARDWARE`
 
-- [ ] **Qualcomm Platform Integration**
+### Models
 
-  - [ ] Android CSI extraction
-  - [ ] Custom firmware interfaces
-  - [ ] Mobile device compatibility
+- [x] CNN2D, ResNet spectrogram
+- [x] CNN3D and attention CNN3D
+- [x] Vision Transformer
+- [x] Ensemble
+- [x] Transformer with sinusoidal positional encoding
+- [x] Behaviour-level correctness tests across every registered family
+- [x] Representation adapters so every registered model is usable for inference
+- [ ] Multi-head attention across antennas
 
-#### Advanced Models
+### Preprocessing and features
 
-- [ ] **3D CNN Architecture**
+- [x] Filtering, normalization, calibration, outlier and artifact removal
+- [x] Segmentation, multipath analysis
+- [x] Time, frequency, spectrogram, wavelet, Doppler, fractal, graph and
+      information-theoretic features
+- [x] Temporal filtering along a real time axis, over packet sequences
+- [x] Reference-signal and invariant validation for preprocessing
 
-  - [ ] Spatio-temporal feature learning
-  - [ ] Multi-antenna correlation modeling
-  - [ ] Temporal attention mechanisms
+### Evaluation
 
-- [ ] **Transformer-based Models**
+- [x] Group-aware splitting (`split_dataset_by_groups`)
+- [x] Leave-one-subject / session / environment-out (`leave_one_group_out`)
+- [x] Grouped cross-validation via `StratifiedGroupKFold`
+- [x] Documented evaluation protocol and reporting expectations
 
-  - [x] Self-attention for temporal patterns
-  - [ ] Multi-head attention across antennas
-  - [x] Positional encoding for CSI sequences
+### Deployment and tooling
 
-#### Enhanced Features
-
-- [ ] **Advanced Preprocessing**
-
-  - [ ] Adaptive noise filtering
-  - [ ] Multi-path component analysis
-  - [ ] Environmental adaptation algorithms
-
-- [ ] **Data Augmentation**
-
-  - [ ] Synthetic CSI generation
-  - [ ] Time-frequency domain augmentation
-  - [ ] Cross-environment adaptation
-
-#### Real-time Processing
-
-- [ ] **Streaming Pipeline**
-
-  - [ ] Low-latency inference (<100ms)
-  - [ ] Sliding window processing
-  - [ ] Activity transition smoothing
-
-- [ ] **Edge Deployment**
-
-  - [ ] Model quantization and pruning
-  - [ ] ONNX export support
-  - [ ] Raspberry Pi optimization
-
-**Deliverables**:
-
-- Extended hardware compatibility
-- Advanced model architectures
-- Real-time processing capabilities
-- Performance benchmarks
+- [x] Docker images that build and run, verified in CI
+- [x] Edge optimization: quantization, pruning, ONNX export
+- [x] Kubernetes manifest (example, not a verified path)
+- [x] Benchmarks for accuracy, latency and memory
+- [x] Enforced performance regression policy
+- [x] `wifi-har-quickstart` — full cycle in ~10s, no hardware
+- [x] Blocking lint and format gate
+- [x] Dependabot version updates
 
 --------------------------------------------------------------------------------
 
-### Phase 3: Production Ready (Q1 2026) - v1.0.0
+## 🎯 Next: correctness foundations
 
-**🎯 Objective**: Enterprise-grade stability and comprehensive platform support
+Ordered by value. These are the items the project keeps working around.
 
-#### Hardware Support (Complete)
+### 1. `CSISequence` — a first-class temporal type
 
-- [ ] **Broadcom Integration**
+`CSIData` is a single packet with axes `(rx, tx, subcarrier)`. None is time.
+Three separate pieces of work have now had to route around that: temporal
+filters take packet lists, group metadata travels beside the arrays because
+`Dataset` cannot hold it, and the inference adapters rebuild a time axis from a
+list on every call.
 
-  - [ ] Router firmware modifications
-  - [ ] OpenWrt compatibility
-  - [ ] Commercial device support
+- [ ] `CSISequence` with explicit time, timestamps and sampling frequency
+- [ ] Subject, session, environment and device metadata on the sequence
+- [ ] Antenna and subcarrier metadata
+- [ ] Migrate preprocessing, features, datasets and inference onto it
 
-- [ ] **MediaTek Platform**
+### 2. Real dataset adapters
 
-  - [ ] Emerging chipset support
-  - [ ] WiFi 6/6E compatibility
-  - [ ] High-bandwidth CSI processing
+- [ ] Parse the Widar3 native format rather than delegating to the NumPy loader
+- [ ] Parse SignFi `.mat` files
+- [ ] Surface the subject and environment identifiers those datasets record, so
+      group-aware evaluation works on public data
 
-- [ ] **Generic Driver Interface**
+Without this, LOSO is a capability the package has but cannot yet apply to any
+established benchmark.
 
-  - [ ] Plugin system for custom hardware
-  - [ ] Community contribution framework
-  - [ ] Automated hardware detection
+### 3. Reproducible benchmark protocol
 
-#### Production Features
+- [ ] Subject-independent and environment-independent baselines
+- [ ] Macro-F1, balanced accuracy, confusion matrices, confidence intervals
+- [ ] Per-fold results rather than means alone
+- [ ] Published reference numbers with the protocol that produced them
 
-- [ ] **Robust Training Pipeline**
+### 4. Research modules on learned representations
 
-  - [ ] Distributed training support
-  - [ ] Hyperparameter optimization
-  - [ ] Model versioning and management
-  - [ ] Continuous learning capabilities
+`DomainAdapter.adapt_to_target` reduces each packet to a mean amplitude and
+ignores its `method` argument; the few-shot layer does something similar.
 
-- [ ] **Deployment Tools**
+- [ ] CORAL, MMD and DANN over learned CSI embeddings
+- [ ] Few-shot learning on real representations
+- [ ] Keep the namespace marked experimental until it does
 
-  - [ ] Docker containers
-  - [ ] Kubernetes deployment configs
-  - [ ] Cloud inference APIs
-  - [ ] Edge device optimization
+### 5. Type safety
 
-#### Quality Assurance
-
-- [ ] **Comprehensive Testing**
-
-  - [ ] Hardware-in-the-loop testing
-  - [ ] Performance regression tests
-  - [ ] Cross-platform validation
-  - [ ] Stress testing framework
-
-- [ ] **Security & Privacy**
-
-  - [ ] Data encryption in transit
-  - [ ] Privacy-preserving inference
-  - [ ] Secure model deployment
-  - [ ] GDPR compliance features
-
-#### Ecosystem Integration
-
-- [ ] **Third-party Integrations**
-
-  - [ ] Home Assistant plugin
-  - [ ] OpenHAB compatibility
-  - [ ] IoT platform connectors
-  - [ ] Cloud service integrations
-
-**Deliverables**:
-
-- Production-ready v1.0.0 release
-- Complete hardware platform support
-- Enterprise deployment guides
-- Security and privacy certifications
+- [ ] Clear the 245 mypy errors tracked in `docs/lint_status.md`
+- [ ] Make the type-check job blocking
 
 --------------------------------------------------------------------------------
 
-### Phase 4: Advanced Applications (Q2-Q3 2026) - v1.1.0+
+## 🔭 Later
 
-**🎯 Objective**: Cutting-edge research features and specialized applications
-
-#### Advanced Research Features
-
-- [ ] **Multi-modal Sensing**
-
-  - [ ] WiFi + camera fusion
-  - [ ] WiFi + IMU integration
-  - [ ] Sensor fusion architectures
-
-- [ ] **Federated Learning**
-
-  - [ ] Privacy-preserving model training
-  - [ ] Cross-device learning
-  - [ ] Personalized activity models
-
-- [ ] **Domain Adaptation**
-
-  - [ ] Unsupervised domain transfer
-  - [ ] Few-shot learning for new environments
-  - [ ] Meta-learning approaches
-
-#### Specialized Applications
-
-- [ ] **Healthcare Applications**
-
-  - [ ] Fall detection for elderly care
-  - [ ] Sleep monitoring
-  - [ ] Rehabilitation progress tracking
-  - [ ] Medical device integration
-
-- [ ] **Smart Building Integration**
-
-  - [ ] HVAC optimization
-  - [ ] Energy management
-  - [ ] Security and access control
-  - [ ] Space utilization analytics
-
-- [ ] **Automotive Applications**
-
-  - [ ] In-vehicle activity recognition
-  - [ ] Driver behavior monitoring
-  - [ ] Passenger safety systems
-
-#### Research Collaboration
-
-- [ ] **Academic Partnerships**
-
-  - [ ] Research collaboration framework
-  - [ ] Dataset sharing protocols
-  - [ ] Benchmark standardization
-
-- [ ] **Open Science Initiative**
-
-  - [ ] Reproducible research tools
-  - [ ] Standardized evaluation metrics
-  - [ ] Community challenges and competitions
+- [ ] Multi-modal fusion validated end to end
+- [ ] Federated learning beyond simulation
+- [ ] An HTTP service interface, which would make the Kubernetes path real
+- [ ] ARM image builds and Raspberry Pi verification
+- [ ] TensorFlow parity, or removal of the unreachable TF variants
 
 --------------------------------------------------------------------------------
 
-## 🛠️ Technical Priorities
+## 🛠️ Standards
 
-### Performance Targets
+### Performance
 
-- **Accuracy**: >95% on standard benchmarks
-- **Latency**: <50ms end-to-end inference
-- **Memory Usage**: <256MB for edge deployment
-- **Power Efficiency**: <500mW average power consumption
+Enforced by `tests/benchmarks/test_performance_regression.py` using
+complexity, memory and relative checks rather than wall-clock thresholds, which
+are unreliable on shared runners. See `docs/performance_policy.md`.
 
-### Code Quality Standards
+### Quality
 
-- **Test Coverage**: >90% code coverage
-- **Documentation**: Complete API documentation with examples
-- **Type Safety**: Full type hints for all public APIs
-- **Performance**: Automated benchmarking and regression testing
-
-### Community Building
-
-- **Contributor Guidelines**: Clear contribution process
-- **Code Reviews**: Comprehensive peer review process
-- **Issue Tracking**: Responsive issue management
-- **Community Support**: Active discussion forums and help channels
+| Standard | Status |
+|---|---|
+| Lint and format | enforced, blocking |
+| Test coverage | 83% |
+| Type hints on public APIs | partial — 245 mypy errors outstanding |
+| Performance regression | enforced |
+| Wheel installability | verified in CI |
+| Container build and run | verified in CI |
+| Real-device verification | procedure documented, no runs recorded |
 
 --------------------------------------------------------------------------------
 
-## 🤝 Contribution Opportunities
+## 🤝 Contributing
 
-### For Researchers
+Highest-value contributions right now:
 
-- Hardware driver development
-- Novel model architectures
-- Dataset contribution and validation
-- Performance benchmarking
+- **Hardware owners**: run `scripts/verify_device.py` and record the result in
+  `docs/hardware_verification.md`. No platform has a recorded run, so every
+  hardware claim currently rests on mock coverage.
+- **Researchers**: dataset adapters for Widar3 and SignFi, and baseline numbers
+  under a subject-independent protocol.
+- **Anyone**: the mypy backlog in `docs/lint_status.md` is ordered
+  cheapest-first and is a good way in.
 
-### For Industry Partners
-
-- Production deployment feedback
-- Hardware platform sponsorship
-- Use case development and testing
-- Performance optimization
-
-### For Students
-
-- Documentation improvement
-- Tutorial and example development
-- Bug fixes and testing
-- Feature implementation
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 --------------------------------------------------------------------------------
 
-## 📊 Success Metrics
+## 🔄 Keeping this current
 
-### Technical Metrics
-
-- Number of supported hardware platforms
-- Model accuracy on standard benchmarks
-- Inference latency and throughput
-- Package download and usage statistics
-
-### Community Metrics
-
-- Number of active contributors
-- GitHub stars and forks
-- Community forum engagement
-- Academic paper citations
-
-### Impact Metrics
-
-- Real-world deployment cases
-- Industry adoption rate
-- Research collaborations initiated
-- Educational institution usage
-
---------------------------------------------------------------------------------
-
-## 🔄 Review and Updates
-
-This roadmap will be reviewed and updated quarterly based on:
-
-- Community feedback and feature requests
-- Technology landscape changes
-- Hardware platform availability
-- Research breakthrough integration
-
-**Last Updated**: August 2025<br>
-**Next Review**: November 2025
-
---------------------------------------------------------------------------------
-
-## 📞 Feedback and Suggestions
-
-We welcome feedback on this roadmap! Please share your thoughts through:
-
-- GitHub Discussions for feature requests
-- GitHub Issues for bug reports and technical concerns
-- Email for partnership and collaboration opportunities
-- Community forums for general discussion
-
-Together, we'll build the definitive WiFi sensing package for activity recognition!
+This file is updated at each release. If it describes work that is already done,
+or claims support that does not exist, that is a bug — please open an issue.

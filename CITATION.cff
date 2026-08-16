@@ -9,5 +9,5 @@ authors:
     affiliation: ESMAD - Instituto Politécnico do Porto
     orcid: https://orcid.org/0009-0001-2022-7072
 repository-code: https://github.com/diogoribeiro7/wifi-csi-activity-recognition
-version: "0.1.0"
-date-released: 2026-08-14
+version: "0.2.0"
+date-released: 2026-08-16
