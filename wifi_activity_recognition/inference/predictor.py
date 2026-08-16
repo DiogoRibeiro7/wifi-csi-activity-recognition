@@ -5,12 +5,12 @@ from __future__ import annotations
 from pathlib import Path
 from typing import List, Optional, Sequence, Tuple, Union
 
-import numpy as np
 import torch
 from torch import nn
 
 from ..hardware.base import CSIData
 from ..models import load_model
+from .adapters import RepresentationAdapter, adapter_for_model
 
 
 class ActivityRecognizer:
@@ -31,12 +31,21 @@ class ActivityRecognizer:
         model: Union[str, Path, nn.Module],
         class_names: Optional[Sequence[str]] = None,
         device: Optional[str] = None,
+        adapter: Optional[RepresentationAdapter] = None,
     ) -> None:
-        """Initialize the recognizer with a model or model path."""
+        """Initialize the recognizer with a model or model path.
+
+        ``adapter`` converts CSI packets into the layout this model expects.
+        Left unset it is inferred from the model class, so 3-D CNNs, the
+        Transformer and the ensemble work without the caller doing anything;
+        previously every model was handed a CNN2D-shaped tensor and four of the
+        seven registered architectures raised on the first forward pass.
+        """
         if isinstance(model, (str, Path)):
             self.model = load_model(model, map_location="cpu")
         else:
             self.model = model
+        self.adapter = adapter or adapter_for_model(self.model)
         self.device = torch.device(
             device or ("cuda" if torch.cuda.is_available() else "cpu")
         )
@@ -52,21 +61,25 @@ class ActivityRecognizer:
         self.class_names: List[str] = list(class_names)
 
     def _to_tensor(self, csi_data: CSIData) -> torch.Tensor:
-        """Convert :class:`CSIData` into model input tensor."""
-        amp = np.transpose(csi_data.amplitude, (2, 0, 1))
-        amp = amp.reshape(csi_data.n_subcarriers, csi_data.n_rx * csi_data.n_tx)
-        if amp.shape[1] < 8:
-            reps = int(np.ceil(8 / amp.shape[1]))
-            amp = np.tile(amp, (1, reps))[:, :8]
-        tensor = torch.tensor(amp, dtype=torch.float32)
-        tensor = tensor.unsqueeze(0).unsqueeze(0)  # (1, 1, H, W)
-        return tensor.to(self.device)
+        """Convert a single packet into this model's input tensor.
+
+        Retained for callers that used it directly. It returns the first tensor
+        only, so it cannot express the ensemble's two inputs; use
+        :meth:`predict` for that.
+        """
+        return self.adapter(csi_data)[0].to(self.device)
 
     @torch.no_grad()
-    def predict(self, csi_data: CSIData) -> Tuple[str, float]:
-        """Predict activity from a single CSI packet."""
-        x = self._to_tensor(csi_data)
-        logits = self.model(x)[0]
+    def predict(self, csi_data: Union[CSIData, Sequence[CSIData]]) -> Tuple[str, float]:
+        """Predict an activity from one CSI packet or a sequence of them.
+
+        Sequence input is what the 3-D and Transformer representations need:
+        a single packet has no time axis to build a volume from. The adapter
+        raises with the packet count when the capture is too short, rather than
+        letting torch fail on a shape deep inside the model.
+        """
+        tensors = tuple(tensor.to(self.device) for tensor in self.adapter(csi_data))
+        logits = self.model(*tensors)[0]
         probs = torch.softmax(logits, dim=0)
         conf, idx = torch.max(probs, dim=0)
         label = self.class_names[int(idx)] if self.class_names else str(int(idx))
