@@ -76,16 +76,26 @@ class ESP32Reader(CSIReaderBase):
     # Connection Management
     # ------------------------------------------------------------------
     def connect(self) -> bool:  # type: ignore[override]
-        """Establish a serial connection to the ESP32 device."""
+        """Establish a connection to the ESP32 device.
+
+        In ``mock`` mode no serial port is opened. Previously this method
+        opened one regardless of mode, so the mock driver failed on any machine
+        without an ESP32 attached -- defeating its purpose and leaving no
+        driver that runs headless, in CI or in a container.
+        """
+        if self.mode == "mock":
+            self._serial = None
+            self._is_connected = True
+            return True
+
         try:
             self._serial = serial.Serial(
                 self.serial_port, self.baud_rate, timeout=self.config.timeout
             )
             self._is_connected = True
-            if self.mode == "real":
-                if not self._detect_firmware_version():
-                    self.disconnect()
-                    return False
+            if not self._detect_firmware_version():
+                self.disconnect()
+                return False
         except (serial.SerialException, OSError):
             self._serial = None
             self._is_connected = False
@@ -130,15 +140,13 @@ class ESP32Reader(CSIReaderBase):
             them into :class:`CSIData` instances. Packet parsing handles
             endianness, firmware differences and retry logic for robustness.
         """
-        if not (self._is_connected and self._is_streaming and self._serial):
+        if not (self._is_connected and self._is_streaming):
             return None
 
         if self.mode == "mock":
-            try:
-                _ = self._serial.readline()
-            except (serial.SerialException, OSError):
-                return None
-
+            # No serial read: mock mode must produce packets with no device
+            # attached. A reader that is only exercised behind a mocked serial
+            # port cannot be used to run the pipeline headless.
             if not self.state.calibrated:
                 self.calibrate()
 
