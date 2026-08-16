@@ -6,11 +6,11 @@ import copy
 import typing as t
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, Sequence
 
 import numpy as np
 import torch
-from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import StratifiedGroupKFold, StratifiedKFold
 from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
 
@@ -255,12 +255,55 @@ class Trainer:
         return dict(self.metrics)
 
     # ------------------------------------------------------------------
-    def cross_validate(self, folds: int = 5, epochs: int = 1) -> Dict[str, Any]:
-        """Perform stratified k-fold cross-validation and return averaged metrics."""
+    def cross_validate(
+        self,
+        folds: int = 5,
+        epochs: int = 1,
+        groups: Optional[Sequence[Any]] = None,
+    ) -> Dict[str, Any]:
+        """Run k-fold cross-validation and return averaged metrics.
+
+        Parameters
+        ----------
+        folds:
+            Number of folds.
+        epochs:
+            Training epochs per fold.
+        groups:
+            Optional group identifier per training sample -- subject, session,
+            environment or device. When given, ``StratifiedGroupKFold`` keeps
+            every sample from a group inside one fold, so the score measures
+            generalisation to unseen groups.
+
+            Without it, plain ``StratifiedKFold`` scatters windows from the
+            same recording across folds. For WiFi sensing that is usually
+            optimistic: the model can score well by recognising the room or the
+            person rather than the activity.
+        """
         X, y = self.dataset.train
-        skf = StratifiedKFold(n_splits=folds, shuffle=True, random_state=42)
+
+        splitter: Any
+        if groups is not None:
+            groups = np.asarray(groups)
+            if len(groups) != len(y):
+                raise ValueError(
+                    f"groups has length {len(groups)} but the training split "
+                    f"has {len(y)} samples"
+                )
+            distinct = len(np.unique(groups))
+            if distinct < folds:
+                raise ValueError(
+                    f"cannot build {folds} group-disjoint folds from "
+                    f"{distinct} distinct groups"
+                )
+            splitter = StratifiedGroupKFold(n_splits=folds)
+            split_iter = splitter.split(X, y, groups=groups)
+        else:
+            splitter = StratifiedKFold(n_splits=folds, shuffle=True, random_state=42)
+            split_iter = splitter.split(X, y)
+
         fold_metrics: List[Dict[str, Any]] = []
-        for train_idx, val_idx in skf.split(X, y):
+        for train_idx, val_idx in split_iter:
             train_split = (X[train_idx], y[train_idx])
             val_split = (X[val_idx], y[val_idx])
             fold_dataset = self.dataset.__class__(
