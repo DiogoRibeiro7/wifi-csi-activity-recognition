@@ -28,7 +28,7 @@ ipykernel>=7.3.0
 ipywidgets>=7.6.0
 
 # Development utilities
-bump2version>=1.0.0  # Version bumping
+bump2version>=1.0.1  # Version bumping
 twine>=3.4.0  # Package uploading
 wheel>=0.36.0  # Package building
 
