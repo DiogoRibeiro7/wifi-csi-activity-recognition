@@ -42,5 +42,5 @@ tensorboard>=2.5.0  # Experiment tracking
 wandb>=0.28.1  # Experiment management (optional)
 
 # Code analysis
-bandit>=1.7.0  # Security analysis
+bandit>=1.9.4  # Security analysis
 safety>=1.10.0  # Dependency vulnerability scanning
